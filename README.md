@@ -171,7 +171,7 @@ Measured on an Apple Silicon Mac (macOS 26.5, 22 updates across 4 sources):
 
 | Metric | Result |
 | --- | --- |
-| Full scan (in-process) | 0.8–1.3 s |
+| Full scan (in-process) | 0.8–1.3 s warm; up to ~5 s when feeds are cold |
 | App bundle / zip | 6.8 MB / 2.6 MB (universal) |
 | CLI binary | 3.9 MB (universal) |
 | CLI cached list (process startup included) | ≈0.7 s |

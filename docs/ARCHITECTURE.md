@@ -136,7 +136,7 @@ After a successful batch, the app rescans; the CLI does not, so scripts can deci
   `/releases/latest` redirect, not the API.
 - App icons are downsampled once to 128 pt and cached with `NSCache`.
 - No background polling or login agent unless the user enables "Open at login".
-- Universal app bundle ≈6.8 MB, zip ≈2.6 MB, CLI ≈3.9 MB; cold full scan ≈0.8–1.3 s.
+- Universal app bundle ≈6.8 MB, zip ≈2.6 MB, CLI ≈3.9 MB; warm scan ≈0.8–1.3 s, cold/network-bound scans up to ~5 s.
 
 ## Tradeoffs
 
