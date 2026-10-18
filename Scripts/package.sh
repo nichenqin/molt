@@ -10,20 +10,42 @@ APP="$DIST/Molt.app"
 
 echo "Building Molt $VERSION ($ARCHS)"
 if [ "$ARCHS" = "universal" ]; then
-  swift build -c "$CONFIG" --product molt --arch arm64 --arch x86_64
-  swift build -c "$CONFIG" --product MoltApp --arch arm64 --arch x86_64
-  BUILD_DIR=".build/apple/Products/Release"
+  # Build each slice with SwiftPM, then lipo. SwiftPM's `--arch` shortcut goes
+  # through Xcode's package build and has had SWIFT_VERSION bugs on some runners.
+  for arch in arm64 x86_64; do
+    swift build -c "$CONFIG" --product molt --triple "$arch-apple-macosx14.0"
+    swift build -c "$CONFIG" --product MoltApp --triple "$arch-apple-macosx14.0"
+  done
+  BUILD_DIR=".build/arm64-apple-macosx/$CONFIG"
+  mkdir -p "$DIST"
+  lipo -create \
+    ".build/arm64-apple-macosx/$CONFIG/molt" \
+    ".build/x86_64-apple-macosx/$CONFIG/molt" \
+    -output "$DIST/molt"
+  lipo -create \
+    ".build/arm64-apple-macosx/$CONFIG/MoltApp" \
+    ".build/x86_64-apple-macosx/$CONFIG/MoltApp" \
+    -output "$DIST/MoltApp-universal"
+  APP_BINARY="$DIST/MoltApp-universal"
+  CLI_BINARY="$DIST/molt"
 else
   swift build -c "$CONFIG" --product molt --arch "$ARCHS"
   swift build -c "$CONFIG" --product MoltApp --arch "$ARCHS"
   BUILD_DIR=".build/$ARCHS-apple-macosx/$CONFIG"
+  APP_BINARY="$BUILD_DIR/MoltApp"
+  CLI_BINARY="$BUILD_DIR/molt"
 fi
 
-rm -rf "$APP" "$DIST/molt" "$DIST/Molt-macos.zip" "$DIST/Molt-macos.zip.sha256"
+rm -rf "$APP" "$DIST/Molt-macos.zip" "$DIST/Molt-macos.zip.sha256"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$DIST"
 
-cp "$BUILD_DIR/MoltApp" "$APP/Contents/MacOS/Molt"
-cp "$BUILD_DIR/molt" "$DIST/molt"
+cp "$APP_BINARY" "$APP/Contents/MacOS/Molt"
+if [ "$CLI_BINARY" != "$DIST/molt" ]; then
+  cp "$CLI_BINARY" "$DIST/molt"
+fi
+if [ "$ARCHS" = "universal" ]; then
+  rm -f "$DIST/MoltApp-universal"
+fi
 cp Resources/Info.plist "$APP/Contents/Info.plist"
  cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp -R "$BUILD_DIR/Molt_MoltApp.bundle" "$APP/Contents/Resources/"
