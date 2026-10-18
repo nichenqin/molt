@@ -28,10 +28,10 @@ uninstall:
 	@echo "Removed Molt.app and ~/.local/bin/molt"
 
 lint:
-	swift-format lint --recursive Sources Tests || true
+	xcrun swift-format lint --recursive Sources Tests
 
 format:
-	swift-format format --in-place --recursive Sources Tests
+	xcrun swift-format format --in-place --recursive Sources Tests
 
 smoke:
 	swift run -c release molt list --json > /tmp/molt-smoke.json
