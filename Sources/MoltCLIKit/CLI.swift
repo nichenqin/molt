@@ -83,7 +83,7 @@ public enum MoltCLI {
 
         print("")
         print(
-            palette.bold("molt \(MoltVersion.current)") + "  " + palette.dim(CLIFormat.relative(snapshot.generatedAt)))
+            palette.bold("molt \(MoltVersion.current)") + " · " + palette.dim(CLIFormat.relative(snapshot.generatedAt)))
         if filtered.items.isEmpty {
             print(palette.green("All up to date."))
         } else {
