@@ -1,0 +1,150 @@
+# Architecture
+
+## Shape
+
+Molt is one Swift package with four targets:
+
+| Target | Role | AppKit? |
+| --- | --- | --- |
+| `MoltCore` | models, detectors, cache, changelogs, upgrades | no |
+| `MoltCLIKit` | argument parsing, table/JSON output, commands | no |
+| `molt` | 12-line executable shim | no |
+| `MoltApp` | SwiftUI window, menu bar extra, settings | yes |
+
+Both surfaces share the same `Scanner`, `ChangelogService`, and `UpgradeService`. The CLI is not a wrapper
+around a bundled binary, and the app does not shell out to `molt`; they call the same async APIs in-process.
+That keeps behavior identical and makes every code path testable without a UI.
+
+The design follows magpie's most useful architectural choices: a single distributable, a CLI that exposes
+the full capability set, JSON as a first-class output, local-first state, and a thin presentation layer.
+Molt differs where a native utility benefits: SwiftUI/AppKit instead of a WebView, and no daemon.
+
+## Data flow
+
+```
+CommandRunning / HTTPGetting (protocols)
+        │
+        ├── HomebrewDetector ── brew outdated + formulae.brew.sh metadata
+        ├── NpmGlobalDetector ─ npm outdated + registry metadata
+        ├── PnpmGlobalDetector ─ pnpm list + registry
+        ├── BunGlobalDetector ─ global package.json + registry
+        ├── SparkleDetector ─── Info.plist SUFeedURL + appcasts
+        ├── MacAppStoreDetector ─ mas list/outdated
+        ├── CLIToolDetector ─── catalog + --version + latest tag
+        └── CustomToolDetector ─ config + same machinery
+                    │
+              DetectorOutput
+                    │
+     per-source timeout / partial failure
+                    │
+              merge + dedupe
+                    │
+             ScanSnapshot ──► DiskCache (atomic JSON)
+                    │
+          ┌─────────┴──────────┐
+       SwiftUI                CLI
+          │                    │
+   ChangelogService      JSON / table
+          │
+   GitHub Atom / appcast
+```
+
+## Invariants
+
+1. **A source failure never erases the others.** Detectors run concurrently. Each result is wrapped with
+   its own duration, message, and state. If a detector throws, the scanner carries that source's rows from
+   the previous snapshot and marks the report `stale`.
+2. **Plans are argv arrays, never shell strings.** `UpgradePlan.command(executable, arguments)` is executed
+   with `Process`, not `/bin/sh -c`. Package names and versions cannot inject shell syntax.
+3. **Only explicit sources can be mutated.** Detectors produce commands for the manager that owns the
+   package. Sparkle apps that are not cask-managed get an `openURL` plan; Molt never replaces an app bundle.
+4. **Everything network-bound is cached and bounded.** Appcasts 15 min, latest tags and release notes 6 h,
+   Homebrew metadata 7 days. Every source has a deadline. URLSession uses HTTP/2 and at most six
+   connections per host; detector fan-out is capped by `Concurrency.map`.
+5. **Stable IDs.** `brew:formula:<name>`, `brew:cask:<name>`, `npm:<pkg>`, `bun:<pkg>`, `app:<bundle-id>`,
+   `cli:<name>`, `mas:<id>`, `custom:<name>`. IDs survive scans, so selection and upgrade logs remain valid.
+6. **One row per install.** Sparkle rows for a cask-managed app are merged into the Homebrew cask row (the
+   cask row keeps the app icon and one-click plan). Custom tools win over a catalog entry for the same
+   executable path.
+7. **The cache is disposable.** Every file is JSON with a timestamp and is written atomically. Deleting the
+   cache only costs one fresh scan.
+
+## Detector contract
+
+```swift
+public protocol OutdatedSourceDetector: Sendable {
+    var source: SourceKind { get }
+    func scan(_ context: ScanContext) async throws -> DetectorOutput
+}
+```
+
+`DetectorOutput` can signal `skipped` (manager not installed) separately from an empty successful scan.
+`ScanContext` carries injected `CommandRunning`, `HTTPGetting`, an actor-isolated `DiskCache`, the resolved
+`EnvironmentInfo`, user config, and whether this is a forced refresh.
+
+`EnvironmentInfo` composes the PATH a login shell would have without sourcing startup files (important for
+GUI launches), finds absolute paths for brew/npm/pnpm/bun/mas, and indexes Caskroom to map a cask token to
+the `.app` it installed. That index is built by directory walking, not a subprocess.
+
+## Versioning
+
+`Version` is deliberately pragmatic:
+
+- leading `v`, build metadata `+abc`, and Sparkle/cask `,build` suffixes are ignored for comparison;
+- numeric components compare numerically (`1.10 > 1.9`, `2026.10 > 2026.9`);
+- `_revision` is a numeric component (`1.2.3_1 > 1.2.3`);
+- prereleases sort before their release (`1.0.0-beta < 1.0.0`);
+- trailing zero components are equal (`1.0 == 1.0.0`).
+
+No package manager's "is outdated" decision is second-guessed: brew and npm are authoritative. `Version` is
+used where Molt must decide (Sparkle appcasts, standalone tools, pnpm/Bun registry comparison).
+
+## Sparkle handling
+
+The app scanner reads `CFBundleShortVersionString`, `CFBundleVersion`, `SUFeedURL`, and `SUUpdateChannel`
+from each app's `Info.plist`. Appcasts are parsed with `XMLParser`:
+
+- namespace prefixes are retained by Foundation and normalized by the parser;
+- items on a channel are ignored unless the app opts into that exact channel;
+- `sparkle:minimumSystemVersion` is enforced against the host OS;
+- delta enclosures (`sparkle:deltaFrom` or `.delta`) are dropped; the full enclosure is the download link;
+- duplicate versions are collapsed, preferring the item with notes and a full enclosure.
+
+Sparkle's own EdDSA signatures are not verified because Molt does not install the payload; it opens the
+full download or hands the cask to Homebrew.
+
+## Changelogs
+
+GitHub releases are read from `https://github.com/<owner>/<repo>/releases.atom` rather than the REST API.
+That avoids token management and the 60-request hourly unauthenticated API limit, and embeds release-note
+HTML in each entry. The app renders notes as text (the AppKit HTML importer retained hundreds of MB across
+several releases); the full formatted page is one click away. Sparkle notes come from the appcast's
+`description` CDATA or `releaseNotesLink`.
+
+## Upgrade runner
+
+`StreamingProcessRunner` uses `Process` with stdout/stderr pipes and `readabilityHandler`s, while retaining
+the full transcript for result reporting. A timeout task terminates then SIGKILLs. Cancellation terminates
+the child. The app displays the live stream in a sheet; the CLI prints it or collects it under `--json`.
+After a successful batch, the app rescans; the CLI does not, so scripts can decide when to refresh.
+
+## Performance choices
+
+- Snapshot first, network second in the app.
+- One `brew outdated` call, one `npm outdated` call; metadata and registry calls are parallel.
+- `formulae.brew.sh` metadata is cached for a week; latest GitHub tags come from the lightweight
+  `/releases/latest` redirect, not the API.
+- App icons are downsampled once to 128 pt and cached with `NSCache`.
+- No background polling or login agent unless the user enables "Open at login".
+- Universal app bundle ≈6.5 MB, zip ≈2.5 MB, CLI ≈3.6 MB; cold full scan ≈0.8–1.1 s.
+
+## Tradeoffs
+
+- **Native Swift vs Go/WebView.** Native gives the smallest artifact and the fastest launch, at the cost of
+  reimplementing a UI for macOS only. This tool is macOS-only by definition.
+- **Curated standalone catalog vs scanning every binary.** Querying unknown binaries for a GitHub repo is
+  guesswork. The catalog covers common curl tools; `customTools` is the explicit escape hatch.
+- **Download-only for unmanaged apps.** Replacing an app bundle from arbitrary appcast payloads would
+  require signature verification and a privileged installer. Handing the full download to the user is
+  boring and safe.
+- **Text release notes.** Less pretty than rendered HTML, drastically lighter.

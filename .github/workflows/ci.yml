@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Swift version
+        run: swift --version
+      - name: Build
+        run: swift build -c release
+      - name: Test
+        run: swift test
+      - name: Package app
+        run: ARCHS=arm64 Scripts/package.sh
+      - name: Smoke test
+        run: |
+          dist/molt doctor --json
+          dist/molt list --cached --json || true
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: molt-arm64
+          path: |
+            dist/Molt-macos.zip
+            dist/molt-cli
