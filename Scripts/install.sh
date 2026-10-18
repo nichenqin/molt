@@ -13,8 +13,8 @@ say() { printf '%s\n' "$*"; }
 fail() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
 if [ "${1:-}" = "--uninstall" ]; then
-  rm -rf "/Applications/$APP_NAME" "$HOME/Applications/$APP_NAME"
-  rm -f "/usr/local/bin/$CLI_NAME" "$HOME/.local/bin/$CLI_NAME"
+  rm -rf "/Applications/$APP_NAME" "$HOME/Applications/$APP_NAME" 2>/dev/null || true
+  rm -f "/usr/local/bin/$CLI_NAME" "$HOME/.local/bin/$CLI_NAME" 2>/dev/null || true
   say "Removed Molt.app and the molt CLI."
   exit 0
 fi
