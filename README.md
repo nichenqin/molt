@@ -175,7 +175,7 @@ Measured on an Apple Silicon Mac (macOS 26.5, 22 updates across 4 sources):
 | App bundle / zip | 6.5 MB / 2.5 MB (universal) |
 | CLI binary | 3.6 MB (universal) |
 | CLI cached list (process startup included) | ≈0.7 s |
-| App RSS with 22 rows + 3 release notes | ≈140 MB |
+| App RSS with 22 rows + release notes | ≈100 MB |
 
 No polling, no daemon, no analytics. The menu bar item only refreshes when you open it, press Refresh, or
 when the main window becomes stale.
