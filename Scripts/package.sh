@@ -47,8 +47,20 @@ if [ "$ARCHS" = "universal" ]; then
   rm -f "$DIST/MoltApp-universal"
 fi
 cp Resources/Info.plist "$APP/Contents/Info.plist"
- cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
-cp -R "$BUILD_DIR/Molt_MoltApp.bundle" "$APP/Contents/Resources/"
+cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+RES_BUNDLE="$BUILD_DIR/Molt_MoltApp.bundle"
+if [ -d "$RES_BUNDLE/Contents/Resources" ]; then
+  RES_SRC="$RES_BUNDLE/Contents/Resources"
+else
+  RES_SRC="$RES_BUNDLE"
+fi
+for lproj in "$RES_SRC"/*.lproj; do
+  [ -d "$lproj" ] && cp -R "$lproj" "$APP/Contents/Resources/"
+done
+if [ ! -d "$APP/Contents/Resources/en.lproj" ]; then
+  echo "error: localization resources were not copied into the app bundle" >&2
+  exit 1
+fi
 # Local builds are ad-hoc signed. Set CODESIGN_ID for a Developer ID release.
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
 plutil -lint "$APP/Contents/Info.plist" >/dev/null

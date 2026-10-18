@@ -2,12 +2,21 @@ import Foundation
 import MoltCore
 
 enum L {
+    /// Prefer the app bundle's standard Contents/Resources localization. The
+    /// `.module` fallback keeps `swift run MoltApp` working during development.
+    private static let stringsBundle: Bundle = {
+        if Bundle.main.path(forResource: "Localizable", ofType: "strings") != nil {
+            return .main
+        }
+        return .module
+    }()
+
     static func t(_ key: String) -> String {
-        NSLocalizedString(key, bundle: .module, comment: "")
+        NSLocalizedString(key, bundle: stringsBundle, comment: "")
     }
 
     static func t(_ key: String, _ arguments: CVarArg...) -> String {
-        let format = NSLocalizedString(key, bundle: .module, comment: "")
+        let format = NSLocalizedString(key, bundle: stringsBundle, comment: "")
         return String(format: format, locale: Locale.current, arguments: arguments)
     }
 
