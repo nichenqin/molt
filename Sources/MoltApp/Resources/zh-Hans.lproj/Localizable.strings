@@ -48,7 +48,7 @@
 "upgrade.complete" = "已更新 %d 个 · 失败 %d 个";
 "upgrade.cancelled" = "已取消。";
 "upgrade.none" = "没有可自动更新的项目。";
-"footer.lastChecked" = "检查于 %@";
+"footer.lastChecked" = "检查于%@";
 "footer.failed" = "%d 个来源不可用";
 "menu.open" = "打开 Molt";
 "menu.quit" = "退出 Molt";
