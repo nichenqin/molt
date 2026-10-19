@@ -2,26 +2,26 @@
   "assets" : {
     "Remige-macos.dmg" : {
       "name" : "Remige-macos.dmg",
-      "sha256" : "07d53380dcc4330974f67cb62c9ba4bc706c9a73d83f2c67d1d41c50c6cca5c7",
-      "size" : 3311173,
+      "sha256" : "d51ff36990e7f2ea572dcd0a407cc42563fb65e9b1e16ffcc8a498d3d84ee6c4",
+      "size" : 3267758,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/Remige-macos.dmg"
     },
     "Remige-macos.zip" : {
       "name" : "Remige-macos.zip",
-      "sha256" : "0576319503aa095ade790d8b8106f3398ea06bb111432d877d5cd923693b9e4c",
-      "size" : 2888886,
+      "sha256" : "71175dbaf99d87d64838484137abbdfc78bd2a546ab0c30ad338b19fdb17df53",
+      "size" : 2852337,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/Remige-macos.zip"
     },
     "remige-cli" : {
       "name" : "remige-cli",
-      "sha256" : "71a8db1128606eaa533d8827900a759150aaa16d134e40d76617f3ea8c949803",
-      "size" : 4730888,
+      "sha256" : "35470a6b1125e104eb5783877d0be8f96982a67501f6e92a0294d43df58f7b75",
+      "size" : 4688728,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/remige-cli"
     }
   },
-  "notes" : "- Renamed the product from Molt to Remige after brand collisions with existing products. The app, CLI,\n  bundle identifier (`com.nichenqin.remige`), config/cache paths, website and Homebrew tap all use the\n  new name.\n\n- Detect Magpie updates through its bundle ID and official `yetone/magpie-releases` source, including\n  installations without Sparkle metadata or a CLI on PATH. Show versions and GitHub release notes under\n  Apps; unmanaged installations open the release page instead of replacing the running app.\n- Detect app updates from standard Electron Builder `app-update.yml` metadata (GitHub releases and\n  HTTPS generic manifests, including Apple Silicon variants), with `appUpdates` config overrides and a\n  separate bundle-id catalog. Unsupported apps are listed as unchecked in source details instead of\n  being guessed or silently dropped; cask-managed apps stay owned by Homebrew.\n- Expand the verified app catalog beyond Magpie to common macOS apps with official GitHub releases:\n  Clash Verge, v2rayN, Zed, Obsidian, Rectangle, Stats, Maccy, AltTab, UTM, Keka, LocalSend, Transmission,\n  Hammerspoon, BetterDisplay, and drawio. Entries require a stable bundle identifier, an official release\n  page, and a matching version sequence.\n- Close the menu bar panel when \"Open Remige\" or \"Update All\" opens the main window, instead of\n  leaving the panel covering the window it just opened.",
+  "notes" : "- Renamed the product from Molt to Remige after brand collisions with existing products. The app, CLI,\n  bundle identifier (`com.nichenqin.remige`), config/cache paths, website and Homebrew tap all use the\n  new name.\n\n- Detect Magpie updates through its bundle ID and official `yetone/magpie-releases` source, including\n  installations without Sparkle metadata or a CLI on PATH. Show versions and GitHub release notes under\n  Apps; unmanaged installations open the release page instead of replacing the running app.\n- Detect app updates from standard Electron Builder `app-update.yml` metadata (GitHub releases and\n  HTTPS generic manifests, including Apple Silicon variants), with `appUpdates` config overrides and a\n  separate bundle-id catalog. Unsupported apps are listed as unchecked in source details instead of\n  being guessed or silently dropped; cask-managed apps stay owned by Homebrew.\n- Expand the verified app catalog beyond Magpie to common macOS apps with official GitHub releases:\n  Clash Verge, v2rayN, Zed, Obsidian, Rectangle, Stats, Maccy, AltTab, UTM, Keka, LocalSend, Transmission,\n  Hammerspoon, BetterDisplay, and drawio. Entries require a stable bundle identifier, an official release\n  page, and a matching version sequence.\n- Close the menu bar panel when \"Open Remige\" or \"Update All\" opens the main window, instead of\n  leaving the panel covering the window it just opened.\n- Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled\n  actions stay flat.",
   "pageURL" : "https://github.com/nichenqin/remige/releases/tag/v0.3.0",
-  "published" : "2026-10-19T01:26:28Z",
+  "published" : "2026-10-19T01:30:48Z",
   "schema" : 1,
   "version" : "0.3.0"
 }
