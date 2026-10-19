@@ -405,20 +405,23 @@ private struct DetailPane: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        if let item = model.selectedItem {
-            DetailContent(item: item)
-                .id(item.id)
-        } else {
-            VStack(spacing: 10) {
-                Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.system(size: 36, weight: .light))
-                    .foregroundStyle(.tertiary)
-                Text(L.t("list.select"))
-                    .font(.system(size: 13))
-                    .foregroundStyle(.secondary)
+        Group {
+            if let item = model.selectedItem {
+                DetailContent(item: item)
+                    .id(item.id)
+            } else {
+                VStack(spacing: 10) {
+                    Image(systemName: "arrow.triangle.2.circlepath")
+                        .font(.system(size: 36, weight: .light))
+                        .foregroundStyle(.tertiary)
+                    Text(L.t("list.select"))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .background(AppTheme.detailBackground)
     }
 }
 
@@ -439,7 +442,6 @@ private struct DetailContent: View {
             .frame(maxWidth: 680, alignment: .leading)
             .frame(maxWidth: .infinity, alignment: .center)
         }
-        .background(AppTheme.detailBackground)
         .task(id: item.id) {
             await model.loadChangelog(for: item)
         }

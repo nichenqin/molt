@@ -21,8 +21,8 @@ enum AppTheme {
     static let quietFill = Color.primary.opacity(0.045)
     static let hoverFill = Color.primary.opacity(0.05)
     static let selectionFill = Color.accentColor.opacity(0.11)
-    static let detailBackground = Color(nsColor: .windowBackgroundColor)
-    static let cardBackground = Color(nsColor: .textBackgroundColor)
+    static let detailBackground = Color(nsColor: .textBackgroundColor)
+    static let cardBackground = quietFill
 }
 
 extension SourceKind {
@@ -218,7 +218,7 @@ struct FilterChip: View {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
                     .fill(
                         selected
-                            ? AppTheme.cardBackground
+                            ? Color(nsColor: .textBackgroundColor)
                             : (hovering ? AppTheme.hoverFill : .clear)
                     )
                     .shadow(color: selected ? .black.opacity(0.08) : .clear, radius: 1, y: 1)
