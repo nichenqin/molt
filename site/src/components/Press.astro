@@ -18,7 +18,7 @@ const copy = zh
       description: 'Remige 媒体资料：产品描述、截图、图标、品牌色和下载链接。',
       heading: '媒体资料',
       lede: '写 Remige 所需的一切。素材可用于报道本产品；请不要暗示官方背书。',
-      download: '下载媒体包（.zip，1.1 MB）',
+      download: '下载媒体包（.zip）',
       facts: '事实表',
       name: '名称',
       tagline: '一句话',
@@ -42,6 +42,8 @@ const copy = zh
       ],
       shots: '截图',
       shotNote: '截图展示当前界面。压缩包内同时包含中英文截图和社交预览图。',
+      video: '演示视频',
+      videoNote: '18 秒产品预告。真实点击录屏可以后续替换。',
       contact: '联系',
       contactBody: '更正请用 <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a>。安全问题请使用 <a href="https://github.com/nichenqin/remige/security/advisories/new">私密报告</a>。',
     }
@@ -50,7 +52,7 @@ const copy = zh
       description: 'Remige press kit: product description, screenshots, icon, brand colors, and download links for writers.',
       heading: 'Press kit',
       lede: 'Everything needed to write about Remige. Assets may be used in coverage of the product; please do not imply endorsement.',
-      download: 'Download press kit (.zip, 1.1 MB)',
+      download: 'Download press kit (.zip)',
       facts: 'Fact sheet',
       name: 'Name',
       tagline: 'Tagline',
@@ -74,6 +76,8 @@ const copy = zh
       ],
       shots: 'Screenshots',
       shotNote: 'The archive includes English and Chinese screenshots plus the social preview image.',
+      video: 'Demo video',
+      videoNote: '18-second product teaser. A full click-through recording can replace it later.',
       contact: 'Contact',
       contactBody: 'Use <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a> for corrections. For security issues, use <a href="https://github.com/nichenqin/remige/security/advisories/new">private reporting</a>.',
     };
@@ -103,6 +107,12 @@ const copy = zh
 
   <h2>{copy.brand}</h2>
   <ul>{copy.brandItems.map((item) => <li set:html={item} />)}</ul>
+
+  <h2>{copy.video}</h2>
+  <video controls playsinline preload="metadata" poster="/assets/og.png" class="w-full rounded-xl border border-line">
+    <source src="/assets/remige-teaser.mp4" type="video/mp4" />
+  </video>
+  <p class="fine">{copy.videoNote}</p>
 
   <h2>{copy.shots}</h2>
   <p>{copy.shotNote}</p>
