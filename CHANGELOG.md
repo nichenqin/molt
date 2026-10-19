@@ -4,6 +4,8 @@
 
 - Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled
   actions stay flat.
+- Rework the main window into a compact native update ledger with consistent typography, spacing,
+  aligned list rows, restrained controls, and a clearer detail inspector (`BUG-4`).
 
 ## 0.3.0 — 2026-10-19
 
