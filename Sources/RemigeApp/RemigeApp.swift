@@ -28,8 +28,7 @@ struct RemigeApp: App {
 
                 Button(L.t("action.upgradeAll")) {
                     model.upgradeAll()
-                    openWindow(id: "main")
-                    NSApp.activate(ignoringOtherApps: true)
+                    MainWindow.show(using: openWindow)
                 }
                 .keyboardShortcut("u", modifiers: [.command, .shift])
                 .disabled(model.automaticCount == 0 || model.upgradeRunning)
