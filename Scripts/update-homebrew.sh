@@ -5,8 +5,7 @@ cd "$(dirname "$0")/.."
 VERSION="${1:?usage: Scripts/update-homebrew.sh <version> <dist>}"
 DIST="${2:-dist}"
 REPO="nichenqin/remige"
-TAG="v$VERSION"
-BASE="https://github.com/$REPO/releases/download/$TAG"
+BASE="https://github.com/$REPO/releases/download"
 
 sha() {
   shasum -a 256 "$1" | awk '{print $1}'
@@ -21,7 +20,7 @@ cat > Formula/remige.rb <<EOF
 class Remige < Formula
   desc "Every macOS update in one place: brew, npm, apps, and CLI tools"
   homepage "https://remige.app/"
-  url "$BASE/remige-cli"
+  url "$BASE/v#{version}/remige-cli"
   version "$VERSION"
   sha256 "$CLI_SHA"
   license "MIT"
@@ -41,7 +40,7 @@ cask "remige-app" do
   version "$VERSION"
   sha256 "$DMG_SHA"
 
-  url "$BASE/Remige-macos.dmg"
+  url "$BASE/v#{version}/Remige-macos.dmg"
   name "Remige"
   desc "Every update in one place"
   homepage "https://remige.app/"

@@ -6,6 +6,8 @@
   between chips, and highlight on hover.
 - Nested `/docs` pages are included in the Vercel deployment again; the root-only ignore rule no
   longer hides `site/docs`.
+- Homebrew formula and cask release URLs interpolate `#{version}`, keeping `brew audit` clean and
+  the download path in sync with the version field.
 
 ## 0.3.1 — 2026-10-19
 
