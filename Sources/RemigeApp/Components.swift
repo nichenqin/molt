@@ -137,18 +137,21 @@ struct SourceBadge: View {
 
 struct VersionTransition: View {
     let item: OutdatedItem
+    var compact = false
+
+    private var fontSize: CGFloat { compact ? 10 : 11.5 }
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: compact ? 3 : 5) {
             Text(item.currentVersion)
-                .font(.system(size: 11.5, design: .monospaced))
+                .font(.system(size: fontSize, design: .monospaced))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             Image(systemName: "chevron.right")
-                .font(.system(size: 8, weight: .semibold))
+                .font(.system(size: compact ? 7 : 8, weight: .semibold))
                 .foregroundStyle(.tertiary)
             Text(item.latestVersion)
-                .font(.system(size: 11.5, weight: .semibold, design: .monospaced))
+                .font(.system(size: fontSize, weight: .semibold, design: .monospaced))
                 .lineLimit(1)
         }
         .monospacedDigit()

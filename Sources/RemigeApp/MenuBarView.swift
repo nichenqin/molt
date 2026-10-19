@@ -48,9 +48,9 @@ struct MenuBarView: View {
                 VStack(spacing: 1) {
                     ForEach(model.items.prefix(6)) { item in
                         Button {
-                            model.selectedID = item.id
                             MenuBarPanel.dismiss()
-                            NSApp.activate(ignoringOtherApps: true)
+                            model.selectedID = item.id
+                            model.perform(item)
                             openWindow(id: "main")
                         } label: {
                             HStack(spacing: 8) {
@@ -58,10 +58,10 @@ struct MenuBarView: View {
                                 Text(item.displayName)
                                     .font(.system(size: 12))
                                     .lineLimit(1)
-                                Spacer()
-                                Text(item.latestVersion)
-                                    .font(.system(size: 10, design: .monospaced))
-                                    .foregroundStyle(.secondary)
+                                    .truncationMode(.tail)
+                                Spacer(minLength: 6)
+                                VersionTransition(item: item, compact: true)
+                                    .layoutPriority(1)
                             }
                             .padding(.horizontal, 10)
                             .padding(.vertical, 5)
@@ -69,6 +69,8 @@ struct MenuBarView: View {
                         }
                         .buttonStyle(.plain)
                         .hoverHighlight(cornerRadius: 6, horizontalInset: 4)
+                        .disabled(model.upgradeRunning)
+                        .help(rowHelp(item))
                     }
                 }
                 .padding(.vertical, 4)
@@ -132,6 +134,14 @@ struct MenuBarView: View {
         .frame(width: 330)
         .onAppear {
             model.refreshIfStale()
+        }
+    }
+
+    private func rowHelp(_ item: OutdatedItem) -> String {
+        switch item.upgrade.kind {
+        case .command: L.t("action.upgrade")
+        case .openURL: L.t("action.download")
+        case .manual: L.t("action.manual")
         }
     }
 }
