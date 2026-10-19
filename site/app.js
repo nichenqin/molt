@@ -1,7 +1,7 @@
 (() => {
   const base = document.documentElement.dataset.base || "./";
   const feedURL = base + "latest.json";
-  const fallback = "https://github.com/nichenqin/molt/releases/latest";
+  const fallback = "https://github.com/nichenqin/remige/releases/latest";
 
   async function loadFeed() {
     try {
@@ -12,15 +12,15 @@
       if (!version) return;
       document.querySelectorAll("[data-latest-version]").forEach((el) => { el.textContent = version; });
       document.querySelectorAll('[data-download="dmg"]').forEach((el) => {
-        const asset = feed.assets && feed.assets["Molt-macos.dmg"];
+        const asset = feed.assets && feed.assets["Remige-macos.dmg"];
         if (asset && asset.url) el.href = asset.url;
       });
       document.querySelectorAll('[data-download="zip"]').forEach((el) => {
-        const asset = feed.assets && feed.assets["Molt-macos.zip"];
+        const asset = feed.assets && feed.assets["Remige-macos.zip"];
         if (asset && asset.url) el.href = asset.url;
       });
       document.querySelectorAll('[data-download="cli"]').forEach((el) => {
-        const asset = feed.assets && feed.assets["molt-cli"];
+        const asset = feed.assets && feed.assets["remige-cli"];
         if (asset && asset.url) el.href = asset.url;
       });
       const notes = document.getElementById("latest-notes");
@@ -76,7 +76,7 @@
     loadFeed();
     wireCopyButtons();
     wireMenu();
-    document.querySelectorAll('a[href="https://github.com/nichenqin/molt/releases/latest"]').forEach((link) => {
+    document.querySelectorAll('a[href="https://github.com/nichenqin/remige/releases/latest"]').forEach((link) => {
       if (!link.dataset.download) link.href = fallback;
     });
   });

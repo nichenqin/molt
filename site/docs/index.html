@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Molt Docs — Install, CLI, sources, updates</title>
-  <meta name="description" content="Molt documentation: install, CLI reference, update sources, custom tools, self-update, security and build instructions.">
-  <link rel="canonical" href="https://molt-site-five.vercel.app/docs/">
+  <title>Remige Docs — Install, CLI, sources, updates</title>
+  <meta name="description" content="Remige documentation: install, CLI reference, update sources, custom tools, self-update, security and build instructions.">
+  <link rel="canonical" href="https://remige.vercel.app/docs/">
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <header class="topbar">
   <div class="topbar-inner">
-  <a class="brand" href="../"><img src="../assets/icon-256.png" alt="" width="30" height="30"><span>Molt</span></a>
+  <a class="brand" href="../"><img src="../assets/icon-256.png" alt="" width="30" height="30"><span>Remige</span></a>
   <nav class="nav" id="nav">
-    <a href="../#features">Features</a><a href="../#sources">Sources</a><a href="../#install">Install</a><a href="./">Docs</a><a href="https://github.com/nichenqin/molt/releases">Releases</a>
+    <a href="../#features">Features</a><a href="../#sources">Sources</a><a href="../#install">Install</a><a href="./">Docs</a><a href="https://github.com/nichenqin/remige/releases">Releases</a>
   </nav>
   <div class="top-actions">
     <a class="lang" href="../zh/docs/">中文</a>
-    <a class="github" href="https://github.com/nichenqin/molt" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg></a>
+    <a class="github" href="https://github.com/nichenqin/remige" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg></a>
     <a class="btn primary compact" href="../#install">Download</a>
     <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">☰</button>
   </div>
@@ -26,39 +26,39 @@
 </header>
 
 <main class="wrap docs-page">
-  <a class="docs-back" href="../">← Molt home</a>
+  <a class="docs-back" href="../">← Remige home</a>
   <h1>Documentation</h1>
-  <p class="lede">Install Molt, run the CLI, add your own tools, and keep it updated.</p>
+  <p class="lede">Install Remige, run the CLI, add your own tools, and keep it updated.</p>
 
   <h2 id="install">Install</h2>
   <h3>DMG</h3>
-  <p>Download <a data-download="dmg" href="https://github.com/nichenqin/molt/releases/latest">Molt-macos.dmg</a>, drag Molt into Applications, then open it. The DMG is universal (Apple Silicon and Intel) and requires macOS 14+.</p>
+  <p>Download <a data-download="dmg" href="https://github.com/nichenqin/remige/releases/latest">Remige-macos.dmg</a>, drag Remige into Applications, then open it. The DMG is universal (Apple Silicon and Intel) and requires macOS 14+.</p>
   <h3>One-line installer</h3>
-  <pre><code>curl -fsSL https://molt-site-five.vercel.app/install.sh | sh</code></pre>
+  <pre><code>curl -fsSL https://remige.vercel.app/install.sh | sh</code></pre>
   <p>The installer downloads the latest app and CLI, verifies SHA-256, installs the app to <code>/Applications</code> (or <code>~/Applications</code>) and the CLI to <code>/usr/local/bin</code> (or <code>~/.local/bin</code>), and removes the quarantine flag.</p>
   <h3>Homebrew</h3>
-  <pre><code>brew tap nichenqin/molt https://github.com/nichenqin/molt
-brew install --cask molt-app
-brew install molt</code></pre>
-  <p>Homebrew installations should be updated with <code>brew upgrade</code>; Molt detects a Homebrew-managed CLI and says so instead of replacing it.</p>
+  <pre><code>brew tap nichenqin/remige https://github.com/nichenqin/remige
+brew install --cask remige-app
+brew install remige</code></pre>
+  <p>Homebrew installations should be updated with <code>brew upgrade</code>; Remige detects a Homebrew-managed CLI and says so instead of replacing it.</p>
 
-  <div class="notice"><strong>Signing status.</strong> Developer ID signing and Apple notarization are wired into the release workflow. They require an Apple Developer Program membership and are not yet enabled for the public build. If macOS blocks the first launch, right-click → Open, or run <code>xattr -dr com.apple.quarantine /Applications/Molt.app</code>.</div>
+  <div class="notice"><strong>Signing status.</strong> Developer ID signing and Apple notarization are wired into the release workflow. They require an Apple Developer Program membership and are not yet enabled for the public build. If macOS blocks the first launch, right-click → Open, or run <code>xattr -dr com.apple.quarantine /Applications/Remige.app</code>.</div>
 
   <h2 id="cli">CLI</h2>
-  <pre><code>molt                       # scan and list
-molt list --json           # stable machine-readable snapshot
-molt list --cached         # last snapshot, no network
-molt list --source npm     # homebrew npm pnpm bun app cli mas custom
-molt upgrade --all --yes
-molt upgrade cc-switch --dry-run
-molt changelog iina --limit 3
-molt open sqlite
-molt update --check        # check Molt itself
-molt update                # replace the CLI atomically
-molt doctor --json
-molt cache path|size|clear
-molt config path|init|show|edit</code></pre>
-  <p><code>molt upgrade</code> prints the exact argv it will run. Without <code>--yes</code> it asks once on a TTY and refuses in scripts. Download-only apps open their release page; Molt does not install them silently.</p>
+  <pre><code>remige                       # scan and list
+remige list --json           # stable machine-readable snapshot
+remige list --cached         # last snapshot, no network
+remige list --source npm     # homebrew npm pnpm bun app cli mas custom
+remige upgrade --all --yes
+remige upgrade cc-switch --dry-run
+remige changelog iina --limit 3
+remige open sqlite
+remige update --check        # check Remige itself
+remige update                # replace the CLI atomically
+remige doctor --json
+remige cache path|size|clear
+remige config path|init|show|edit</code></pre>
+  <p><code>remige upgrade</code> prints the exact argv it will run. Without <code>--yes</code> it asks once on a TTY and refuses in scripts. Download-only apps open their release page; Remige does not install them silently.</p>
 
   <h2 id="sources">Sources</h2>
   <table>
@@ -76,7 +76,7 @@ molt config path|init|show|edit</code></pre>
   </table>
 
   <h2 id="custom">Custom tools</h2>
-  <p>Edit <code>~/.config/molt/config.json</code>. Partial documents are accepted:</p>
+  <p>Edit <code>~/.config/remige/config.json</code>. Partial documents are accepted:</p>
   <pre><code>{
   "disabledSources": ["mas"],
   "customTools": [
@@ -92,12 +92,12 @@ molt config path|init|show|edit</code></pre>
 }</code></pre>
   <p>In <code>upgradeArgs</code>, the first element is replaced by the detected executable path and the rest is passed through. Omit it to make the row open the release page.</p>
 
-  <h2 id="updates">Updating Molt</h2>
-  <p>Molt checks the static feed at <code>https://molt-site-five.vercel.app/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Molt → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Molt to quit, swaps the app bundle with rollback, and relaunches it.</p>
+  <h2 id="updates">Updating Remige</h2>
+  <p>Remige checks the static feed at <code>https://remige.vercel.app/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Remige → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Remige to quit, swaps the app bundle with rollback, and relaunches it.</p>
   <p>The CLI uses the same feed:</p>
-  <pre><code>molt update --check
-molt update</code></pre>
-  <p>Homebrew users should run <code>brew upgrade molt</code> for the CLI and <code>brew upgrade --cask molt-app</code> for the app. The app also detects when it is running from a directory it cannot write to (for example a translocated quarantine path) and refuses to attempt a swap.</p>
+  <pre><code>remige update --check
+remige update</code></pre>
+  <p>Homebrew users should run <code>brew upgrade remige</code> for the CLI and <code>brew upgrade --cask remige-app</code> for the app. The app also detects when it is running from a directory it cannot write to (for example a translocated quarantine path) and refuses to attempt a swap.</p>
 
   <h2 id="security">Security and limitations</h2>
   <ul>
@@ -110,14 +110,14 @@ molt update</code></pre>
   </ul>
 
   <h2 id="build">Build from source</h2>
-  <pre><code>git clone https://github.com/nichenqin/molt.git
-cd molt
+  <pre><code>git clone https://github.com/nichenqin/remige.git
+cd remige
 swift test
 make app
 make install</code></pre>
-  <p>Requires Swift 6 and macOS 14+. The app and CLI share <code>MoltCore</code>; there is no daemon and no third-party runtime dependency.</p>
+  <p>Requires Swift 6 and macOS 14+. The app and CLI share <code>RemigeCore</code>; there is no daemon and no third-party runtime dependency.</p>
 
-  <p class="fine">MIT © 2026 nichenqin · <a href="https://github.com/nichenqin/molt">GitHub</a></p>
+  <p class="fine">MIT © 2026 nichenqin · <a href="https://github.com/nichenqin/remige">GitHub</a></p>
 </main>
 <script src="../app.js"></script>
 </body>

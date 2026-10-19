@@ -26,7 +26,7 @@ func draw(_ text: String, at point: NSPoint, size: CGFloat, weight: NSFont.Weigh
     (text as NSString).draw(at: point, withAttributes: attributes)
 }
 
-draw("Molt", at: NSPoint(x: 84, y: 268), size: 116, weight: .bold, color: .white)
+draw("Remige", at: NSPoint(x: 84, y: 268), size: 116, weight: .bold, color: .white)
 draw("Every update. One place.", at: NSPoint(x: 88, y: 205), size: 46, weight: .medium, color: NSColor(calibratedWhite: 0.93, alpha: 1))
 draw(
     "Homebrew  ·  npm  ·  Bun  ·  DMG apps  ·  App Store  ·  curl tools",
@@ -36,7 +36,7 @@ draw(
     color: NSColor(calibratedRed: 0.48, green: 0.64, blue: 1.0, alpha: 1)
 )
 draw("Native macOS 14+  ·  Universal binary  ·  MIT", at: NSPoint(x: 90, y: 76), size: 20, weight: .regular, color: NSColor(calibratedWhite: 0.62, alpha: 1))
-draw("github.com/nichenqin/molt", at: NSPoint(x: 850, y: 76), size: 20, weight: .medium, color: NSColor(calibratedWhite: 0.74, alpha: 1))
+draw("github.com/nichenqin/remige", at: NSPoint(x: 850, y: 76), size: 20, weight: .medium, color: NSColor(calibratedWhite: 0.74, alpha: 1))
 
 // A few update rows as a visual motif.
 let rows: [(String, String, Bool)] = [

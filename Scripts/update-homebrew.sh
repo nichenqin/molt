@@ -4,7 +4,7 @@ cd "$(dirname "$0")/.."
 
 VERSION="${1:?usage: Scripts/update-homebrew.sh <version> <dist>}"
 DIST="${2:-dist}"
-REPO="nichenqin/molt"
+REPO="nichenqin/remige"
 TAG="v$VERSION"
 BASE="https://github.com/$REPO/releases/download/$TAG"
 
@@ -12,45 +12,45 @@ sha() {
   shasum -a 256 "$1" | awk '{print $1}'
 }
 
-CLI_SHA="$(sha "$DIST/molt-cli")"
-DMG_SHA="$(sha "$DIST/Molt-macos.dmg")"
+CLI_SHA="$(sha "$DIST/remige-cli")"
+DMG_SHA="$(sha "$DIST/Remige-macos.dmg")"
 
 mkdir -p Formula Casks
 
-cat > Formula/molt.rb <<EOF
-class Molt < Formula
+cat > Formula/remige.rb <<EOF
+class Remige < Formula
   desc "Every macOS update in one place: brew, npm, apps, and CLI tools"
-  homepage "https://molt-site-five.vercel.app/"
-  url "$BASE/molt-cli"
+  homepage "https://remige.vercel.app/"
+  url "$BASE/remige-cli"
   version "$VERSION"
   sha256 "$CLI_SHA"
   license "MIT"
 
   def install
-    bin.install "molt-cli" => "molt"
+    bin.install "remige-cli" => "remige"
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/molt version")
+    assert_match version.to_s, shell_output("#{bin}/remige version")
   end
 end
 EOF
 
-cat > Casks/molt-app.rb <<EOF
-cask "molt-app" do
+cat > Casks/remige-app.rb <<EOF
+cask "remige-app" do
   version "$VERSION"
   sha256 "$DMG_SHA"
 
-  url "$BASE/Molt-macos.dmg"
-  name "Molt"
+  url "$BASE/Remige-macos.dmg"
+  name "Remige"
   desc "Every update in one place"
-  homepage "https://molt-site-five.vercel.app/"
+  homepage "https://remige.vercel.app/"
 
   auto_updates true
   depends_on macos: :sonoma
 
-  app "Molt.app"
+  app "Remige.app"
 end
 EOF
 
-echo "Updated Formula/molt.rb and Casks/molt-app.rb for $VERSION"
+echo "Updated Formula/remige.rb and Casks/remige-app.rb for $VERSION"

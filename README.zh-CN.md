@@ -1,21 +1,21 @@
-# Molt
+# Remige
 
-[![CI](https://github.com/nichenqin/molt/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/molt/actions/workflows/ci.yml)
+[![CI](https://github.com/nichenqin/remige/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/remige/actions/workflows/ci.yml)
 
 **一个窗口，看全 Mac 上的所有更新。**
 
-Molt 是一个原生菜单栏 / Dock 应用，同时提供 CLI。它会在各个真实来源里并行查找可更新的软件：
+Remige 是一个原生菜单栏 / Dock 应用，同时提供 CLI。它会在各个真实来源里并行查找可更新的软件：
 Homebrew 的 formula 与 cask、npm / pnpm / Bun 全局包、通过 Sparkle 自更新的 DMG 应用、Mac App Store
 应用，以及用 `curl`、安装脚本或压缩包装出来的命令行工具。可以看更新日志，然后一键或一条命令升级。
 
-**官网：** [molt-site-five.vercel.app](https://molt-site-five.vercel.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
+**官网：** [remige.vercel.app](https://remige.vercel.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
 
-![Molt 截图](docs/screenshot.png)
+![Remige 截图](docs/screenshot.png)
 
 ## 为什么
 
 更新入口是碎的：`brew outdated` 不知道 npm 全局包，`npm outdated -g` 不知道 IINA 和 DuckDuckGo，
-Sparkle 应用只知道自己。Molt 把这些原生数据源并行跑一遍，去重、合并、缓存快照，给你一个列表。
+Sparkle 应用只知道自己。Remige 把这些原生数据源并行跑一遍，去重、合并、缓存快照，给你一个列表。
 
 ## 覆盖范围
 
@@ -27,7 +27,7 @@ Sparkle 应用只知道自己。Molt 把这些原生数据源并行跑一遍，�
 | pnpm 全局包 | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub Releases |
 | Bun 全局包 | `~/.bun/install/global` + registry | `bun add -g <pkg>@latest` | GitHub Releases |
 | Sparkle 应用 | `Info.plist` 的 `SUFeedURL` | 打开完整下载页；cask 管理的应用由 Homebrew 负责 | Appcast |
-| 其他应用 | 标准 Electron Builder `app-update.yml`（GitHub 或 HTTPS generic manifest）或 bundle id 目录 | 打开发布页或下载页 | GitHub Releases / 更新 manifest |
+| 其他应用 | 标准 Electron Builder `app-update.yml`（GitHub 或 HTTPS generic manifest）或已核实的 bundle id 目录（Magpie、Obsidian、Rectangle、Stats、Zed 等） | 打开发布页或下载页 | GitHub Releases / 更新 manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store |
 | 独立 CLI 工具 | 内置目录 + `--version` + GitHub latest | 已知自更新命令，否则发布页 | GitHub Releases |
 | 自定义 curl 工具 | JSON 配置 | 你指定的命令 | GitHub Releases |
@@ -36,20 +36,20 @@ Sparkle 应用只知道自己。Molt 把这些原生数据源并行跑一遍，�
 
 ## 安装
 
-**下载：** [Molt-macos.dmg](https://github.com/nichenqin/molt/releases/latest) — 通用二进制，macOS 14+。
+**下载：** [Remige-macos.dmg](https://github.com/nichenqin/remige/releases/latest) — 通用二进制，macOS 14+。
 
 **一行命令：**
 
 ```sh
-curl -fsSL https://molt-site-five.vercel.app/install.sh | sh
+curl -fsSL https://remige.vercel.app/install.sh | sh
 ```
 
 **Homebrew：**
 
 ```sh
-brew tap nichenqin/molt https://github.com/nichenqin/molt
-brew install --cask molt-app
-brew install molt
+brew tap nichenqin/remige https://github.com/nichenqin/remige
+brew install --cask remige-app
+brew install remige
 ```
 
 安装脚本会校验 SHA-256，把 App 放入 Applications（或 `~/Applications`），CLI 放入 `/usr/local/bin`
@@ -61,52 +61,52 @@ Program 账号；在此之前首次打开可能遇到 Gatekeeper 提示。
 从源码构建：
 
 ```sh
-git clone https://github.com/nichenqin/molt.git
-cd molt
+git clone https://github.com/nichenqin/remige.git
+cd remige
 swift test
 make app
 make install
 ```
 
-要求 macOS 14+、Swift 6。应用和 CLI 共用 `MoltCore`，没有常驻 daemon。
+要求 macOS 14+、Swift 6。应用和 CLI 共用 `RemigeCore`，没有常驻 daemon。
 
 ## CLI
 
 ```sh
-molt                       # 扫描 + 列表
-molt list --json           # 稳定 JSON
-molt list --cached         # 立即显示上次快照
-molt list --source npm     # homebrew / npm / pnpm / bun / app / cli / mas / custom
-molt upgrade --all --yes
-molt upgrade cc-switch --dry-run
-molt changelog iina
-molt doctor --json
-molt cache path|size|clear
-molt config path|init|show|edit
-molt app
-molt update --check
-molt update
+remige                       # 扫描 + 列表
+remige list --json           # 稳定 JSON
+remige list --cached         # 立即显示上次快照
+remige list --source npm     # homebrew / npm / pnpm / bun / app / cli / mas / custom
+remige upgrade --all --yes
+remige upgrade cc-switch --dry-run
+remige changelog iina
+remige doctor --json
+remige cache path|size|clear
+remige config path|init|show|edit
+remige app
+remige update --check
+remige update
 ```
 
-`molt upgrade` 会显示将执行的完整 argv。没有 `--yes` 时会在 TTY 上问一次，在脚本里直接拒绝。只提供
+`remige upgrade` 会显示将执行的完整 argv。没有 `--yes` 时会在 TTY 上问一次，在脚本里直接拒绝。只提供
 下载页的应用不会被静默安装。
 
-## 更新 Molt 本体
+## 更新 Remige 本体
 
-应用会检查 `https://molt-site-five.vercel.app/latest.json`；**Molt → 检查更新…** 打开更新面板。下载的 ZIP
-会按 feed 中的 SHA-256 校验，然后由一个小 helper 等待 Molt 退出、带回滚地替换 App 包并重启。CLI 使用
+应用会检查 `https://remige.vercel.app/latest.json`；**Remige → 检查更新…** 打开更新面板。下载的 ZIP
+会按 feed 中的 SHA-256 校验，然后由一个小 helper 等待 Remige 退出、带回滚地替换 App 包并重启。CLI 使用
 同一个 feed：
 
 ```sh
-molt update --check
-molt update
+remige update --check
+remige update
 ```
 
-Homebrew 安装请用 `brew upgrade molt` 与 `brew upgrade --cask molt-app`。
+Homebrew 安装请用 `brew upgrade remige` 与 `brew upgrade --cask remige-app`。
 
 ## 自定义工具
 
-编辑 `~/.config/molt/config.json`（支持只写需要的字段）：
+编辑 `~/.config/remige/config.json`（支持只写需要的字段）：
 
 ```json
 {
@@ -146,7 +146,7 @@ Homebrew 安装请用 `brew upgrade molt` 与 `brew upgrade --cask molt-app`。
 
 ```mermaid
 flowchart LR
-    A[molt / Molt.app] --> S[Scanner]
+    A[remige / Remige.app] --> S[Scanner]
     S --> B[Homebrew]
     S --> N[npm · pnpm · Bun]
     S --> P[Sparkle appcast]
@@ -177,8 +177,8 @@ flowchart LR
 | 指标 | 结果 |
 | --- | --- |
 | 完整扫描（进程内） | 热缓存 0.8–1.3 秒；冷启动含网络最长约 5 秒 |
-| App / zip / DMG | 7.4 MB / 2.8 MB / 3.2 MB（通用二进制） |
-| CLI | 4.4 MB（通用二进制） |
+| App / zip / DMG | 7.7 MB / 2.8 MB / 3.2 MB（通用二进制） |
+| CLI | 4.6 MB（通用二进制） |
 | CLI `--cached`（含进程启动） | ≈0.7 秒 |
 | App 内存（22 行 + 更新日志） | ≈100–140 MB |
 
@@ -188,7 +188,7 @@ flowchart LR
 
 - 当前公开构建是 ad-hoc 签名。Developer ID 签名 / 公证已接入 release workflow，但需要 Apple Developer Program 账号。
 - 不会注入 sudo。brew / mas 需要提权时，会原样返回其错误。
-- 非 cask 管理的 Sparkle 应用只打开完整下载（忽略 delta 包），Molt 不替换应用包。
+- 非 cask 管理的 Sparkle 应用只打开完整下载（忽略 delta 包），Remige 不替换应用包。
 - 更新日志在展示前转成纯文本，脚本和远程图片被丢弃。
 - 扫描时设置 `HOMEBREW_NO_AUTO_UPDATE=1`；需要最新 formula 元数据时自己跑 `brew update`。
 - `mas` 需要用户自己安装；没有就跳过。
@@ -200,7 +200,7 @@ flowchart LR
 swift test
 ```
 
-55 个确定性测试，覆盖版本比较、Homebrew/npm 夹具、Sparkle 频道与 delta/full、目录内 GitHub 应用、
+71 个确定性测试，覆盖版本比较、Homebrew/npm 夹具、Sparkle 频道与 delta/full、目录内 GitHub 应用、
 Atom 日志、更新 feed、SHA-256 校验、CLI 原子替换、App bundle 替换、配置默认值、缓存 TTL/原子写、去重、
 参数解析、进程超时、流式升级和输出格式。网络和进程均通过协议注入，测试不访问外网。详见
 [docs/TESTING.md](docs/TESTING.md)。

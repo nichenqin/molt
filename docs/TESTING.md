@@ -50,15 +50,15 @@ Build and run the real code:
 
 ```sh
 make app
-swift run -c release molt doctor --json
-swift run -c release molt list --json
-swift run -c release molt list --cached --json
-swift run -c release molt upgrade <safe-package> --dry-run
+swift run -c release remige doctor --json
+swift run -c release remige list --json
+swift run -c release remige list --cached --json
+swift run -c release remige upgrade <safe-package> --dry-run
 ```
 
 Live one-click path (used during development; not in CI): a custom tool whose `--version` prints `0.0.1`,
-whose latest-version URL serves `v2.0.0`, and whose `update` argument writes a marker file. `molt list`
-reported it; `molt upgrade custom:faketool --yes` ran the argv array and exited 0; the marker existed.
+whose latest-version URL serves `v2.0.0`, and whose `update` argument writes a marker file. `remige list`
+reported it; `remige upgrade custom:faketool --yes` ran the argv array and exited 0; the marker existed.
 
 ## CI
 
@@ -68,6 +68,6 @@ reported it; `molt upgrade custom:faketool --yes` ran the argv array and exited 
 ## What is intentionally not tested
 
 - Private Homebrew taps and private npm registries.
-- Sparkle installing a payload (Molt only opens downloads).
+- Sparkle installing a payload (Remige only opens downloads).
 - `mas` upgrades (needs a signed-in App Store account and can mutate the machine).
 - Exact visual output of SwiftUI; visual checks are done by launching the app.

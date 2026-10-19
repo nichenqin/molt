@@ -2,22 +2,22 @@
 
 ## Shape
 
-Molt is one Swift package with four targets:
+Remige is one Swift package with four targets:
 
 | Target | Role | AppKit? |
 | --- | --- | --- |
-| `MoltCore` | models, detectors, cache, changelogs, upgrades | no |
-| `MoltCLIKit` | argument parsing, table/JSON output, commands | no |
-| `molt` | 12-line executable shim | no |
-| `MoltApp` | SwiftUI window, menu bar extra, settings | yes |
+| `RemigeCore` | models, detectors, cache, changelogs, upgrades | no |
+| `RemigeCLIKit` | argument parsing, table/JSON output, commands | no |
+| `remige` | 12-line executable shim | no |
+| `RemigeApp` | SwiftUI window, menu bar extra, settings | yes |
 
 Both surfaces share the same `Scanner`, `ChangelogService`, and `UpgradeService`. The CLI is not a wrapper
-around a bundled binary, and the app does not shell out to `molt`; they call the same async APIs in-process.
+around a bundled binary, and the app does not shell out to `remige`; they call the same async APIs in-process.
 That keeps behavior identical and makes every code path testable without a UI.
 
 The design follows magpie's most useful architectural choices: a single distributable, a CLI that exposes
 the full capability set, JSON as a first-class output, local-first state, and a thin presentation layer.
-Molt differs where a native utility benefits: SwiftUI/AppKit instead of a WebView, and no daemon.
+Remige differs where a native utility benefits: SwiftUI/AppKit instead of a WebView, and no daemon.
 
 ## Data flow
 
@@ -97,7 +97,7 @@ the `.app` it installed. That index is built by directory walking, not a subproc
 - trailing zero components are equal (`1.0 == 1.0.0`).
 
 No package manager's "is outdated" decision is second-guessed: brew and npm are authoritative. `Version` is
-used where Molt must decide (appcasts, cataloged app releases, standalone tools, pnpm/Bun registry comparison).
+used where Remige must decide (appcasts, cataloged app releases, standalone tools, pnpm/Bun registry comparison).
 
 ## Application updates
 
@@ -110,12 +110,14 @@ from each app's `Info.plist`, plus a safe subset of `Contents/Resources/app-upda
 - delta enclosures (`sparkle:deltaFrom` or `.delta`) are dropped; the full enclosure is the download link;
 - duplicate versions are collapsed, preferring the item with notes and a full enclosure.
 
-Sparkle's own EdDSA signatures are not verified because Molt does not install the payload; it opens the
+Sparkle's own EdDSA signatures are not verified because Remige does not install the payload; it opens the
 full download. Cask-managed apps are left entirely to Homebrew.
 
 Apps without a Sparkle feed resolve their source in this order: explicit `appUpdates` configuration keyed
-by bundle identifier, the bundled `AppUpdateCatalog` (Magpie uses `yetone/magpie-releases`, its official
-updater's release repository), then standard Electron Builder metadata. Only `provider: github`
+by bundle identifier, standard Electron Builder metadata, then the bundled `AppUpdateCatalog`. The catalog
+holds only entries whose bundle identifier, official release page, and version sequence have been verified:
+Magpie, Clash Verge, v2rayN, Zed, Obsidian, Rectangle, Stats, Maccy, AltTab, UTM, Keka, LocalSend,
+Transmission, Hammerspoon, BetterDisplay, and drawio. Only `provider: github`
 (`owner`/`repo`) and `provider: generic` with an HTTPS base URL are accepted. The detector reads the
 installed version from the bundle, compares latest versions with the shared `Version` type, and attaches
 GitHub release notes. Generic providers are read from `latest-mac-arm64.yml` on Apple Silicon, falling
@@ -152,7 +154,7 @@ After a successful batch, the app rescans; the CLI does not, so scripts can deci
   `/releases/latest` redirect, not the API.
 - App icons are downsampled once to 128 pt and cached with `NSCache`.
 - No background polling or login agent unless the user enables "Open at login".
-- Universal app bundle ≈7.4 MB, zip ≈2.8 MB, DMG ≈3.2 MB, CLI ≈4.4 MB; warm scan ≈0.8–1.3 s, cold/network-bound scans up to ~5 s.
+- Universal app bundle ≈7.7 MB, zip ≈2.8 MB, DMG ≈3.2 MB, CLI ≈4.6 MB; warm scan ≈0.8–1.3 s, cold/network-bound scans up to ~5 s.
 
 ## Distribution and self-update
 
@@ -162,15 +164,15 @@ and CLI read that one manifest.
 
 - The app checks at launch (throttled to 24 h) and from **Check for Updates…**. A downloaded ZIP is verified
   against the manifest, extracted with `ditto`, version-checked against `CFBundleShortVersionString`, staged
-  next to the current bundle, and swapped by a detached `/bin/sh` helper only after Molt exits. The old
+  next to the current bundle, and swapped by a detached `/bin/sh` helper only after Remige exits. The old
   bundle is kept as a rollback until the move succeeds.
-- `molt update` downloads `molt-cli`, verifies SHA-256 and size, writes a temp file in the target directory,
+- `remige update` downloads `remige-cli`, verifies SHA-256 and size, writes a temp file in the target directory,
   atomically replaces the executable and restores mode `0755`. A binary owned by Homebrew is refused with a
   `brew upgrade` hint.
 - `Scripts/package.sh` optionally signs with Developer ID + hardened runtime, builds and signs a DMG,
   submits it to `notarytool`, staples the ticket to DMG and app, and runs `spctl`. Without credentials it
   falls back to ad-hoc signing and says so.
-- `Formula/molt.rb` and `Casks/molt-app.rb` live in this repo, so the repository itself is the Homebrew tap;
+- `Formula/remige.rb` and `Casks/remige-app.rb` live in this repo, so the repository itself is the Homebrew tap;
   the release workflow regenerates them from the published asset hashes.
 
 The update channel is HTTPS + SHA-256, not EdDSA-signed. HTTPS protects transport and the hash protects

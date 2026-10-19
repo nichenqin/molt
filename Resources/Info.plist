@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Molt</string>
+	<string>Remige</string>
 	<key>CFBundleExecutable</key>
-	<string>Molt</string>
+	<string>Remige</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.nichenqin.molt</string>
+	<string>com.nichenqin.remige</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLocalizations</key>
@@ -20,13 +20,13 @@
 		<string>zh-Hans</string>
 	</array>
 	<key>CFBundleName</key>
-	<string>Molt</string>
+	<string>Remige</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.2.0</string>
+	<string>0.3.0</string>
 	<key>CFBundleVersion</key>
-	<string>0.2.0</string>
+	<string>0.3.0</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>

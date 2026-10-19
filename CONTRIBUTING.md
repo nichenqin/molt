@@ -1,6 +1,6 @@
 # Contributing
 
-Molt is a small Swift package. Keep it that way.
+Remige is a small Swift package. Keep it that way.
 
 1. `swift test` must pass.
 2. `swift-format lint --recursive Sources Tests` must be clean (config in `.swift-format`; use the

@@ -3,7 +3,7 @@
 *.xcodeproj
 xcuserdata/
 dist/
-.molt-test/
+.remige-test/
 Resources/build/
 
 .vercel/

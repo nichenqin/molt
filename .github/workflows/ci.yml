@@ -30,13 +30,13 @@ jobs:
         run: ARCHS=arm64 Scripts/package.sh
       - name: Smoke test
         run: |
-          dist/molt doctor --json
-          dist/molt list --cached --json || true
+          dist/remige doctor --json
+          dist/remige list --cached --json || true
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: molt-arm64
+          name: remige-arm64
           path: |
-            dist/Molt-macos.zip
-            dist/Molt-macos.dmg
-            dist/molt-cli
+            dist/Remige-macos.zip
+            dist/Remige-macos.dmg
+            dist/remige-cli

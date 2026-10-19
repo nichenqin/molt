@@ -1,0 +1,14 @@
+.build
+dist
+.git
+.vercel
+Resources/build
+docs
+Tests
+Sources
+Casks
+Formula
+Scripts
+Package.swift
+Makefile
+*.md

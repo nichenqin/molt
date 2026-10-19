@@ -6,49 +6,49 @@ CONFIG="${CONFIG:-release}"
 ARCHS="${ARCHS:-arm64}"
 VERSION="${VERSION:-0.1.0}"
 DIST="dist"
-APP="$DIST/Molt.app"
+APP="$DIST/Remige.app"
 
-echo "Building Molt $VERSION ($ARCHS)"
+echo "Building Remige $VERSION ($ARCHS)"
 if [ "$ARCHS" = "universal" ]; then
   # Build each slice with SwiftPM, then lipo. SwiftPM's `--arch` shortcut goes
   # through Xcode's package build and has had SWIFT_VERSION bugs on some runners.
   for arch in arm64 x86_64; do
-    swift build -c "$CONFIG" --product molt --triple "$arch-apple-macosx14.0"
-    swift build -c "$CONFIG" --product MoltApp --triple "$arch-apple-macosx14.0"
+    swift build -c "$CONFIG" --product remige --triple "$arch-apple-macosx14.0"
+    swift build -c "$CONFIG" --product RemigeApp --triple "$arch-apple-macosx14.0"
   done
   BUILD_DIR=".build/arm64-apple-macosx/$CONFIG"
   mkdir -p "$DIST"
   lipo -create \
-    ".build/arm64-apple-macosx/$CONFIG/molt" \
-    ".build/x86_64-apple-macosx/$CONFIG/molt" \
-    -output "$DIST/molt"
+    ".build/arm64-apple-macosx/$CONFIG/remige" \
+    ".build/x86_64-apple-macosx/$CONFIG/remige" \
+    -output "$DIST/remige"
   lipo -create \
-    ".build/arm64-apple-macosx/$CONFIG/MoltApp" \
-    ".build/x86_64-apple-macosx/$CONFIG/MoltApp" \
-    -output "$DIST/MoltApp-universal"
-  APP_BINARY="$DIST/MoltApp-universal"
-  CLI_BINARY="$DIST/molt"
+    ".build/arm64-apple-macosx/$CONFIG/RemigeApp" \
+    ".build/x86_64-apple-macosx/$CONFIG/RemigeApp" \
+    -output "$DIST/RemigeApp-universal"
+  APP_BINARY="$DIST/RemigeApp-universal"
+  CLI_BINARY="$DIST/remige"
 else
-  swift build -c "$CONFIG" --product molt --arch "$ARCHS"
-  swift build -c "$CONFIG" --product MoltApp --arch "$ARCHS"
+  swift build -c "$CONFIG" --product remige --arch "$ARCHS"
+  swift build -c "$CONFIG" --product RemigeApp --arch "$ARCHS"
   BUILD_DIR=".build/$ARCHS-apple-macosx/$CONFIG"
-  APP_BINARY="$BUILD_DIR/MoltApp"
-  CLI_BINARY="$BUILD_DIR/molt"
+  APP_BINARY="$BUILD_DIR/RemigeApp"
+  CLI_BINARY="$BUILD_DIR/remige"
 fi
 
-rm -rf "$APP" "$DIST/Molt-macos.zip" "$DIST/Molt-macos.zip.sha256"
+rm -rf "$APP" "$DIST/Remige-macos.zip" "$DIST/Remige-macos.zip.sha256"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$DIST"
 
-cp "$APP_BINARY" "$APP/Contents/MacOS/Molt"
-if [ "$CLI_BINARY" != "$DIST/molt" ]; then
-  cp "$CLI_BINARY" "$DIST/molt"
+cp "$APP_BINARY" "$APP/Contents/MacOS/Remige"
+if [ "$CLI_BINARY" != "$DIST/remige" ]; then
+  cp "$CLI_BINARY" "$DIST/remige"
 fi
 if [ "$ARCHS" = "universal" ]; then
-  rm -f "$DIST/MoltApp-universal"
+  rm -f "$DIST/RemigeApp-universal"
 fi
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
-RES_BUNDLE="$BUILD_DIR/Molt_MoltApp.bundle"
+RES_BUNDLE="$BUILD_DIR/Remige_RemigeApp.bundle"
 if [ -d "$RES_BUNDLE/Contents/Resources" ]; then
   RES_SRC="$RES_BUNDLE/Contents/Resources"
 else
@@ -77,14 +77,14 @@ else
 fi
 codesign --verify --deep --strict "$APP"
 
-DMG="$DIST/Molt-macos.dmg"
+DMG="$DIST/Remige-macos.dmg"
 rm -f "$DMG"
 DMG_ROOT="$DIST/.dmg-root"
 rm -rf "$DMG_ROOT"
 mkdir -p "$DMG_ROOT"
-ditto "$APP" "$DMG_ROOT/Molt.app"
+ditto "$APP" "$DMG_ROOT/Remige.app"
 ln -s /Applications "$DMG_ROOT/Applications"
-hdiutil create -volname "Molt" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG" >/dev/null
+hdiutil create -volname "Remige" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG" >/dev/null
 rm -rf "$DMG_ROOT"
 if [ "$SIGNED" = "1" ]; then
   codesign --force --timestamp --sign "$CODESIGN_ID" "$DMG"
@@ -123,12 +123,12 @@ else
   fi
 fi
 
-ditto -c -k --sequesterRsrc --keepParent "$APP" "$DIST/Molt-macos.zip"
-cp "$DIST/molt" "$DIST/molt-cli"
-(cd "$DIST" && shasum -a 256 Molt-macos.zip Molt-macos.dmg molt-cli > Molt-macos.zip.sha256)
+ditto -c -k --sequesterRsrc --keepParent "$APP" "$DIST/Remige-macos.zip"
+cp "$DIST/remige" "$DIST/remige-cli"
+(cd "$DIST" && shasum -a 256 Remige-macos.zip Remige-macos.dmg remige-cli > Remige-macos.zip.sha256)
 
 echo "App:  $APP"
-echo "CLI:  $DIST/molt"
+echo "CLI:  $DIST/remige"
 echo "DMG:  $DMG"
-echo "Zip:  $DIST/Molt-macos.zip"
-ls -lh "$DIST/Molt-macos.zip" "$DIST/Molt-macos.dmg" "$DIST/molt"
+echo "Zip:  $DIST/Remige-macos.zip"
+ls -lh "$DIST/Remige-macos.zip" "$DIST/Remige-macos.dmg" "$DIST/remige"

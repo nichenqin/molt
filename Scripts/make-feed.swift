@@ -12,7 +12,7 @@ guard args.count >= 4 else {
 let version = args[1]
 let dist = URL(fileURLWithPath: args[2], isDirectory: true)
 let site = URL(fileURLWithPath: args[3], isDirectory: true)
-let repo = "nichenqin/molt"
+let repo = "nichenqin/remige"
 let tag = "v\(version)"
 
 func sha256(_ url: URL) throws -> String {
@@ -53,7 +53,7 @@ struct Manifest: Encodable {
     var assets: [String: Asset]
 }
 
-let names = ["Molt-macos.zip", "Molt-macos.dmg", "molt-cli"]
+let names = ["Remige-macos.zip", "Remige-macos.dmg", "remige-cli"]
 var assets: [String: Asset] = [:]
 for name in names {
     let url = dist.appendingPathComponent(name)

@@ -34,6 +34,6 @@ jobs:
         run: vercel deploy --prod --yes --token "$VERCEL_TOKEN"
       - name: Smoke production
         run: |
-          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/ | grep -F "Every update."
-          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/latest.json | grep -F '"version"'
-          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/install.sh | grep -F "Molt installer"
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.vercel.app/ | grep -F "Every update."
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.vercel.app/latest.json | grep -F '"version"'
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.vercel.app/install.sh | grep -F "Remige installer"

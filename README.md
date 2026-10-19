@@ -1,26 +1,26 @@
-# Molt
+# Remige
 
-[![CI](https://github.com/nichenqin/molt/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/molt/actions/workflows/ci.yml)
+[![CI](https://github.com/nichenqin/remige/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/remige/actions/workflows/ci.yml)
 
 **Every update on your Mac, in one place.**
 
-Molt is a native menu-bar/dock app and a CLI that finds outdated software across the places it actually
+Remige is a native menu-bar/dock app and a CLI that finds outdated software across the places it actually
 lives: Homebrew formulae and casks, global npm/pnpm/Bun packages, Sparkle-updated DMG apps, Mac App Store
 apps, and standalone tools installed by `curl`, installers, or tarballs. Read release notes, then update
 with one click or one command.
 
-**Website:** [molt-site-five.vercel.app](https://molt-site-five.vercel.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
+**Website:** [remige.vercel.app](https://remige.vercel.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
 
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 
 <p align="center">
-  <img src="docs/screenshot.png" width="880" alt="Molt showing Homebrew, npm, Bun and app updates">
+  <img src="docs/screenshot.png" width="880" alt="Remige showing Homebrew, npm, Bun and app updates">
 </p>
 
 ## Why
 
 Updaters are fragmented. `brew outdated` knows about casks but not global npm packages; `npm outdated -g`
-does not know about IINA or DuckDuckGo; Sparkle apps know only themselves. Molt runs those native sources in
+does not know about IINA or DuckDuckGo; Sparkle apps know only themselves. Remige runs those native sources in
 parallel, deduplicates the results, caches a snapshot for instant launch, and presents one list with one
 upgrade button per row.
 
@@ -34,7 +34,7 @@ upgrade button per row.
 | pnpm global packages | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub releases |
 | Bun global packages | `~/.bun/install/global` + npm registry | `bun add -g <pkg>@latest` | GitHub releases |
 | Sparkle apps | `SUFeedURL` appcasts, channel-aware | opens the full download; cask-managed apps stay with Homebrew | Appcast |
-| Other apps | standard Electron Builder `app-update.yml` (GitHub or HTTPS generic manifest) or a bundle-id catalog entry | opens the release or download page | GitHub releases / update manifest |
+| Other apps | standard Electron Builder `app-update.yml` (GitHub or HTTPS generic manifest) or a verified bundle-id catalog entry (Magpie, Obsidian, Rectangle, Stats, Zed, …) | opens the release or download page | GitHub releases / update manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store page |
 | Standalone CLI tools | curated catalog + `--version` + GitHub latest tag | self-update when known, otherwise release page | GitHub releases |
 | Your own curl tools | JSON config | any command you specify | GitHub releases |
@@ -45,23 +45,23 @@ bundle identifier in the JSON config for apps with a GitHub repo or latest-versi
 
 ## Install
 
-**Download:** [Molt-macos.dmg](https://github.com/nichenqin/molt/releases/latest) — universal, macOS 14+.
+**Download:** [Remige-macos.dmg](https://github.com/nichenqin/remige/releases/latest) — universal, macOS 14+.
 
 **One line:**
 
 ```sh
-curl -fsSL https://molt-site-five.vercel.app/install.sh | sh
+curl -fsSL https://remige.vercel.app/install.sh | sh
 ```
 
 **Homebrew:**
 
 ```sh
-brew tap nichenqin/molt https://github.com/nichenqin/molt
-brew install --cask molt-app
-brew install molt
+brew tap nichenqin/remige https://github.com/nichenqin/remige
+brew install --cask remige-app
+brew install remige
 ```
 
-The installer puts `Molt.app` in Applications (or `~/Applications`) and the `molt` CLI in
+The installer puts `Remige.app` in Applications (or `~/Applications`) and the `remige` CLI in
 `/usr/local/bin` (or `~/.local/bin`), verifies SHA-256, and clears the quarantine flag. Remove it with
 `curl ... | sh -s -- --uninstall`.
 
@@ -72,40 +72,40 @@ prompt on first launch.
 ### Build from source
 
 ```sh
-git clone https://github.com/nichenqin/molt.git
-cd molt
+git clone https://github.com/nichenqin/remige.git
+cd remige
 swift test
 make app          # arm64 app in dist/
-make install      # ~/Applications/Molt.app + ~/.local/bin/molt
+make install      # ~/Applications/Remige.app + ~/.local/bin/remige
 ```
 
-Requires macOS 14+ and Swift 6. The app and CLI share `MoltCore`; there is no daemon or background service.
+Requires macOS 14+ and Swift 6. The app and CLI share `RemigeCore`; there is no daemon or background service.
 
 ## CLI
 
 ```sh
-molt                       # scan and list
-molt list --json           # stable machine-readable snapshot
-molt list --cached         # instant, last snapshot
-molt list --source npm     # one source: homebrew npm pnpm bun app cli mas custom
-molt upgrade --all --yes   # run every one-click upgrade
-molt upgrade cc-switch --dry-run
-molt changelog iina --limit 3
-molt open sqlite
-molt doctor --json         # paths, managers, cache, config validity
-molt cache path|size|clear
-molt config path|init|show|edit
-molt app                   # open the GUI
-molt update --check        # check Molt itself
-molt update                # replace the CLI atomically
+remige                       # scan and list
+remige list --json           # stable machine-readable snapshot
+remige list --cached         # instant, last snapshot
+remige list --source npm     # one source: homebrew npm pnpm bun app cli mas custom
+remige upgrade --all --yes   # run every one-click upgrade
+remige upgrade cc-switch --dry-run
+remige changelog iina --limit 3
+remige open sqlite
+remige doctor --json         # paths, managers, cache, config validity
+remige cache path|size|clear
+remige config path|init|show|edit
+remige app                   # open the GUI
+remige update --check        # check Remige itself
+remige update                # replace the CLI atomically
 ```
 
-`molt update` checks the release feed and verifies the new binary's SHA-256. Homebrew installations should use
-`brew upgrade molt`.
+`remige update` checks the release feed and verifies the new binary's SHA-256. Homebrew installations should use
+`brew upgrade remige`.
 Example:
 
 ```text
-molt 0.2.0  just now
+remige 0.2.0  just now
 
 HOMEBREW
   cc-switch          4.0.14         →  4.0.15  auto
@@ -118,32 +118,32 @@ NPM
 22 updates · 19 one-click · scanned in 0.9s
 ```
 
-`molt upgrade` always shows the exact argv it will run. Without `--yes` it asks once on a TTY and refuses
+`remige upgrade` always shows the exact argv it will run. Without `--yes` it asks once on a TTY and refuses
 in scripts. Download-only apps open their release page; they are never installed behind your back.
 
 ### JSON
 
-`molt list --json` emits the cached snapshot schema: `generatedAt`, `duration`, `items`, per-source
+`remige list --json` emits the cached snapshot schema: `generatedAt`, `duration`, `items`, per-source
 `reports` (including partial failures and stale cached rows), `host`, and optional `warnings`. Items carry a
 stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrade` plan (`command`,
 `openURL`, or `manual`).
 
-## Updating Molt
+## Updating Remige
 
-The app checks `https://molt-site-five.vercel.app/latest.json`; **Molt → Check for Updates…** shows the sheet.
-The update ZIP is verified against the feed's SHA-256, then a small helper waits for Molt to exit, swaps the
+The app checks `https://remige.vercel.app/latest.json`; **Remige → Check for Updates…** shows the sheet.
+The update ZIP is verified against the feed's SHA-256, then a small helper waits for Remige to exit, swaps the
 app bundle with rollback, and relaunches it. The CLI uses the same feed:
 
 ```sh
-molt update --check
-molt update
+remige update --check
+remige update
 ```
 
-Homebrew installations should use `brew upgrade molt` and `brew upgrade --cask molt-app`.
+Homebrew installations should use `brew upgrade remige` and `brew upgrade --cask remige-app`.
 
 ## Custom tools
 
-`~/.config/molt/config.json` accepts partial documents. Declare software the catalog does not know:
+`~/.config/remige/config.json` accepts partial documents. Declare software the catalog does not know:
 
 ```json
 {
@@ -184,7 +184,7 @@ The source is still never inferred from the app name. Cask-managed apps stay wit
 
 ```mermaid
 flowchart LR
-    A[molt / Molt.app] --> S[Scanner]
+    A[remige / Remige.app] --> S[Scanner]
     S --> B[Homebrew]
     S --> N[npm · pnpm · Bun]
     S --> P[Sparkle appcasts]
@@ -222,8 +222,8 @@ Measured on an Apple Silicon Mac (macOS 26.5, 22 updates across 4 sources):
 | Metric | Result |
 | --- | --- |
 | Full scan (in-process) | 0.8–1.3 s warm; up to ~5 s when feeds are cold |
-| App / zip / DMG | 7.4 MB / 2.8 MB / 3.2 MB (universal) |
-| CLI binary | 4.4 MB (universal) |
+| App / zip / DMG | 7.7 MB / 2.8 MB / 3.2 MB (universal) |
+| CLI binary | 4.6 MB (universal) |
 | CLI cached list (process startup included) | ≈0.7 s |
 | App RSS with 22 rows + release notes | ≈100–140 MB |
 
@@ -250,7 +250,7 @@ including downloading latest-version metadata and running its upgrade command.
 ## Security and limits
 
 - No sudo prompts are injected. If `brew` or `mas` needs elevation, the command fails with its own output.
-- Sparkle apps without a Homebrew cask open the *full* download; delta enclosures are ignored. Molt does not
+- Sparkle apps without a Homebrew cask open the *full* download; delta enclosures are ignored. Remige does not
   replace app bundles itself.
 - Release notes are converted to text before display; scripts and remote images are discarded.
 - Homebrew's index is not auto-updated during scans (`HOMEBREW_NO_AUTO_UPDATE=1`). Run `brew update` when you

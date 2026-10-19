@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://molt-site-five.vercel.app/sitemap.xml
+Sitemap: https://remige.vercel.app/sitemap.xml

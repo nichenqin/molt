@@ -1,21 +1,21 @@
 # Distribution and release
 
-Molt is distributed as a universal macOS app plus a universal CLI. The app has a built-in updater; the CLI
-has `molt update`; both read the same static feed.
+Remige is distributed as a universal macOS app plus a universal CLI. The app has a built-in updater; the CLI
+has `remige update`; both read the same static feed.
 
 ## Public URLs
 
 | Thing | URL |
 | --- | --- |
-| Website | https://molt-site-five.vercel.app/ |
-| Update feed | https://molt-site-five.vercel.app/latest.json |
-| Installer | https://molt-site-five.vercel.app/install.sh |
-| Releases | https://github.com/nichenqin/molt/releases |
-| Homebrew tap | `brew tap nichenqin/molt https://github.com/nichenqin/molt` |
+| Website | https://remige.vercel.app/ |
+| Update feed | https://remige.vercel.app/latest.json |
+| Installer | https://remige.vercel.app/install.sh |
+| Releases | https://github.com/nichenqin/remige/releases |
+| Homebrew tap | `brew tap nichenqin/remige https://github.com/nichenqin/remige` |
 
-The website is the static `site/` directory, connected to the Vercel project `molt-site` for automatic
-deployment from `main`. The release workflow writes `site/latest.json`, `Formula/molt.rb`, and
-`Casks/molt-app.rb` and commits them to `main`; Vercel redeploys the site from that push. There is no server
+The website is the static `site/` directory, connected to the Vercel project `remige` for automatic
+deployment from `main`. The release workflow writes `site/latest.json`, `Formula/remige.rb`, and
+`Casks/remige-app.rb` and commits them to `main`; Vercel redeploys the site from that push. There is no server
 and no database.
 
 ## Accounts and money
@@ -30,14 +30,14 @@ and no database.
 4. Create an App Store Connect API key (Users and Access → Integrations → App Store Connect API) with the
    **Developer** role, or use an Apple ID with an app-specific password.
 
-Without this, Molt can still ship, but the app is **ad-hoc signed** and macOS may say it cannot verify the
+Without this, Remige can still ship, but the app is **ad-hoc signed** and macOS may say it cannot verify the
 developer. The install script clears the quarantine bit for the downloaded app, but Gatekeeper behavior on
 first launch still depends on the user's settings.
 
 ### Optional
 
-- **Custom domain** — about $10–20/year. The site is fully usable on `molt-site-five.vercel.app`. A domain
-  such as `molt.nichenqin.com` only requires changing `MoltLinks.website` / `configuredFeed`, the site
+- **Custom domain** — about $10–20/year. The site is fully usable on `remige.vercel.app`. A domain
+  such as `remige.nichenqin.com` only requires changing `RemigeLinks.website` / `configuredFeed`, the site
   canonical/OG URLs, and adding the domain in Vercel; Vercel is free.
 - **CDN or worker** — optional; the static Vercel deployment is enough for downloads and the update feed.
 - **Apple notarization** is included in the Developer Program; no separate fee.
@@ -77,14 +77,14 @@ Local signed build:
 ```sh
 security find-identity -v -p codesigning
 CODESIGN_ID="Developer ID Application: Your Name (TEAMID)" \
-  NOTARY_PROFILE="molt-notary" \
+  NOTARY_PROFILE="remige-notary" \
   VERSION=0.2.0 ARCHS=universal Scripts/package.sh
 ```
 
 Create the local notary profile once:
 
 ```sh
-xcrun notarytool store-credentials "molt-notary" \
+xcrun notarytool store-credentials "remige-notary" \
   --apple-id "you@example.com" \
   --team-id "TEAMID" \
   --password "app-specific-password"
@@ -94,17 +94,17 @@ The package script:
 
 1. builds arm64 + x86_64 and lipos them;
 2. signs the app with hardened runtime;
-3. builds `Molt-macos.dmg` with an Applications symlink;
+3. builds `Remige-macos.dmg` with an Applications symlink;
 4. signs the DMG;
 5. submits the DMG to `notarytool --wait`;
 6. staples both the DMG and the app;
 7. runs `spctl` on both;
-8. writes `Molt-macos.zip`, `molt-cli`, and `Molt-macos.zip.sha256`.
+8. writes `Remige-macos.zip`, `remige-cli`, and `Remige-macos.zip.sha256`.
 
 ## Release checklist
 
 ```sh
-# 1. bump MoltVersion.current and Resources/Info.plist
+# 1. bump RemigeVersion.current and Resources/Info.plist
 # 2. update CHANGELOG.md
 swift test
 make lint
@@ -112,7 +112,7 @@ ARCHS=universal VERSION=0.2.1 Scripts/package.sh
 swift Scripts/make-feed.swift 0.2.1 dist site
 Scripts/update-homebrew.sh 0.2.1 dist
 git add -A && git commit -m "release: 0.2.1"
-git tag -a v0.2.1 -m "Molt 0.2.1"
+git tag -a v0.2.1 -m "Remige 0.2.1"
 git push origin main v0.2.1
 ```
 
@@ -122,11 +122,11 @@ the feed and Homebrew files on `main`, and the Pages workflow redeploys the site
 ## Verifying a release
 
 ```sh
-codesign -dv --verbose=4 /Applications/Molt.app
-spctl -a -vv /Applications/Molt.app
-shasum -a 256 Molt-macos.zip Molt-macos.dmg molt-cli
-curl -fsSL https://molt-site-five.vercel.app/latest.json
-molt update --check
+codesign -dv --verbose=4 /Applications/Remige.app
+spctl -a -vv /Applications/Remige.app
+shasum -a 256 Remige-macos.zip Remige-macos.dmg remige-cli
+curl -fsSL https://remige.vercel.app/latest.json
+remige update --check
 ```
 
 `spctl` should print `accepted` and `source=Notarized Developer ID` once the Apple credentials are enabled.
@@ -141,16 +141,16 @@ molt update --check
   "version": "0.2.0",
   "published": "2026-10-19T00:00:00Z",
   "notes": "## 0.2.0 ...",
-  "pageURL": "https://github.com/nichenqin/molt/releases/tag/v0.2.0",
+  "pageURL": "https://github.com/nichenqin/remige/releases/tag/v0.2.0",
   "assets": {
-    "Molt-macos.zip": { "url": "...", "sha256": "...", "size": 2777376 }
+    "Remige-macos.zip": { "url": "...", "sha256": "...", "size": 2777376 }
   }
 }
 ```
 
 The updater requires HTTPS, verifies SHA-256 and size, validates the app bundle's version, stages the new
 bundle next to the old one, runs a small `/bin/sh` helper after the app exits, and rolls back if the move
-fails. `molt update` atomically replaces the CLI and refuses to overwrite a Homebrew-owned binary.
+fails. `remige update` atomically replaces the CLI and refuses to overwrite a Homebrew-owned binary.
 
-If you add a custom domain, update `MoltLinks.website`, `MoltLinks.feed`, `MoltLinks.installScript`, the
+If you add a custom domain, update `RemigeLinks.website`, `RemigeLinks.feed`, `RemigeLinks.installScript`, the
 installer one-liners in both READMEs and site pages, canonical/OG URLs, `sitemap.xml`, and `robots.txt`.

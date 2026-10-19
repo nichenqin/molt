@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-// Draws Molt's 1024pt master icon. Feather = shed the old version.
+// Draws Remige's 1024pt master icon. Feather = shed the old version.
 let size = 1024.0
 let image = NSImage(size: NSSize(width: size, height: size))
 image.lockFocus()

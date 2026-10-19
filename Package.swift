@@ -2,44 +2,44 @@
 import PackageDescription
 
 let package = Package(
-    name: "Molt",
+    name: "Remige",
     defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     products: [
-        .executable(name: "molt", targets: ["molt"]),
-        .executable(name: "MoltApp", targets: ["MoltApp"]),
-        .library(name: "MoltCore", targets: ["MoltCore"]),
-        .library(name: "MoltCLIKit", targets: ["MoltCLIKit"]),
+        .executable(name: "remige", targets: ["remige"]),
+        .executable(name: "RemigeApp", targets: ["RemigeApp"]),
+        .library(name: "RemigeCore", targets: ["RemigeCore"]),
+        .library(name: "RemigeCLIKit", targets: ["RemigeCLIKit"]),
     ],
     targets: [
         .target(
-            name: "MoltCore",
+            name: "RemigeCore",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .target(
-            name: "MoltCLIKit",
-            dependencies: ["MoltCore"],
+            name: "RemigeCLIKit",
+            dependencies: ["RemigeCore"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .executableTarget(
-            name: "molt",
-            dependencies: ["MoltCLIKit"],
+            name: "remige",
+            dependencies: ["RemigeCLIKit"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .executableTarget(
-            name: "MoltApp",
-            dependencies: ["MoltCore"],
+            name: "RemigeApp",
+            dependencies: ["RemigeCore"],
             resources: [.process("Resources")],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
-            name: "MoltCoreTests",
-            dependencies: ["MoltCore"],
+            name: "RemigeCoreTests",
+            dependencies: ["RemigeCore"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
         .testTarget(
-            name: "MoltCLIKitTests",
-            dependencies: ["MoltCLIKit", "MoltCore"],
+            name: "RemigeCLIKitTests",
+            dependencies: ["RemigeCLIKit", "RemigeCore"],
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
     ]

@@ -1,27 +1,27 @@
 {
   "assets" : {
-    "Molt-macos.dmg" : {
-      "name" : "Molt-macos.dmg",
-      "sha256" : "858d194ea527c2b0b9c7074bca7273d05cf55cbe323f00b5a9765c24abb854f6",
-      "size" : 3173701,
-      "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/Molt-macos.dmg"
+    "Remige-macos.dmg" : {
+      "name" : "Remige-macos.dmg",
+      "sha256" : "07d53380dcc4330974f67cb62c9ba4bc706c9a73d83f2c67d1d41c50c6cca5c7",
+      "size" : 3311173,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/Remige-macos.dmg"
     },
-    "Molt-macos.zip" : {
-      "name" : "Molt-macos.zip",
-      "sha256" : "99317059e0e615fb41f69e474ddba1415f538d3afa5504857d9ce0fa1aeff686",
-      "size" : 2766201,
-      "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/Molt-macos.zip"
+    "Remige-macos.zip" : {
+      "name" : "Remige-macos.zip",
+      "sha256" : "0576319503aa095ade790d8b8106f3398ea06bb111432d877d5cd923693b9e4c",
+      "size" : 2888886,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/Remige-macos.zip"
     },
-    "molt-cli" : {
-      "name" : "molt-cli",
-      "sha256" : "dd9cbad7e7a31d1ae2be2516117147e0634b85eb2a4181475639fbdfa0bbe0a9",
-      "size" : 4370600,
-      "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/molt-cli"
+    "remige-cli" : {
+      "name" : "remige-cli",
+      "sha256" : "71a8db1128606eaa533d8827900a759150aaa16d134e40d76617f3ea8c949803",
+      "size" : 4730888,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.0/remige-cli"
     }
   },
-  "notes" : "The distribution release.\n\n- Website at `molt-site-five.vercel.app` with English and Chinese landing pages, docs, download and release notes.\n- Universal DMG alongside the ZIP, with SHA-256 checksums.\n- In-app self-update: checks the static feed, verifies SHA-256, swaps the app bundle with rollback, and relaunches.\n- `molt update` / `molt update --check` for the CLI, including a Homebrew guard.\n- Static update feed and Homebrew Formula/Cask generated from the release assets.\n- Optional Developer ID signing, hardened runtime, notarisation and stapling in the release pipeline.\n- 55 deterministic tests, including update feed, checksum, atomic CLI replacement, app-swap helpers and cataloged app detection.",
-  "pageURL" : "https://github.com/nichenqin/molt/releases/tag/v0.2.0",
-  "published" : "2026-10-19T00:40:30Z",
+  "notes" : "- Renamed the product from Molt to Remige after brand collisions with existing products. The app, CLI,\n  bundle identifier (`com.nichenqin.remige`), config/cache paths, website and Homebrew tap all use the\n  new name.\n\n- Detect Magpie updates through its bundle ID and official `yetone/magpie-releases` source, including\n  installations without Sparkle metadata or a CLI on PATH. Show versions and GitHub release notes under\n  Apps; unmanaged installations open the release page instead of replacing the running app.\n- Detect app updates from standard Electron Builder `app-update.yml` metadata (GitHub releases and\n  HTTPS generic manifests, including Apple Silicon variants), with `appUpdates` config overrides and a\n  separate bundle-id catalog. Unsupported apps are listed as unchecked in source details instead of\n  being guessed or silently dropped; cask-managed apps stay owned by Homebrew.\n- Expand the verified app catalog beyond Magpie to common macOS apps with official GitHub releases:\n  Clash Verge, v2rayN, Zed, Obsidian, Rectangle, Stats, Maccy, AltTab, UTM, Keka, LocalSend, Transmission,\n  Hammerspoon, BetterDisplay, and drawio. Entries require a stable bundle identifier, an official release\n  page, and a matching version sequence.\n- Close the menu bar panel when \"Open Remige\" or \"Update All\" opens the main window, instead of\n  leaving the panel covering the window it just opened.",
+  "pageURL" : "https://github.com/nichenqin/remige/releases/tag/v0.3.0",
+  "published" : "2026-10-19T01:26:28Z",
   "schema" : 1,
-  "version" : "0.2.0"
+  "version" : "0.3.0"
 }
