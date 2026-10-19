@@ -7,6 +7,9 @@
   policy, and `--to <version>` targets one package for that run. `hold` picks the newest same-major version
   where the manager accepts an exact version.
 
+- Menu bar "Open Remige" now dismisses the panel before activating and skips status-item toggles when
+  the panel is already closed, so the click reliably brings the main window to the front (`BUG-9`).
+
 ## 0.4.0 — 2026-10-19
 
 - The upgrade progress log follows new output while you stay at the bottom, stops following when you

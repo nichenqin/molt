@@ -7,25 +7,42 @@ import SwiftUI
 /// (`MenuBarPanel.dismiss()`). That click is handled after the button action
 /// returns, and closing the panel hands activation back to the previously
 /// active app. An activation requested in the same run loop turn is therefore
-/// lost, and the reopened window stays behind other apps. Re-assert activation
-/// and front ordering for long enough to outlive the panel close, then stop as
-/// soon as the app is active with the main window key.
+/// lost, and the reopened window stays behind other apps.
+///
+/// Wait for the panel to actually leave the screen before activating, then
+/// re-assert activation and front ordering until the app is active with the
+/// main window key.
 @MainActor
 enum MainWindow {
     private static let windowID = "main"
     private static let retryInterval = 0.05
-    /// The panel close animation plus the activation hand-back takes well under
-    /// this; claims stop early only once it has elapsed.
-    private static let settleDuration = 0.5
+    private static let settleDuration = 0.35
     private static let maxAttempts = 24
+    /// Longest wait for the panel close animation before activating regardless.
+    private static let dismissTimeout = 1.0
+    private static let dismissPollInterval = 0.02
 
     private static var generation = 0
 
     static func show(using openWindow: OpenWindowAction) {
         openWindow(id: windowID)
         generation &+= 1
-        claim(
+        waitForPanelClose(
             token: generation,
+            deadline: Date().addingTimeInterval(dismissTimeout)
+        )
+    }
+
+    private static func waitForPanelClose(token: Int, deadline: Date) {
+        guard token == generation else { return }
+        if MenuBarPanel.isPresented, Date() < deadline {
+            DispatchQueue.main.asyncAfter(deadline: .now() + dismissPollInterval) {
+                waitForPanelClose(token: token, deadline: deadline)
+            }
+            return
+        }
+        claim(
+            token: token,
             remaining: maxAttempts,
             settleUntil: Date().addingTimeInterval(settleDuration)
         )
