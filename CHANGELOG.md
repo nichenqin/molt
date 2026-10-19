@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Source filter chips accept clicks across the full chip slot, including the padding and the gaps
+  between chips, and highlight on hover.
+
 ## 0.3.1 — 2026-10-19
 
 - Moved the official website, installer and update feed to `remige.app` (with `www` redirecting to
@@ -9,8 +14,6 @@
   actions stay flat.
 - Rework the main window into a compact native update ledger with consistent typography, spacing,
   aligned list rows, restrained controls, and a clearer detail inspector (`BUG-4`).
-- Source filter chips now accept clicks across the full chip slot, including the padding and the
-  gaps between chips, and highlight on hover.
 
 ## 0.3.0 — 2026-10-19
 
