@@ -3,7 +3,7 @@ class Molt < Formula
   homepage "https://molt-site-five.vercel.app/"
   url "https://github.com/nichenqin/molt/releases/download/v0.2.0/molt-cli"
   version "0.2.0"
-  sha256 "51e1c4d4a391d0f2df72f4d48898530ef8bb94790b20e71668faff1dc4525482"
+  sha256 "dd9cbad7e7a31d1ae2be2516117147e0634b85eb2a4181475639fbdfa0bbe0a9"
   license "MIT"
 
   def install

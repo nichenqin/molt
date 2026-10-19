@@ -2,26 +2,26 @@
   "assets" : {
     "Molt-macos.dmg" : {
       "name" : "Molt-macos.dmg",
-      "sha256" : "ace1b5945594cf45c9c83e81fe6bbf6df19d5cbb53aa95f7b4b17bc484cccb43",
-      "size" : 3217683,
+      "sha256" : "858d194ea527c2b0b9c7074bca7273d05cf55cbe323f00b5a9765c24abb854f6",
+      "size" : 3173701,
       "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/Molt-macos.dmg"
     },
     "Molt-macos.zip" : {
       "name" : "Molt-macos.zip",
-      "sha256" : "a98b5c0dc839b57d2be2cce3fd384c3c4b6829a258c583cb1561e774104ff6e1",
-      "size" : 2802502,
+      "sha256" : "99317059e0e615fb41f69e474ddba1415f538d3afa5504857d9ce0fa1aeff686",
+      "size" : 2766201,
       "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/Molt-macos.zip"
     },
     "molt-cli" : {
       "name" : "molt-cli",
-      "sha256" : "51e1c4d4a391d0f2df72f4d48898530ef8bb94790b20e71668faff1dc4525482",
-      "size" : 4445384,
+      "sha256" : "dd9cbad7e7a31d1ae2be2516117147e0634b85eb2a4181475639fbdfa0bbe0a9",
+      "size" : 4370600,
       "url" : "https://github.com/nichenqin/molt/releases/download/v0.2.0/molt-cli"
     }
   },
   "notes" : "The distribution release.\n\n- Website at `molt-site-five.vercel.app` with English and Chinese landing pages, docs, download and release notes.\n- Universal DMG alongside the ZIP, with SHA-256 checksums.\n- In-app self-update: checks the static feed, verifies SHA-256, swaps the app bundle with rollback, and relaunches.\n- `molt update` / `molt update --check` for the CLI, including a Homebrew guard.\n- Static update feed and Homebrew Formula/Cask generated from the release assets.\n- Optional Developer ID signing, hardened runtime, notarisation and stapling in the release pipeline.\n- 55 deterministic tests, including update feed, checksum, atomic CLI replacement, app-swap helpers and cataloged app detection.",
   "pageURL" : "https://github.com/nichenqin/molt/releases/tag/v0.2.0",
-  "published" : "2026-10-19T00:37:25Z",
+  "published" : "2026-10-19T00:40:30Z",
   "schema" : 1,
   "version" : "0.2.0"
 }
