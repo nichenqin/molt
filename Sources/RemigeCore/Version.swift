@@ -148,6 +148,45 @@ public struct Version: Comparable, Sendable, CustomStringConvertible {
         }
     }
 
+    // MARK: - Update magnitude
+
+    public var isPrerelease: Bool { !prerelease.isEmpty }
+
+    /// First numeric component. Text-led versions (for example a channel name)
+    /// have no meaningful major component.
+    public var majorNumber: UInt64? {
+        guard case .number(let value) = components.first else { return nil }
+        return value
+    }
+
+    public var minorNumber: UInt64? {
+        guard components.count > 1, case .number(let value) = components[1] else { return nil }
+        return value
+    }
+
+    /// How large the jump from `current` is. SemVer's 0.x line is treated as
+    /// unstable: a minor change there may break callers, so it counts as major.
+    public func updateMagnitude(from current: Version) -> UpdateMagnitude {
+        guard let selfMajor = majorNumber, let currentMajor = current.majorNumber else {
+            return .unknown
+        }
+        if selfMajor != currentMajor { return .major }
+        let selfMinor = minorNumber ?? 0
+        let currentMinor = current.minorNumber ?? 0
+        if selfMajor == 0, selfMinor != currentMinor { return .major }
+        if selfMinor != currentMinor { return .minor }
+        return .patch
+    }
+
+    /// Versions on the same compatibility line. For 0.x releases the minor
+    /// component defines that line; for 1.x and later it is the major component.
+    public func isSameMajorLine(as other: Version) -> Bool {
+        guard let selfMajor = majorNumber, let otherMajor = other.majorNumber else { return false }
+        guard selfMajor == otherMajor else { return false }
+        guard selfMajor == 0 else { return true }
+        return (minorNumber ?? 0) == (other.minorNumber ?? 0)
+    }
+
     public func isNewer(than other: Version) -> Bool {
         self > other
     }

@@ -168,17 +168,29 @@ public final class AppcastParser: NSObject, XMLParserDelegate {
     }
 }
 
+public struct AppcastSelection: Sendable {
+    public var item: AppcastItem
+    /// A newer feed item was skipped because it requires a newer macOS.
+    public var osFiltered: Bool
+
+    public init(item: AppcastItem, osFiltered: Bool) {
+        self.item = item
+        self.osFiltered = osFiltered
+    }
+}
+
 public enum AppcastSelector {
     /// Picks the newest item the running app is allowed to see.
-    public static func latest(
+    public static func select(
         items: [AppcastItem],
         installedVersion: String,
         updateChannel: String?,
         currentOS: String?
-    ) -> AppcastItem? {
+    ) -> AppcastSelection? {
         guard let installed = Version(installedVersion) else { return nil }
         let currentOSVersion = currentOS.flatMap(Version.init)
         var best: (item: AppcastItem, version: Version, build: Version?)?
+        var blockedByOS: Version?
 
         for item in items {
             if let channel = item.channel?.trimmingCharacters(in: .whitespaces), !channel.isEmpty {
@@ -186,11 +198,18 @@ public enum AppcastSelector {
                     channel.caseInsensitiveCompare(updateChannel) == .orderedSame
                 else { continue }
             }
-            if let minimum = item.minimumSystemVersion, let minimumVersion = Version(minimum) {
-                if let currentOSVersion, currentOSVersion < minimumVersion { continue }
-            }
             guard let raw = item.compareVersion, let version = Version(raw), version > installed else {
                 continue
+            }
+            if let minimum = item.minimumSystemVersion, let minimumVersion = Version(minimum) {
+                if let currentOSVersion, currentOSVersion < minimumVersion {
+                    if let previous = blockedByOS {
+                        if version > previous { blockedByOS = version }
+                    } else {
+                        blockedByOS = version
+                    }
+                    continue
+                }
             }
             let build = item.buildVersion.flatMap(Version.init)
             if let currentBest = best {
@@ -212,6 +231,22 @@ public enum AppcastSelector {
                 best = (item, version, build)
             }
         }
-        return best?.item
+        guard let best else { return nil }
+        let osFiltered = blockedByOS.map { $0 > best.version } ?? false
+        return AppcastSelection(item: best.item, osFiltered: osFiltered)
+    }
+
+    public static func latest(
+        items: [AppcastItem],
+        installedVersion: String,
+        updateChannel: String?,
+        currentOS: String?
+    ) -> AppcastItem? {
+        select(
+            items: items,
+            installedVersion: installedVersion,
+            updateChannel: updateChannel,
+            currentOS: currentOS
+        )?.item
     }
 }

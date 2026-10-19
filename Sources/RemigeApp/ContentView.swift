@@ -31,6 +31,10 @@ struct ContentView: View {
             UpdateSheet()
                 .environment(model)
         }
+        .sheet(item: $model.versionPickerItem) { item in
+            VersionPickerSheet(item: item)
+                .environment(model)
+        }
         .confirmationDialog(
             model.pendingUpgrade?.title ?? "",
             isPresented: Binding(
@@ -135,7 +139,10 @@ private struct HeaderView: View {
                 Text(L.updates(model.items.count))
                 Text("·")
                 Text(L.oneClick(model.automaticCount))
-                Text("·")
+                if model.majorCount > 0 {
+                    Text("·")
+                    Text(L.major(model.majorCount))
+                }
                 Text(L.checked(L.relative(snapshot.generatedAt)))
             } else {
                 Text(L.t("header.scanning"))
@@ -296,6 +303,9 @@ private struct UpdateRow: View {
                     Text(item.displayName)
                         .font(.system(size: 13, weight: .semibold))
                         .lineLimit(1)
+                    if item.majorVersionAvailable {
+                        MajorBadge(held: item.targetOrigin == .heldMajor)
+                    }
                     if item.pinned { PinnedBadge() }
                 }
                 if let summary = item.summary, !summary.isEmpty {
@@ -338,6 +348,9 @@ private struct UpdateRow: View {
         .contextMenu {
             if item.upgrade.canRunAutomatically {
                 Button(L.t("action.upgrade")) { model.perform(item) }
+            }
+            if item.versionedInstall != nil {
+                Button(L.t("detail.chooseVersion")) { model.presentVersionPicker(for: item) }
             }
             Button(L.t("action.releaseNotes")) { model.openChangelogPage(item) }
             if item.installedPath != nil {
@@ -491,14 +504,27 @@ private struct DetailContent: View {
     }
 
     private var versionCard: some View {
-        HStack(spacing: AppTheme.Spacing.large) {
-            versionColumn(title: L.t("detail.installed"), version: item.currentVersion, muted: true)
-            Image(systemName: "arrow.right")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.tertiary)
-            versionColumn(title: L.t("detail.latest"), version: item.latestVersion, muted: false)
-            Spacer(minLength: AppTheme.Spacing.small)
-            actionBadge
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: AppTheme.Spacing.large) {
+                versionColumn(
+                    title: L.t("detail.installed"), version: item.currentVersion, muted: true)
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+                versionColumn(title: L.t("detail.target"), version: item.targetVersion, muted: false)
+                if item.targetVersion != item.latestVersion {
+                    versionColumn(
+                        title: L.t("detail.latest"), version: item.latestVersion, muted: true)
+                }
+                Spacer(minLength: AppTheme.Spacing.small)
+                actionBadge
+            }
+            if let note = targetNote {
+                Text(note)
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(AppTheme.Spacing.large)
         .background(
@@ -509,6 +535,22 @@ private struct DetailContent: View {
             RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
                 .strokeBorder(AppTheme.hairline)
         )
+    }
+
+    private var targetNote: String? {
+        if item.targetOrigin == .pinned {
+            return L.t("detail.pinnedTarget", item.targetVersion)
+        }
+        if item.targetOrigin == .heldMajor {
+            return L.t("detail.heldMajor", item.latestVersion)
+        }
+        if item.latestBasis == .osCompatible {
+            return L.t("detail.latestCompatible")
+        }
+        if item.majorVersionAvailable {
+            return L.t("detail.majorUpdateHelp")
+        }
+        return nil
     }
 
     private func versionColumn(title: String, version: String, muted: Bool) -> some View {
@@ -554,6 +596,24 @@ private struct DetailContent: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
+
+            if item.versionedInstall != nil {
+                Button {
+                    model.presentVersionPicker(for: item)
+                } label: {
+                    Label(L.t("detail.chooseVersion"), systemImage: "tag")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+
+            if model.isTargetPinned(item) {
+                Button(L.t("versionPicker.followPolicy")) {
+                    model.setVersionTarget(nil, for: item)
+                }
+                .buttonStyle(.link)
+                .controlSize(.small)
+            }
 
             if item.installedPath != nil {
                 Button {

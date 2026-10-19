@@ -61,6 +61,54 @@ public struct NpmRegistry: Sendable {
         return info
     }
 
+    /// All published, non-prerelease versions, newest first. Uses npm's
+    /// abbreviated metadata representation so large packages stay bounded.
+    public func versions(package: String) async -> [String]? {
+        let key = "npm:versions:\(package)"
+        if !force, let cached = await cache.read([String].self, key: key, maxAge: 6 * 3600) {
+            return cached
+        }
+        guard let url = Self.versionsURL(package: package),
+            let response = try? await http.get(
+                url,
+                headers: ["Accept": "application/vnd.npm.install-v1+json"],
+                timeout: 20,
+                method: "GET"
+            ),
+            response.isSuccess,
+            let object = response.jsonObject() as? [String: Any],
+            let entries = object["versions"] as? [String: Any]
+        else {
+            return nil
+        }
+        let versions = entries.keys
+            .compactMap { raw -> (String, Version)? in
+                guard let version = Version(raw), !version.isPrerelease else { return nil }
+                return (raw, version)
+            }
+            .sorted { $0.1 > $1.1 }
+            .map(\.0)
+        await cache.write(versions, key: key)
+        return versions
+    }
+
+    /// Candidates for the `hold` policy. Only a major jump needs the full
+    /// version list; every other case reuses `latest`.
+    public func policyCandidates(for item: OutdatedItem, config: RemigeConfig) async -> [String] {
+        guard config.updatePolicy.major == .hold,
+            item.versionedInstall != nil,
+            let current = Version(item.currentVersion),
+            let latest = Version(item.latestVersion),
+            latest.updateMagnitude(from: current) == .major
+        else { return [] }
+        return await versions(package: item.name) ?? []
+    }
+
+    public static func versionsURL(package: String) -> URL? {
+        let encoded = package.replacingOccurrences(of: "/", with: "%2F")
+        return URL(string: "https://registry.npmjs.org/\(encoded)")
+    }
+
     public static func latestURL(package: String) -> URL? {
         let encoded = package.replacingOccurrences(of: "/", with: "%2F")
         return URL(string: "https://registry.npmjs.org/\(encoded)/latest")

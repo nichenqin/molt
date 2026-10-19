@@ -76,13 +76,14 @@ public struct HomebrewDetector: OutdatedSourceDetector {
         let metadata = await Concurrency.map(packages, limit: 8) { package in
             await self.metadata(for: package.name, isCask: isCask, context: context)
         }
-        return packages.enumerated().map { index, package in
+        var items: [OutdatedItem] = []
+        for (index, package) in packages.enumerated() {
             let meta = metadata[index]
             let repo = meta?.repo
             let homepage = meta?.homepage.flatMap(URL.init(string:))
             let appPath = isCask ? context.environment.caskIndex.installedPath(for: package.name) : nil
             let changelogKind: ChangelogKind = repo != nil ? .githubReleases : (homepage != nil ? .web : .none)
-            return OutdatedItem(
+            var item = OutdatedItem(
                 id: "brew:\(isCask ? "cask" : "formula"):\(package.name)",
                 name: package.name,
                 source: .homebrew,
@@ -103,7 +104,10 @@ public struct HomebrewDetector: OutdatedSourceDetector {
                         : ["upgrade", "--formula", package.name]
                 )
             )
+            item.applyUpdatePolicy(config: context.config)
+            items.append(item)
         }
+        return items
     }
 
     private func metadata(

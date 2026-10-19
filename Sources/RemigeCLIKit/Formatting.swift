@@ -79,10 +79,20 @@ public enum CLIFormat {
                 case .openURL: action = palette.cyan("open")
                 case .manual: action = palette.dim("manual")
                 }
-                let pinned = item.pinned ? " " + palette.yellow("pinned") : ""
+                var marks: [String] = []
+                if item.majorVersionAvailable {
+                    marks.append(
+                        palette.yellow(item.targetOrigin == .heldMajor ? "held" : "major"))
+                }
+                if item.targetOrigin == .pinned { marks.append(palette.cyan("target")) }
+                if item.pinned { marks.append(palette.yellow("pinned")) }
+                let marker = marks.isEmpty ? "" : " " + marks.joined(separator: " ")
+                let absolute =
+                    item.targetVersion == item.latestVersion
+                    ? "" : "  " + palette.dim("(latest \(item.latestVersion))")
                 lines.append(
                     "  \(palette.bold(item.displayName))\(String(repeating: " ", count: max(0, nameWidth - item.displayName.count)))"
-                        + "  \(palette.dim(current))  →  \(item.latestVersion)  \(action)\(pinned)"
+                        + "  \(palette.dim(current))  →  \(item.targetVersion)  \(action)\(marker)\(absolute)"
                 )
             }
         }

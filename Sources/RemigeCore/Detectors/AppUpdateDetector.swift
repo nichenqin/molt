@@ -128,7 +128,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             case .github(let repo):
                 return await checkGitHub(
                     app, repo: repo, rawVersion: rawVersion, installed: installed,
-                    resolver: resolver)
+                    resolver: resolver, config: context.config)
             case .electronGeneric(let baseURL):
                 return await checkElectron(
                     app, baseURL: baseURL, rawVersion: rawVersion, installed: installed,
@@ -136,7 +136,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             case .text(let url, let regex):
                 return await checkText(
                     app, url: url, regex: regex, rawVersion: rawVersion, installed: installed,
-                    resolver: resolver)
+                    resolver: resolver, config: context.config)
             }
         }
     }
@@ -176,17 +176,19 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             return result(app, .unavailable, "Could not parse appcast")
         }
         guard
-            let latest = AppcastSelector.latest(
+            let selection = AppcastSelector.select(
                 items: feedItems,
                 installedVersion: rawVersion,
                 updateChannel: app.updateChannel,
                 currentOS: context.environment.osVersion?.raw
             ),
-            let latestVersion = latest.displayVersion
+            let latestVersion = selection.item.displayVersion
         else {
             return result(
                 app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
         }
+        let latest = selection.item
+        let basis: LatestBasis = selection.osFiltered ? .osCompatible : .source
 
         let plan: UpgradePlan
         if let download = latest.downloadURL, download.scheme?.lowercased() == "https" {
@@ -197,7 +199,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             plan = .manual("Download the update and replace the app in Applications.")
         }
 
-        let item = OutdatedItem(
+        var item = OutdatedItem(
             id: "app:\(app.bundleIdentifier ?? app.path)",
             name: app.name,
             source: .app,
@@ -213,7 +215,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             bundleIdentifier: app.bundleIdentifier,
             upgrade: plan
         )
-        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+        item.applyUpdatePolicy(config: context.config, latestBasis: basis)
+        return result(app, .checked, "\(item.currentVersion) → \(item.targetVersion)", item: item)
     }
 
     private func checkGitHub(
@@ -221,7 +224,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
         repo: RepoRef,
         rawVersion: String,
         installed: Version,
-        resolver: LatestTagResolver
+        resolver: LatestTagResolver,
+        config: RemigeConfig
     ) async -> CheckResult {
         guard let latest = await resolver.resolve(.github(repo)),
             let latestVersion = Version(latest.version)
@@ -233,7 +237,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
                 app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
         }
 
-        let item = OutdatedItem(
+        var item = OutdatedItem(
             id: "app:\(app.bundleIdentifier ?? app.path)",
             name: app.name,
             source: .app,
@@ -249,7 +253,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             bundleIdentifier: app.bundleIdentifier,
             upgrade: .open(latest.url ?? repo.releasesURL)
         )
-        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+        item.applyUpdatePolicy(config: config)
+        return result(app, .checked, "\(item.currentVersion) → \(item.targetVersion)", item: item)
     }
 
     private func checkText(
@@ -258,7 +263,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
         regex: String,
         rawVersion: String,
         installed: Version,
-        resolver: LatestTagResolver
+        resolver: LatestTagResolver,
+        config: RemigeConfig
     ) async -> CheckResult {
         guard let latest = await resolver.resolve(.text(url, regex: regex)),
             let latestVersion = Version(latest.version)
@@ -270,7 +276,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
                 app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
         }
 
-        let item = OutdatedItem(
+        var item = OutdatedItem(
             id: "app:\(app.bundleIdentifier ?? app.path)",
             name: app.name,
             source: .app,
@@ -286,7 +292,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             bundleIdentifier: app.bundleIdentifier,
             upgrade: .open(latest.url ?? url)
         )
-        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+        item.applyUpdatePolicy(config: config)
+        return result(app, .checked, "\(item.currentVersion) → \(item.targetVersion)", item: item)
     }
 
     private func checkElectron(
@@ -333,7 +340,7 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
                     app, .unavailable, "Update manifest declares no compatible HTTPS download")
             }
 
-            let item = OutdatedItem(
+            var item = OutdatedItem(
                 id: "app:\(app.bundleIdentifier ?? app.path)",
                 name: app.name,
                 source: .app,
@@ -349,8 +356,9 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
                 bundleIdentifier: app.bundleIdentifier,
                 upgrade: .open(download)
             )
+            item.applyUpdatePolicy(config: context.config)
             return result(
-                app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+                app, .checked, "\(item.currentVersion) → \(item.targetVersion)", item: item)
         }
         return result(app, .unavailable, lastError)
     }

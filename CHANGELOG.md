@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+- Add a major-version update policy (`prompt` by default) and exact version targets for npm/pnpm/Bun.
+  Update rows now distinguish `latestVersion` from `targetVersion`, show major/held badges, and exclude
+  prompted major updates from Update All and `remige upgrade --all`. `--include-major` overrides the batch
+  policy, and `--to <version>` targets one package for that run. `hold` picks the newest same-major version
+  where the manager accepts an exact version.
+
 ## 0.4.0 — 2026-10-19
 
 - The upgrade progress log follows new output while you stay at the bottom, stops following when you

@@ -32,6 +32,24 @@ struct SettingsView: View {
                 }
             }
 
+            Section(L.t("settings.updates")) {
+                Picker(
+                    L.t("settings.majorPolicy"),
+                    selection: Binding(
+                        get: { model.config.updatePolicy.major },
+                        set: { model.setMajorPolicy($0) }
+                    )
+                ) {
+                    ForEach(MajorUpdatePolicy.allCases, id: \.self) { policy in
+                        Text(L.t("settings.majorPolicy.\(policy.rawValue)")).tag(policy)
+                    }
+                }
+                .pickerStyle(.radioGroup)
+                Text(L.t("settings.majorPolicy.help"))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+
             Section(L.t("settings.sources")) {
                 ForEach(SourceKind.allCases, id: \.self) { source in
                     Toggle(

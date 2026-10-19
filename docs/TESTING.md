@@ -20,6 +20,8 @@ default.
 | Area | Tests |
 | --- | --- |
 | Version semantics | numeric ordering, prefixes, trailing zeros, revisions, prereleases, output extraction |
+| Version policy | magnitude (major/minor/patch/unknown), 0.x major-line rules, prompt/allow/hold targets, batch eligibility, explicit pins, old-snapshot defaults |
+| npm version catalog | abbreviated metadata parsing, prerelease filtering, ordering, cache reuse |
 | Homebrew | JSON parsing, pinned formulae, cask detection, metadata/repo mapping, skip when absent |
 | npm | global outdated JSON, exit code 1 with valid data, scoped package registry URL, upgrade argv |
 | pnpm / Bun | tolerant dependency shapes, registry comparison |

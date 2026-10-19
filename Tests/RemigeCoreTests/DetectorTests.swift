@@ -141,7 +141,83 @@ struct DetectorTests {
         #expect(item.currentVersion == "0.6.45")
         #expect(item.latestVersion == "0.7.0")
         #expect(item.repo == RepoRef(owner: "teableio", name: "teable"))
-        #expect(item.upgrade.arguments == ["install", "-g", "@teable/cli@latest"])
+        #expect(item.targetVersion == "0.7.0")
+        #expect(item.updateMagnitude == .major)
+        #expect(item.majorVersionAvailable)
+        #expect(!item.isBatchEligible)
+        #expect(item.upgrade.arguments == ["install", "-g", "@teable/cli@0.7.0"])
+    }
+
+    @Test func npmHonorsAPinnedTarget() async throws {
+        let npmJSON = """
+            {"@teable/cli":{"current":"0.6.45","latest":"0.7.0","location":"/tmp/cli"}}
+            """
+        let http = FakeHTTP { url, _, _, _ in
+            response(
+                #"{"name":"@teable/cli","version":"0.7.0"}"#,
+                url: url
+            )
+        }
+        let environment = EnvironmentInfo(
+            locator: ExecutableLocator(directories: []),
+            brew: nil,
+            caskIndex: CaskIndex(),
+            osVersion: Version("26.0"),
+            managers: [.npm: "/opt/homebrew/bin/npm"]
+        )
+        let context = ScanContext(
+            runner: FakeRunner(output: npmJSON, exitCode: 1),
+            http: http,
+            cache: makeCache(),
+            config: RemigeConfig(versionTargets: ["npm:@teable/cli": "0.6.50"]),
+            environment: environment
+        )
+
+        let output = try await NpmGlobalDetector().scan(context)
+        let item = try #require(output.items.first)
+        #expect(item.targetVersion == "0.6.50")
+        #expect(item.targetOrigin == .pinned)
+        #expect(item.updateMagnitude == .patch)
+        #expect(item.isBatchEligible)
+        #expect(item.upgrade.arguments == ["install", "-g", "@teable/cli@0.6.50"])
+    }
+
+    @Test func npmHoldPicksTheNewestSameMajorVersion() async throws {
+        let npmJSON = """
+            {"@teable/cli":{"current":"0.6.45","latest":"0.7.0","location":"/tmp/cli"}}
+            """
+        let http = FakeHTTP { url, _, _, _ in
+            if url.absoluteString.hasSuffix("/latest") {
+                return response(#"{"name":"@teable/cli","version":"0.7.0"}"#, url: url)
+            }
+            return response(
+                #"{"versions":{"0.6.45":{},"0.6.50":{},"0.6.60":{},"0.7.0":{}}}"#,
+                url: url
+            )
+        }
+        let environment = EnvironmentInfo(
+            locator: ExecutableLocator(directories: []),
+            brew: nil,
+            caskIndex: CaskIndex(),
+            osVersion: Version("26.0"),
+            managers: [.npm: "/opt/homebrew/bin/npm"]
+        )
+        let context = ScanContext(
+            runner: FakeRunner(output: npmJSON, exitCode: 1),
+            http: http,
+            cache: makeCache(),
+            config: RemigeConfig(updatePolicy: UpdatePolicyConfig(major: .hold)),
+            environment: environment
+        )
+
+        let output = try await NpmGlobalDetector().scan(context)
+        let item = try #require(output.items.first)
+        #expect(item.targetVersion == "0.6.60")
+        #expect(item.targetOrigin == .heldMajor)
+        #expect(item.majorVersionAvailable)
+        #expect(item.updateMagnitude == .patch)
+        #expect(item.isBatchEligible)
+        #expect(item.upgrade.arguments == ["install", "-g", "@teable/cli@0.6.60"])
     }
 
     @Test func pnpmOutputIsTolerated() {

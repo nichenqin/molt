@@ -38,6 +38,15 @@ struct ArgumentTests {
         #expect(parsed.positionals == ["--dry-run"])
         #expect(!parsed.flag("dry-run"))
     }
+
+    @Test func parsesVersionTargetAndMajorOverride() {
+        let parsed = ArgumentParser.parse([
+            "upgrade", "npm:vercel", "--to", "44.2.7", "--include-major",
+        ])
+        #expect(parsed.value("to") == "44.2.7")
+        #expect(parsed.flag("include-major"))
+        #expect(parsed.errors.isEmpty)
+    }
 }
 
 struct QueryAndFormatTests {
@@ -92,5 +101,32 @@ struct QueryAndFormatTests {
         #expect(text.contains("1.0.0"))
         #expect(text.contains("1.1.0"))
         #expect(text.contains("auto"))
+    }
+
+    @Test func tableShowsHeldTargetAndAbsoluteLatest() {
+        let template = VersionedInstall(
+            executable: "/usr/bin/npm",
+            argumentsPrefix: ["install", "-g"],
+            package: "pkg"
+        )
+        var item = OutdatedItem(
+            id: "npm:pkg",
+            name: "pkg",
+            source: .npm,
+            kind: .npmGlobal,
+            currentVersion: "1.0.0",
+            latestVersion: "2.0.0",
+            upgrade: template.plan(for: "latest"),
+            versionedInstall: template
+        )
+        item.applyUpdatePolicy(
+            config: RemigeConfig(updatePolicy: UpdatePolicyConfig(major: .hold)),
+            candidates: ["1.5.0", "2.0.0"]
+        )
+
+        let text = CLIFormat.table(items: [item], palette: .init(enabled: false))
+        #expect(text.contains("1.5.0"))
+        #expect(text.contains("held"))
+        #expect(text.contains("(latest 2.0.0)"))
     }
 }

@@ -40,8 +40,8 @@ remige                       # scan and list
 remige list --json           # stable machine-readable snapshot
 remige list --cached         # last snapshot, no network
 remige list --source npm     # homebrew npm pnpm bun app cli mas custom
-remige upgrade --all --yes
-remige upgrade cc-switch --dry-run
+remige upgrade --all --yes   # batch-eligible upgrades only
+remige upgrade npm:vercel --to 44.2.7
 remige changelog iina --limit 3
 remige open sqlite
 remige update --check        # check Remige itself
@@ -58,13 +58,18 @@ remige config path|init|show|edit
 | Source | Detection | Upgrade |
 | --- | --- | --- |
 | Homebrew | `brew outdated --json=v2 --greedy` | `brew upgrade` |
-| npm global | `npm outdated -g --json` | `npm install -g pkg@latest` |
-| pnpm global | `pnpm list -g` + registry | `pnpm add -g pkg@latest` |
-| Bun global | `~/.bun/install/global` + registry | `bun add -g pkg@latest` |
+| npm global | `npm outdated -g --json` | `npm install -g pkg@<target>` |
+| pnpm global | `pnpm list -g` + registry | `pnpm add -g pkg@<target>` |
+| Bun global | `~/.bun/install/global` + registry | `bun add -g pkg@<target>` |
 | Sparkle apps | `SUFeedURL` appcasts | opens the full download; cask-managed apps stay with Homebrew |
 | Other apps | Electron Builder `app-update.yml` (GitHub or HTTPS manifest) or bundle-ID catalog/config | opens the release or download page |
 | Mac App Store | `mas outdated` | `mas upgrade` |
 | Standalone tools | catalog + version command + latest tag | self-update, or release page |
+
+
+## Version policy
+
+Rows carry `latestVersion` (what the source declares) and `targetVersion` (what Remige will install). The default `prompt` policy shows major updates but keeps them out of **Update All** and `remige upgrade --all`. Set `updatePolicy.major` to `allow` to include them, or `hold` to prefer the newest version on the installed major line. `hold` works for npm, pnpm and Bun because their managers accept an exact version; other sources fall back to `prompt`. The detail inspector pins a persistent target for those three sources, while `remige upgrade npm:pkg --to 5.4.5` selects one for that run.
 
 <a id="custom"></a>
 ## Custom tools
@@ -88,6 +93,15 @@ Edit `~/.config/remige/config.json`. Partial documents are accepted:
 ```
 
 In `upgradeArgs`, the first element is replaced by the detected executable path and the rest is passed through. Omit it to make the row open the release page.
+
+`updatePolicy.major` is `prompt` (default), `allow`, or `hold`. `versionTargets` pins an exact target by item id for npm, pnpm and Bun:
+
+```json
+{
+  "updatePolicy": {"major": "hold"},
+  "versionTargets": {"npm:typescript": "5.4.5"}
+}
+```
 
 <a id="updates"></a>
 ## Updating Remige

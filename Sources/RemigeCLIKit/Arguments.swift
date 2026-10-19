@@ -22,12 +22,12 @@ public struct ParsedArguments: Sendable {
 
 public enum ArgumentParser {
     private static let valueOptions: Set<String> = [
-        "source", "lang", "limit", "timeout", "id", "name",
+        "source", "lang", "limit", "timeout", "id", "name", "to",
     ]
 
     private static let flagOptions: Set<String> = [
         "help", "json", "cached", "refresh", "all", "dry-run", "yes",
-        "no-color", "quiet", "version", "check", "force",
+        "no-color", "quiet", "version", "check", "force", "include-major",
     ]
 
     public static func parse(_ arguments: [String]) -> ParsedArguments {

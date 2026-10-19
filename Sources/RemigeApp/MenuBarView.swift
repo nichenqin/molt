@@ -58,6 +58,10 @@ struct MenuBarView: View {
                                     .font(.system(size: 12))
                                     .lineLimit(1)
                                     .truncationMode(.tail)
+                                if item.majorVersionAvailable {
+                                    MajorBadge(
+                                        held: item.targetOrigin == .heldMajor, compact: true)
+                                }
                                 Spacer(minLength: 6)
                                 VersionTransition(item: item, compact: true)
                                     .layoutPriority(1)
@@ -77,6 +81,13 @@ struct MenuBarView: View {
                     Text(L.t("menu.more", model.items.count - 6))
                         .font(.system(size: 10))
                         .foregroundStyle(.tertiary)
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 6)
+                }
+                if model.excludedMajorCount > 0 {
+                    Text(L.t("menu.majorExcluded", model.excludedMajorCount))
+                        .font(.system(size: 10))
+                        .foregroundStyle(.orange)
                         .padding(.horizontal, 12)
                         .padding(.bottom, 6)
                 }

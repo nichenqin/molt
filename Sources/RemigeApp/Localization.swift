@@ -32,6 +32,10 @@ enum L {
         t("header.oneClick", count)
     }
 
+    static func major(_ count: Int) -> String {
+        count == 1 ? t("header.major.one") : t("header.major", count)
+    }
+
     static func checked(_ relative: String) -> String {
         t("header.checked", relative)
     }

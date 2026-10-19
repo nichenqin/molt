@@ -150,7 +150,7 @@ struct VersionTransition: View {
             Image(systemName: "chevron.right")
                 .font(.system(size: compact ? 7 : 8, weight: .semibold))
                 .foregroundStyle(.tertiary)
-            Text(item.latestVersion)
+            Text(item.targetVersion)
                 .font(.system(size: fontSize, weight: .semibold, design: .monospaced))
                 .lineLimit(1)
         }
@@ -190,6 +190,21 @@ struct PinnedBadge: View {
             .padding(.horizontal, 5)
             .padding(.vertical, 2)
             .background(Capsule().fill(Color.orange.opacity(0.12)))
+    }
+}
+
+struct MajorBadge: View {
+    var held = false
+    var compact = false
+
+    var body: some View {
+        Text(L.t(held ? "detail.majorHeld" : "detail.majorUpdate"))
+            .font(.system(size: compact ? 8.5 : 9, weight: .semibold))
+            .foregroundStyle(.orange)
+            .padding(.horizontal, compact ? 4 : 5)
+            .padding(.vertical, compact ? 1 : 2)
+            .background(Capsule().fill(Color.orange.opacity(0.14)))
+            .help(L.t(held ? "detail.majorHeldHelp" : "detail.majorUpdateHelp"))
     }
 }
 

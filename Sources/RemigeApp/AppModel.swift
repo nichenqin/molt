@@ -38,6 +38,10 @@ final class AppModel {
 
     var pendingUpgrade: PendingUpgrade?
 
+    var versionPickerItem: OutdatedItem?
+    var versionCatalog: [String: [String]] = [:]
+    var versionCatalogLoading: Set<String> = []
+    var versionCatalogError: String?
     var changelogs: [String: ChangelogResult] = [:]
     var changelogLoading: Set<String> = []
     private let scanner = RemigeCore.Scanner()
@@ -94,7 +98,16 @@ final class AppModel {
     }
 
     var automaticCount: Int {
-        items.filter(\.upgrade.canRunAutomatically).count
+        items.filter(\.isBatchable).count
+    }
+
+    var majorCount: Int {
+        items.filter(\.majorVersionAvailable).count
+    }
+
+    /// Major updates the policy keeps out of Update All.
+    var excludedMajorCount: Int {
+        items.filter { $0.majorVersionAvailable && !$0.isBatchEligible }.count
     }
 
     var presentSources: [SourceKind] {
@@ -183,7 +196,7 @@ final class AppModel {
             requestUpgrade(
                 items: [item],
                 title: L.t("confirm.upgrade.title", item.displayName),
-                message: L.t("confirm.upgrade.message", item.currentVersion, item.latestVersion),
+                message: L.t("confirm.upgrade.message", item.currentVersion, item.targetVersion),
                 changelogURL: changelogs[item.id]?.webURL ?? item.changelogURL
                     ?? item.repo?.releasesURL
             )
@@ -197,7 +210,7 @@ final class AppModel {
     }
 
     func upgradeAll() {
-        let targets = items.filter(\.upgrade.canRunAutomatically)
+        let targets = items.filter(\.isBatchable)
         guard !targets.isEmpty else {
             showToast(L.t("upgrade.none"))
             return
@@ -357,12 +370,68 @@ final class AppModel {
         } else if !config.disabledSources.contains(source.rawValue) {
             config.disabledSources.append(source.rawValue)
         }
+        saveConfigAndRefresh()
+    }
+
+    func setMajorPolicy(_ policy: MajorUpdatePolicy) {
+        guard config.updatePolicy.major != policy else { return }
+        config.updatePolicy.major = policy
+        saveConfigAndRefresh()
+    }
+
+    func setVersionTarget(_ version: String?, for item: OutdatedItem) {
+        if let version {
+            config.versionTargets[item.id] = version
+        } else {
+            config.versionTargets.removeValue(forKey: item.id)
+        }
+        if saveConfigAndRefresh() {
+            showToast(
+                version.map { L.t("versionPicker.applied", $0) }
+                    ?? L.t("versionPicker.followPolicy"))
+        }
+    }
+
+    func isTargetPinned(_ item: OutdatedItem) -> Bool {
+        config.versionTargets[item.id] != nil
+    }
+
+    func presentVersionPicker(for item: OutdatedItem) {
+        guard item.versionedInstall != nil else { return }
+        versionCatalogError = nil
+        versionPickerItem = item
+    }
+
+    func loadVersions(for item: OutdatedItem) async {
+        guard item.versionedInstall != nil,
+            versionCatalog[item.id] == nil,
+            !versionCatalogLoading.contains(item.id)
+        else { return }
+        versionCatalogLoading.insert(item.id)
+        defer { versionCatalogLoading.remove(item.id) }
+        let registry = NpmRegistry(http: URLSessionHTTPClient(), cache: cache)
+        guard let all = await registry.versions(package: item.name) else {
+            versionCatalogError = L.t("versionPicker.error")
+            return
+        }
+        let current = Version(item.currentVersion)
+        let latest = Version(item.latestVersion)
+        versionCatalog[item.id] = all.filter { raw in
+            guard let version = Version(raw), let current, let latest else { return false }
+            return version > current && version <= latest
+        }
+    }
+
+    @discardableResult
+    private func saveConfigAndRefresh() -> Bool {
         do {
             try configStore.save(config)
             configError = nil
             Task { await refresh(force: false) }
+            return true
         } catch {
             configError = error.localizedDescription
+            return false
         }
     }
 

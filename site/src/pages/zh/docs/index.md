@@ -40,8 +40,8 @@ remige                       # 扫描并列出
 remige list --json           # 稳定 JSON
 remige list --cached         # 上次快照，不联网
 remige list --source npm     # homebrew npm pnpm bun app cli mas custom
-remige upgrade --all --yes
-remige upgrade cc-switch --dry-run
+remige upgrade --all --yes   # 只执行批量策略允许的更新
+remige upgrade npm:vercel --to 44.2.7
 remige changelog iina --limit 3
 remige open sqlite
 remige update --check        # 检查 Remige 本体
@@ -58,13 +58,18 @@ remige config path|init|show|edit
 | 来源 | 检测 | 升级 |
 | --- | --- | --- |
 | Homebrew | `brew outdated --json=v2 --greedy` | `brew upgrade` |
-| npm 全局 | `npm outdated -g --json` | `npm install -g pkg@latest` |
-| pnpm 全局 | `pnpm list -g` + registry | `pnpm add -g pkg@latest` |
-| Bun 全局 | `~/.bun/install/global` + registry | `bun add -g pkg@latest` |
+| npm 全局 | `npm outdated -g --json` | `npm install -g pkg@<target>` |
+| pnpm 全局 | `pnpm list -g` + registry | `pnpm add -g pkg@<target>` |
+| Bun 全局 | `~/.bun/install/global` + registry | `bun add -g pkg@<target>` |
 | Sparkle 应用 | `SUFeedURL` appcast | 打开完整下载页；cask 管理的应用由 Homebrew 负责 |
 | 其他应用 | Electron Builder `app-update.yml`（GitHub 或 HTTPS manifest）或 bundle id 目录/配置 | 打开发布页或下载页 |
 | Mac App Store | `mas outdated` | `mas upgrade` |
 | 独立工具 | 目录 + 版本命令 + latest tag | 自更新，或发布页 |
+
+
+## 版本策略
+
+每一行同时显示 `latestVersion`（来源声明的最新版本）和 `targetVersion`（实际会安装的版本）。默认 `prompt` 策略会显示大版本更新，但不会把它放进「全部更新」或 `remige upgrade --all`；`allow` 会包含，`hold` 则优先停留在已安装的大版本内。`hold` 只适用于 npm、pnpm 和 Bun，因为它们支持安装精确版本；其他来源会退化为 `prompt`。详情面板可以为这三类包持久固定目标版本，`remige upgrade npm:pkg --to 5.4.5` 则只影响当次运行。
 
 <a id="custom"></a>
 ## 自定义工具
@@ -88,6 +93,15 @@ remige config path|init|show|edit
 ```
 
 `upgradeArgs` 的第一个元素会被检测到的可执行文件路径替换，其余原样传入。不写则打开发布页。
+
+`updatePolicy.major` 可选 `prompt`（默认）、`allow` 或 `hold`。`versionTargets` 按 item id 为 npm、pnpm、Bun 固定精确版本：
+
+```json
+{
+  "updatePolicy": {"major": "hold"},
+  "versionTargets": {"npm:typescript": "5.4.5"}
+}
+```
 
 <a id="updates"></a>
 ## 更新 Remige 本体

@@ -52,6 +52,11 @@ public struct NpmGlobalDetector: OutdatedSourceDetector {
             }
             let info = infos[index]
             let repo = info?.repo
+            let versioned = VersionedInstall(
+                executable: npm,
+                argumentsPrefix: ["install", "-g"],
+                package: name
+            )
             items.append(
                 OutdatedItem(
                     id: "npm:\(name)",
@@ -66,8 +71,18 @@ public struct NpmGlobalDetector: OutdatedSourceDetector {
                     changelogURL: repo?.releasesURL ?? info?.homepage,
                     changelogKind: repo != nil ? .githubReleases : (info?.homepage != nil ? .web : .none),
                     installedPath: dictionary["location"] as? String,
-                    upgrade: .command(npm, ["install", "-g", "\(name)@latest"])
+                    upgrade: versioned.plan(for: "latest"),
+                    versionedInstall: versioned
                 )
+            )
+        }
+        let candidateLists = await Concurrency.map(items, limit: 8) { item in
+            await registry.policyCandidates(for: item, config: context.config)
+        }
+        for index in items.indices {
+            items[index].applyUpdatePolicy(
+                config: context.config,
+                candidates: candidateLists[index] ?? []
             )
         }
         return DetectorOutput(items: items, message: "\(items.count) global packages")
@@ -105,6 +120,11 @@ public struct PnpmGlobalDetector: OutdatedSourceDetector {
                 let latestVersion = Version(info.version),
                 latestVersion > installedVersion
             else { continue }
+            let versioned = VersionedInstall(
+                executable: pnpm,
+                argumentsPrefix: ["add", "-g"],
+                package: name
+            )
             items.append(
                 OutdatedItem(
                     id: "pnpm:\(name)",
@@ -118,8 +138,18 @@ public struct PnpmGlobalDetector: OutdatedSourceDetector {
                     repo: info.repo,
                     changelogURL: info.repo?.releasesURL ?? info.homepage,
                     changelogKind: info.repo != nil ? .githubReleases : (info.homepage != nil ? .web : .none),
-                    upgrade: .command(pnpm, ["add", "-g", "\(name)@latest"])
+                    upgrade: versioned.plan(for: "latest"),
+                    versionedInstall: versioned
                 )
+            )
+        }
+        let candidateLists = await Concurrency.map(items, limit: 8) { item in
+            await registry.policyCandidates(for: item, config: context.config)
+        }
+        for index in items.indices {
+            items[index].applyUpdatePolicy(
+                config: context.config,
+                candidates: candidateLists[index] ?? []
             )
         }
         return DetectorOutput(items: items, message: "\(items.count) global packages")
@@ -191,6 +221,11 @@ public struct BunGlobalDetector: OutdatedSourceDetector {
                 let latestVersion = Version(info.version),
                 latestVersion > installedVersion
             else { continue }
+            let versioned = VersionedInstall(
+                executable: bun,
+                argumentsPrefix: ["add", "-g"],
+                package: name
+            )
             items.append(
                 OutdatedItem(
                     id: "bun:\(name)",
@@ -205,8 +240,18 @@ public struct BunGlobalDetector: OutdatedSourceDetector {
                     changelogURL: info.repo?.releasesURL ?? info.homepage,
                     changelogKind: info.repo != nil ? .githubReleases : (info.homepage != nil ? .web : .none),
                     installedPath: nodeModules.appendingPathComponent(name).path,
-                    upgrade: .command(bun, ["add", "-g", "\(name)@latest"])
+                    upgrade: versioned.plan(for: "latest"),
+                    versionedInstall: versioned
                 )
+            )
+        }
+        let candidateLists = await Concurrency.map(items, limit: 8) { item in
+            await registry.policyCandidates(for: item, config: context.config)
+        }
+        for index in items.indices {
+            items[index].applyUpdatePolicy(
+                config: context.config,
+                candidates: candidateLists[index] ?? []
             )
         }
         return DetectorOutput(items: items, message: "\(items.count) global packages")

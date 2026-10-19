@@ -40,7 +40,7 @@ public struct MacAppStoreDetector: OutdatedSourceDetector {
         let applications = AppScanner.scan()
         let items = apps.map { app -> OutdatedItem in
             let match = applications.first { $0.name.caseInsensitiveCompare(app.name) == .orderedSame }
-            return OutdatedItem(
+            var item = OutdatedItem(
                 id: "mas:\(app.id)",
                 name: app.name,
                 source: .mas,
@@ -56,6 +56,8 @@ public struct MacAppStoreDetector: OutdatedSourceDetector {
                 bundleIdentifier: match?.bundleIdentifier,
                 upgrade: .command(mas, ["upgrade", app.id])
             )
+            item.applyUpdatePolicy(config: context.config)
+            return item
         }
         return DetectorOutput(items: items, message: "\(items.count) App Store apps")
     }

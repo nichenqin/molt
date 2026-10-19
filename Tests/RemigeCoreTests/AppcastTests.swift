@@ -62,6 +62,18 @@ struct AppcastTests {
         #expect(latest?.shortVersion == "1.4.0")
     }
 
+    @Test func selectionReportsOSFilteredVersions() throws {
+        let items = try AppcastParser.parse(Data(feed.utf8))
+        let selection = AppcastSelector.select(
+            items: items,
+            installedVersion: "1.3.9",
+            updateChannel: nil,
+            currentOS: "26.5.1"
+        )
+        #expect(selection?.item.shortVersion == "1.4.0")
+        #expect(selection?.osFiltered == true)
+    }
+
     @Test func selectorHonorsMatchingChannel() throws {
         let items = try AppcastParser.parse(Data(feed.utf8))
         let latest = AppcastSelector.latest(

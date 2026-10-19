@@ -99,6 +99,28 @@ the `.app` it installed. That index is built by directory walking, not a subproc
 No package manager's "is outdated" decision is second-guessed: brew and npm are authoritative. `Version` is
 used where Remige must decide (appcasts, cataloged app releases, standalone tools, pnpm/Bun registry comparison).
 
+## Version policy
+
+Every item carries two resolved versions, not one:
+
+- `latestVersion` is what the source declares (GitHub `/releases/latest`, npm's `latest` dist-tag, the
+  Homebrew tap's stable version, or the appcast item allowed by channel and `minimumSystemVersion`).
+- `targetVersion` is what an update action will install after policy and explicit pins are applied.
+
+`UpdatePolicyConfig.major` has three modes. `allow` keeps the old behavior; `prompt` (the default) shows a
+major update but marks it `isBatchEligible = false`, so Update All and `remige upgrade --all` skip it; `hold`
+chooses the newest version on the installed major line. `hold` requires a versioned install plan
+(`VersionedInstall`), which currently exists only for npm, pnpm and Bun. Homebrew, appcasts, GitHub releases
+and Electron manifests expose only their current latest, so they degrade to `prompt` rather than pretending
+a same-major target exists. SemVer `0.x` minors count as major changes.
+
+`versionTargets` pins a stable item id to an exact version for managers that accept `package@version`. This
+is resolved in `OutdatedItem.applyUpdatePolicy` and rewrites the argv plan, so dry runs and the UI show the
+exact command. `latestBasis` records whether an appcast's latest was filtered by macOS compatibility, and
+`targetOrigin` records whether the target came from latest, the held major line, or an explicit pin.
+Snapshots decode missing policy fields with conservative defaults, so upgrading Remige does not invalidate
+the cache.
+
 ## Application updates
 
 The app scanner reads `CFBundleShortVersionString`, `CFBundleVersion`, `SUFeedURL`, and `SUUpdateChannel`

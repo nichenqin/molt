@@ -35,14 +35,20 @@ upgrade button per row.
 | --- | --- | --- | --- |
 | Homebrew formulae | `brew outdated --json=v2 --greedy` | `brew upgrade --formula` | GitHub releases |
 | Homebrew casks (DMG/PKG) | same call | `brew upgrade --cask` | GitHub releases |
-| npm global packages | `npm outdated -g --json` | `npm install -g <pkg>@latest` | GitHub releases |
-| pnpm global packages | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub releases |
-| Bun global packages | `~/.bun/install/global` + npm registry | `bun add -g <pkg>@latest` | GitHub releases |
+| npm global packages | `npm outdated -g --json` | `npm install -g <pkg>@<target>` | GitHub releases |
+| pnpm global packages | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@<target>` | GitHub releases |
+| Bun global packages | `~/.bun/install/global` + npm registry | `bun add -g <pkg>@<target>` | GitHub releases |
 | Sparkle apps | `SUFeedURL` appcasts, channel-aware | opens the full download; cask-managed apps stay with Homebrew | Appcast |
 | Other apps | standard Electron Builder `app-update.yml` (GitHub or HTTPS generic manifest) or a verified bundle-id catalog entry (Magpie, Obsidian, Rectangle, Stats, Zed, …) | opens the release or download page | GitHub releases / update manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store page |
 | Standalone CLI tools | curated catalog + `--version` + GitHub latest tag | self-update when known, otherwise release page | GitHub releases |
 | Your own curl tools | JSON config | any command you specify | GitHub releases |
+
+Update rows carry two versions: `latestVersion` (what the source currently declares) and `targetVersion`
+(what Remige will install). The default `prompt` policy shows major updates but leaves them out of **Update
+All** and `remige upgrade --all`; set `allow` to include them or `hold` to prefer the newest version on the
+installed major line. `hold` works where the package manager accepts an exact version (npm, pnpm, Bun).
+npm/pnpm/Bun rows also let you pin a persistent version in the detail inspector; `--to` selects one for that run.
 
 Apps without a Sparkle feed, Homebrew cask, recognized Electron manifest, or explicit catalog entry are
 listed as *unchecked* in the Apps source instead of being guessed. Add an `appUpdates` entry keyed by
@@ -111,7 +117,8 @@ remige                       # scan and list
 remige list --json           # stable machine-readable snapshot
 remige list --cached         # instant, last snapshot
 remige list --source npm     # one source: homebrew npm pnpm bun app cli mas custom
-remige upgrade --all --yes   # run every one-click upgrade
+remige upgrade --all --yes   # run every batch-eligible upgrade
+remige upgrade npm:vercel --to 44.2.7
 remige upgrade cc-switch --dry-run
 remige changelog iina --limit 3
 remige open sqlite
@@ -132,13 +139,13 @@ remige 0.2.0  just now
 
 HOMEBREW
   cc-switch          4.0.14         →  4.0.15  auto
-  dataflare          2.6.4          →  3.2.4   auto
+  dataflare          2.6.4          →  3.2.4   auto major
   libunistring       1.4.2          →  1.5     auto
 ...
 NPM
-  npm                11.20.0        →  12.2.0  auto
+  npm                11.20.0        →  12.2.0  auto major
 
-22 updates · 19 one-click · scanned in 0.9s
+22 updates · 19 in update-all · 3 major · scanned in 0.9s
 ```
 
 `remige upgrade` always shows the exact argv it will run. Without `--yes` it asks once on a TTY and refuses
@@ -148,8 +155,11 @@ in scripts. Download-only apps open their release page; they are never installed
 
 `remige list --json` emits the cached snapshot schema: `generatedAt`, `duration`, `items`, per-source
 `reports` (including partial failures and stale cached rows), `host`, and optional `warnings`. Items carry a
-stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrade` plan (`command`,
-`openURL`, or `manual`).
+stable `id`, `source`, `kind`, `currentVersion`, `latestVersion`, `targetVersion`, `updateMagnitude`
+(`unknown`, `patch`, `minor`, `major`), `latestBasis`, `targetOrigin`, `majorVersionAvailable`,
+`isBatchEligible`, repo/changelog metadata, and an `upgrade` plan (`command`, `openURL`, or `manual`).
+`versionedInstall` is present when the manager accepts a `package@version` argument and therefore supports
+an exact target.
 
 ## Updating Remige
 
@@ -189,6 +199,15 @@ Homebrew installations should use `brew upgrade remige` and `brew upgrade --cask
 - In `upgradeArgs`, the first element is replaced by the detected executable path; the rest is passed
   through unchanged. Omit it to make the row open the release page instead.
 - `disabledSources` can turn off any source, e.g. `["mas", "pnpm"]`.
+- `updatePolicy.major` is `prompt` (default), `allow`, or `hold`.
+- `versionTargets` pins an exact target by item id for managers that accept `package@version`.
+
+```json
+{
+  "updatePolicy": {"major": "hold"},
+  "versionTargets": {"npm:typescript": "5.4.5"}
+}
+```
 
 Apps that ship neither Sparkle nor Electron Builder metadata can be declared by bundle ID:
 
@@ -259,11 +278,11 @@ when the main window becomes stale.
 swift test
 ```
 
-Deterministic tests cover version ordering, Homebrew/npm/JSON fixtures, Sparkle appcasts (channels,
-minimum OS, delta vs full enclosures), Electron Builder metadata and manifests, cataloged GitHub apps,
-Atom changelogs, update-feed parsing, checksum verification, atomic CLI replacement, app-bundle swap,
-config defaults, cache TTL/atomicity, dedupe, argument parsing, process timeouts, streaming upgrades, and
-data formatting. Network and process
+Deterministic tests cover version ordering and update magnitude, policy targets and batching, Homebrew/npm
+fixtures, npm version catalogs, Sparkle appcasts (channels, minimum OS, delta vs full enclosures), Electron
+Builder metadata and manifests, cataloged GitHub apps, Atom changelogs, update-feed parsing, checksum
+verification, atomic CLI replacement, app-bundle swap, config defaults, cache TTL/atomicity, dedupe,
+argument parsing, process timeouts, streaming upgrades, and data formatting. Network and process
 access are injected through `HTTPGetting` / `CommandRunning`, so the suite makes no live requests. See
 [docs/TESTING.md](docs/TESTING.md).
 

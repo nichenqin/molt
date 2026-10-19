@@ -73,23 +73,58 @@ public struct AppUpdateConfig: Codable, Hashable, Sendable {
         return .text(url, regex: regex)
     }
 }
+public enum MajorUpdatePolicy: String, Codable, Hashable, Sendable, CaseIterable {
+    /// Keep the current behavior: major updates participate in Update All.
+    case allow
+    /// Show major updates, but keep them out of batch updates.
+    case prompt
+    /// Prefer the newest version on the installed major line when the source
+    /// can install an exact version; otherwise behave like `prompt`.
+    case hold
+}
+
+public struct UpdatePolicyConfig: Codable, Hashable, Sendable {
+    public var major: MajorUpdatePolicy
+
+    public init(major: MajorUpdatePolicy = .prompt) {
+        self.major = major
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case major
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        major = try container.decodeIfPresent(MajorUpdatePolicy.self, forKey: .major) ?? .prompt
+    }
+}
 
 public struct RemigeConfig: Codable, Hashable, Sendable {
     public var schema: Int
     public var disabledSources: [String]
     public var customTools: [CustomToolConfig]
     public var appUpdates: [AppUpdateConfig]
+    public var updatePolicy: UpdatePolicyConfig
+    /// Explicit target versions keyed by stable item id, for example
+    /// `"npm:typescript": "5.4.5"`. Only sources that accept a versioned
+    /// install command honor these entries.
+    public var versionTargets: [String: String]
 
     public init(
         schema: Int = 1,
         disabledSources: [String] = [],
         customTools: [CustomToolConfig] = [],
-        appUpdates: [AppUpdateConfig] = []
+        appUpdates: [AppUpdateConfig] = [],
+        updatePolicy: UpdatePolicyConfig = UpdatePolicyConfig(),
+        versionTargets: [String: String] = [:]
     ) {
         self.schema = schema
         self.disabledSources = disabledSources
         self.customTools = customTools
         self.appUpdates = appUpdates
+        self.updatePolicy = updatePolicy
+        self.versionTargets = versionTargets
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -97,6 +132,8 @@ public struct RemigeConfig: Codable, Hashable, Sendable {
         case disabledSources
         case customTools
         case appUpdates
+        case updatePolicy
+        case versionTargets
     }
 
     /// A hand-written file may contain only the keys the user cares about.
@@ -106,6 +143,11 @@ public struct RemigeConfig: Codable, Hashable, Sendable {
         disabledSources = try container.decodeIfPresent([String].self, forKey: .disabledSources) ?? []
         customTools = try container.decodeIfPresent([CustomToolConfig].self, forKey: .customTools) ?? []
         appUpdates = try container.decodeIfPresent([AppUpdateConfig].self, forKey: .appUpdates) ?? []
+        updatePolicy =
+            try container.decodeIfPresent(UpdatePolicyConfig.self, forKey: .updatePolicy)
+            ?? UpdatePolicyConfig()
+        versionTargets =
+            try container.decodeIfPresent([String: String].self, forKey: .versionTargets) ?? [:]
     }
 
     public static let empty = RemigeConfig()

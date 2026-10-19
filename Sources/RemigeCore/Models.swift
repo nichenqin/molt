@@ -110,7 +110,11 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
     public var source: SourceKind
     public var kind: PackageKind
     public var currentVersion: String
+    /// The newest version the source declares, before policy is applied.
     public var latestVersion: String
+    /// The version an update action will install. Equal to `latestVersion`
+    /// unless the policy holds a major line or the user pinned a version.
+    public var targetVersion: String
     public var summary: String?
     public var homepage: URL?
     public var repo: RepoRef?
@@ -120,6 +124,17 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
     public var bundleIdentifier: String?
     public var pinned: Bool
     public var upgrade: UpgradePlan
+    public var updateMagnitude: UpdateMagnitude
+    public var latestBasis: LatestBasis
+    public var targetOrigin: TargetOrigin
+    /// True when `latestVersion` crosses the installed major line, even if the
+    /// policy keeps `targetVersion` on the current line.
+    public var majorVersionAvailable: Bool
+    /// Whether "Update All" and `remige upgrade --all` include this item.
+    public var isBatchEligible: Bool
+    /// Present when the source can install an exact version through an
+    /// `package@version` argv template.
+    public var versionedInstall: VersionedInstall?
 
     public init(
         id: String,
@@ -129,6 +144,7 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
         kind: PackageKind,
         currentVersion: String,
         latestVersion: String,
+        targetVersion: String? = nil,
         summary: String? = nil,
         homepage: URL? = nil,
         repo: RepoRef? = nil,
@@ -137,8 +153,17 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
         installedPath: String? = nil,
         bundleIdentifier: String? = nil,
         pinned: Bool = false,
-        upgrade: UpgradePlan
+        upgrade: UpgradePlan,
+        updateMagnitude: UpdateMagnitude? = nil,
+        latestBasis: LatestBasis = .source,
+        targetOrigin: TargetOrigin = .latest,
+        majorVersionAvailable: Bool? = nil,
+        isBatchEligible: Bool = true,
+        versionedInstall: VersionedInstall? = nil
     ) {
+        let magnitude =
+            updateMagnitude
+            ?? Self.defaultMagnitude(current: currentVersion, latest: latestVersion)
         self.id = id
         self.name = name
         self.displayName = displayName ?? name
@@ -146,6 +171,7 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
         self.kind = kind
         self.currentVersion = currentVersion
         self.latestVersion = latestVersion
+        self.targetVersion = targetVersion ?? latestVersion
         self.summary = summary
         self.homepage = homepage
         self.repo = repo
@@ -155,9 +181,86 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
         self.bundleIdentifier = bundleIdentifier
         self.pinned = pinned
         self.upgrade = upgrade
+        self.updateMagnitude = magnitude
+        self.latestBasis = latestBasis
+        self.targetOrigin = targetOrigin
+        self.majorVersionAvailable = majorVersionAvailable ?? (magnitude == .major)
+        self.isBatchEligible = isBatchEligible
+        self.versionedInstall = versionedInstall
     }
 
-    public var versionLine: String { "\(currentVersion) → \(latestVersion)" }
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case displayName
+        case source
+        case kind
+        case currentVersion
+        case latestVersion
+        case targetVersion
+        case summary
+        case homepage
+        case repo
+        case changelogURL
+        case changelogKind
+        case installedPath
+        case bundleIdentifier
+        case pinned
+        case upgrade
+        case updateMagnitude
+        case latestBasis
+        case targetOrigin
+        case majorVersionAvailable
+        case isBatchEligible
+        case versionedInstall
+    }
+
+    /// Snapshots written before the version-policy fields existed decode with
+    /// conservative defaults, so an upgrade does not invalidate the cache.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        displayName = try container.decode(String.self, forKey: .displayName)
+        source = try container.decode(SourceKind.self, forKey: .source)
+        kind = try container.decode(PackageKind.self, forKey: .kind)
+        currentVersion = try container.decode(String.self, forKey: .currentVersion)
+        latestVersion = try container.decode(String.self, forKey: .latestVersion)
+        targetVersion =
+            try container.decodeIfPresent(String.self, forKey: .targetVersion) ?? latestVersion
+        summary = try container.decodeIfPresent(String.self, forKey: .summary)
+        homepage = try container.decodeIfPresent(URL.self, forKey: .homepage)
+        repo = try container.decodeIfPresent(RepoRef.self, forKey: .repo)
+        changelogURL = try container.decodeIfPresent(URL.self, forKey: .changelogURL)
+        changelogKind =
+            try container.decodeIfPresent(ChangelogKind.self, forKey: .changelogKind)
+            ?? .githubReleases
+        installedPath = try container.decodeIfPresent(String.self, forKey: .installedPath)
+        bundleIdentifier = try container.decodeIfPresent(String.self, forKey: .bundleIdentifier)
+        pinned = try container.decodeIfPresent(Bool.self, forKey: .pinned) ?? false
+        upgrade = try container.decode(UpgradePlan.self, forKey: .upgrade)
+        let magnitude =
+            try container.decodeIfPresent(UpdateMagnitude.self, forKey: .updateMagnitude)
+            ?? Self.defaultMagnitude(current: currentVersion, latest: latestVersion)
+        updateMagnitude = magnitude
+        latestBasis = try container.decodeIfPresent(LatestBasis.self, forKey: .latestBasis) ?? .source
+        targetOrigin =
+            try container.decodeIfPresent(TargetOrigin.self, forKey: .targetOrigin) ?? .latest
+        majorVersionAvailable =
+            try container.decodeIfPresent(Bool.self, forKey: .majorVersionAvailable)
+            ?? (magnitude == .major)
+        isBatchEligible =
+            try container.decodeIfPresent(Bool.self, forKey: .isBatchEligible) ?? true
+        versionedInstall =
+            try container.decodeIfPresent(VersionedInstall.self, forKey: .versionedInstall)
+    }
+
+    public var versionLine: String { "\(currentVersion) → \(targetVersion)" }
+
+    private static func defaultMagnitude(current: String, latest: String) -> UpdateMagnitude {
+        guard let current = Version(current), let latest = Version(latest) else { return .unknown }
+        return latest.updateMagnitude(from: current)
+    }
 }
 
 public enum ChangelogKind: String, Codable, Sendable {

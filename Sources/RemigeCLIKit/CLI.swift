@@ -93,10 +93,12 @@ public enum RemigeCLI {
             print(CLIFormat.table(items: filtered.items, palette: palette))
         }
         print("")
-        let automatic = filtered.items.filter(\.upgrade.canRunAutomatically).count
+        let batchable = filtered.items.filter(\.isBatchable).count
+        let major = filtered.items.filter(\.majorVersionAvailable).count
         print(
             "  \(filtered.items.count) updates"
-                + " · " + "\(automatic) one-click"
+                + " · " + "\(batchable) in update-all"
+                + (major > 0 ? " · \(major) major" : "")
                 + " · " + "scanned in \(CLIFormat.duration(snapshot.duration))"
         )
         for report in filtered.reports where report.state == .failed {
@@ -130,19 +132,47 @@ public enum RemigeCLI {
         let scanner = RemigeCore.Scanner()
         let snapshot = await scanner.scan(options: ScanOptions(forceRefresh: parsed.flag("refresh")))
         let selectedItems: [OutdatedItem]
-        if parsed.flag("all") {
-            selectedItems = snapshot.items
+        if let target = parsed.value("to") {
+            guard !parsed.flag("all") else {
+                throw CLIError("--to applies to one package; it cannot be combined with --all.")
+            }
+            guard parsed.positionals.count == 1 else {
+                throw CLIError("--to needs exactly one package.")
+            }
+            var item = try CLIQuery.resolve(parsed.positionals[0], in: snapshot.items)
+            guard item.versionedInstall != nil else {
+                throw CLIError(
+                    "\(item.displayName) does not expose a versioned install command; its source only offers the latest release."
+                )
+            }
+            guard item.selectTarget(target) else {
+                throw CLIError(
+                    "Target \(target) must be newer than \(item.currentVersion) and no newer than \(item.latestVersion)."
+                )
+            }
+            selectedItems = [item]
+        } else if parsed.flag("all") {
+            selectedItems = snapshot.items.filter {
+                !$0.pinned && (parsed.flag("include-major") || $0.isBatchEligible)
+            }
+            if !parsed.flag("include-major") {
+                let excluded = snapshot.items.filter { !$0.pinned && !$0.isBatchEligible }
+                if !excluded.isEmpty && !parsed.flag("json") {
+                    let majors = excluded.filter(\.majorVersionAvailable).count
+                    let suffix = majors == excluded.count ? "major update(s)" : "update(s)"
+                    print(
+                        palette.dim(
+                            "  \(excluded.count) \(suffix) excluded by the update policy · pass --include-major to include them"
+                        )
+                    )
+                }
+            }
         } else {
             guard !parsed.positionals.isEmpty else {
                 throw CLIError("Name at least one package, or pass --all.")
             }
             selectedItems = try parsed.positionals.map { try CLIQuery.resolve($0, in: snapshot.items) }
         }
-        guard !selectedItems.isEmpty else {
-            print("Nothing to upgrade.")
-            return 0
-        }
-
         let automatic = selectedItems.filter(\.upgrade.canRunAutomatically)
         let openable = selectedItems.filter { $0.upgrade.kind == .openURL }
         let manual = selectedItems.filter { $0.upgrade.kind == .manual }
@@ -613,11 +643,15 @@ public enum RemigeCLI {
         switch command {
         case "upgrade":
             return """
-                usage: remige upgrade <id|name…> | --all [--dry-run] [--yes] [--json] [--source …]
+                usage: remige upgrade <id|name…> | --all [--to <version>] [--include-major]
+                                      [--dry-run] [--yes] [--json] [--source …]
 
                 Runs each package's own upgrade command (brew, npm, pnpm, bun, mas, self-update).
                 Download-only apps open their release page. Nothing runs silently: without
                 --yes, remige asks once on a TTY and refuses in scripts.
+
+                --all honors the configured major-update policy; --include-major overrides it.
+                --to targets one npm/pnpm/Bun package at an exact version for this run.
                 """
         case "changelog":
             return """
@@ -648,7 +682,8 @@ public enum RemigeCLI {
 
                 usage:
                   remige [list] [--json] [--cached] [--source <name>] [--refresh] [--no-color]
-                  remige upgrade <id|name…> | --all [--dry-run] [--yes] [--json]
+                  remige upgrade <id|name…> | --all [--to <version>] [--include-major]
+                                 [--dry-run] [--yes] [--json]
                   remige changelog <id|name> [--limit N] [--json]
                   remige open <id|name>
                   remige sources [--json]

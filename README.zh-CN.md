@@ -28,14 +28,19 @@ Sparkle 应用只知道自己。Remige 把这些原生数据源并行跑一遍�
 | --- | --- | --- | --- |
 | Homebrew formula | `brew outdated --json=v2 --greedy` | `brew upgrade --formula` | GitHub Releases |
 | Homebrew cask（DMG/PKG） | 同上 | `brew upgrade --cask` | GitHub Releases |
-| npm 全局包 | `npm outdated -g --json` | `npm install -g <pkg>@latest` | GitHub Releases |
-| pnpm 全局包 | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub Releases |
-| Bun 全局包 | `~/.bun/install/global` + registry | `bun add -g <pkg>@latest` | GitHub Releases |
+| npm 全局包 | `npm outdated -g --json` | `npm install -g <pkg>@<target>` | GitHub Releases |
+| pnpm 全局包 | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@<target>` | GitHub Releases |
+| Bun 全局包 | `~/.bun/install/global` + registry | `bun add -g <pkg>@<target>` | GitHub Releases |
 | Sparkle 应用 | `Info.plist` 的 `SUFeedURL` | 打开完整下载页；cask 管理的应用由 Homebrew 负责 | Appcast |
 | 其他应用 | 标准 Electron Builder `app-update.yml`（GitHub 或 HTTPS generic manifest）或已核实的 bundle id 目录（Magpie、Obsidian、Rectangle、Stats、Zed 等） | 打开发布页或下载页 | GitHub Releases / 更新 manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store |
 | 独立 CLI 工具 | 内置目录 + `--version` + GitHub latest | 已知自更新命令，否则发布页 | GitHub Releases |
 | 自定义 curl 工具 | JSON 配置 | 你指定的命令 | GitHub Releases |
+
+每个更新同时带有 `latestVersion`（来源声明的最新版本）与 `targetVersion`（Remige 实际会安装的版本）。
+默认策略 `prompt` 会显示大版本更新，但不把它放进「全部更新」或 `remige upgrade --all`；改为 `allow`
+则包含，改为 `hold` 则优先停留在已安装的大版本内。`hold` 只适用于支持安装指定版本的 npm、pnpm、Bun；
+这三类包也可以在详情面板中持久固定具体版本；`--to` 只影响当次运行。
 
 没有 Sparkle feed、Homebrew cask、可识别的 Electron manifest 或显式目录项的应用不会瞎猜，而是以“未检查”出现在应用来源中。可在 JSON 配置的 `appUpdates` 里按 bundle id 声明 GitHub 仓库或 latest URL。
 
@@ -90,8 +95,8 @@ remige                       # 扫描 + 列表
 remige list --json           # 稳定 JSON
 remige list --cached         # 立即显示上次快照
 remige list --source npm     # homebrew / npm / pnpm / bun / app / cli / mas / custom
-remige upgrade --all --yes
-remige upgrade cc-switch --dry-run
+remige upgrade --all --yes   # 只执行批量策略允许的更新
+remige upgrade npm:vercel --to 44.2.7
 remige changelog iina
 remige doctor --json
 remige cache path|size|clear
@@ -103,6 +108,11 @@ remige update
 
 `remige upgrade` 会显示将执行的完整 argv。没有 `--yes` 时会在 TTY 上问一次，在脚本里直接拒绝。只提供
 下载页的应用不会被静默安装。
+
+`remige list --json` 的每个 item 还包含 `targetVersion`、`updateMagnitude`（`unknown` / `patch` /
+`minor` / `major`）、`latestBasis`、`targetOrigin`、`majorVersionAvailable` 和 `isBatchEligible`，
+分别表示目标版本、跨度、最新版本的依据、目标来源（默认 / 停留 / 固定）以及是否进入批量更新。
+支持精确版本的包管理器还会带有 `versionedInstall`，描述 `package@version` 的 argv 模板。
 
 ## 更新 Remige 本体
 
@@ -141,6 +151,15 @@ Homebrew 安装请用 `brew upgrade remige` 与 `brew upgrade --cask remige-app`
 - 最新版本来源可以是 `github: "owner/repo"`，或 `latestURL` + `latestRegex`。
 - `upgradeArgs` 的第一个元素会被替换为检测到的可执行文件路径，其余原样传入。不写则打开发布页。
 - `disabledSources` 可以关闭来源，例如 `["mas", "pnpm"]`。
+- `updatePolicy.major` 可选 `prompt`（默认）、`allow` 或 `hold`。
+- `versionTargets` 按 item id 固定精确版本，仅对支持 `package@version` 的包管理器生效。
+
+```json
+{
+  "updatePolicy": {"major": "hold"},
+  "versionTargets": {"npm:typescript": "5.4.5"}
+}
+```
 
 既没有 Sparkle 也没有 Electron Builder 元数据的应用，可以按 bundle id 声明：
 

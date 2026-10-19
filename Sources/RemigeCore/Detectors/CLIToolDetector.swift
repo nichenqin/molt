@@ -69,7 +69,7 @@ public struct CLIToolDetector: OutdatedSourceDetector {
             } else {
                 plan = .manual("Install the newest release manually.")
             }
-            return OutdatedItem(
+            var item = OutdatedItem(
                 id: "cli:\(entry.tool.name)",
                 name: entry.tool.name,
                 displayName: entry.tool.displayName,
@@ -86,6 +86,8 @@ public struct CLIToolDetector: OutdatedSourceDetector {
                 installedPath: entry.path,
                 upgrade: plan
             )
+            item.applyUpdatePolicy(config: context.config)
+            return item
         }.compactMap { $0 }
 
         var message = "\(installed.count) standalone tools checked"
@@ -180,7 +182,7 @@ public struct CustomToolDetector: OutdatedSourceDetector {
             } else {
                 plan = .manual("Update this tool with its own installer.")
             }
-            return OutdatedItem(
+            var item = OutdatedItem(
                 id: "custom:\(draft.config.name)",
                 name: draft.config.name,
                 displayName: draft.config.name,
@@ -196,6 +198,8 @@ public struct CustomToolDetector: OutdatedSourceDetector {
                 installedPath: draft.path,
                 upgrade: plan
             )
+            item.applyUpdatePolicy(config: context.config)
+            return item
         }
         return DetectorOutput(
             items: items,
