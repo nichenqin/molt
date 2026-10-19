@@ -50,8 +50,7 @@ struct MenuBarView: View {
                         Button {
                             MenuBarPanel.dismiss()
                             model.selectedID = item.id
-                            NSApp.activate(ignoringOtherApps: true)
-                            openWindow(id: "main")
+                            MainWindow.show(using: openWindow)
                         } label: {
                             HStack(spacing: 8) {
                                 ItemIcon(item: item, size: 22)
@@ -89,8 +88,7 @@ struct MenuBarView: View {
                 Button {
                     MenuBarPanel.dismiss()
                     model.upgradeAll()
-                    NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "main")
+                    MainWindow.show(using: openWindow)
                 } label: {
                     Label(L.t("action.upgradeAll"), systemImage: "bolt.fill")
                         .font(.system(size: 12, weight: .medium))
@@ -104,8 +102,7 @@ struct MenuBarView: View {
 
                 Button {
                     MenuBarPanel.dismiss()
-                    NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "main")
+                    MainWindow.show(using: openWindow)
                 } label: {
                     Label(L.t("menu.open"), systemImage: "macwindow")
                         .font(.system(size: 12))
