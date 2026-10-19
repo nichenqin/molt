@@ -15,7 +15,8 @@ const { lang } = Astro.props;
 const t = ui[lang];
 const screenshot = lang === 'zh' ? screenshotZh : screenshotEn;
 const dmgUrl = feed.assets['Remige-macos.dmg']?.url ?? 'https://github.com/nichenqin/remige/releases/latest';
-const installCommand = 'curl -fsSL https://remige.app/install.sh | sh';
+const installScriptUrl = 'https://remige.app/install.sh';
+const installCommand = `curl -fsSL ${installScriptUrl} | sh`;
 const brewCommand = `brew tap nichenqin/remige https://github.com/nichenqin/remige
 brew install --cask remige-app
 brew install remige`;
@@ -164,7 +165,7 @@ const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
       <h2 class="section-title">{t.install.title}</h2>
       <p class="text-[0.97rem] leading-[1.7] text-muted">{t.install.body}</p>
     </div>
-    <div class="grid items-stretch gap-3.5 lg:grid-cols-[1.15fr_1fr_1fr]">
+    <div class="grid items-stretch gap-3.5 lg:grid-cols-3">
       <article class="flex min-w-0 flex-col rounded-[14px] border border-blue/30 bg-surface p-[22px] shadow-[var(--shadow-card)]">
         <div class="mb-4 flex items-center justify-between">
           <span class="font-mono text-[0.65rem] text-faint">01</span>
@@ -173,7 +174,6 @@ const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
         <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.dmg.title}</h3>
         <p class="mb-4 text-[0.75rem] text-muted">{t.install.dmg.body}</p>
         <a class="btn btn-primary btn-full mt-auto" data-download="dmg" href={dmgUrl}>{t.install.dmg.button}</a>
-        <span class="mt-2.5 text-[0.66rem] text-faint">v{feed.version} · {t.install.dmg.meta}</span>
       </article>
       <article class="flex min-w-0 flex-col rounded-[14px] border border-line bg-surface p-[22px]">
         <div class="mb-4 flex items-center justify-between">
@@ -182,9 +182,9 @@ const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
         </div>
         <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.curl.title}</h3>
         <p class="mb-4 text-[0.75rem] text-muted">{t.install.curl.body}</p>
-        <div class="mt-auto flex items-center gap-1 rounded-lg border border-line bg-soft p-2 pl-3" data-copy-source>
-          <code class="min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-[0.66rem] text-muted">{installCommand}</code>
-          <button class="copy" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
+        <div class="mt-auto flex w-full flex-col items-start gap-1 rounded-lg border border-line bg-soft p-3" data-copy-source>
+          <code class="w-full whitespace-pre-wrap break-words text-[0.66rem] leading-[1.75] text-muted">curl -fsSL {installScriptUrl} <span class="whitespace-nowrap">| sh</span></code>
+          <button class="copy self-end" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
             {t.copy.label}
           </button>
         </div>
@@ -196,7 +196,7 @@ const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
         </div>
         <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.brew.title}</h3>
         <p class="mb-4 text-[0.75rem] text-muted">{t.install.brew.body}</p>
-        <div class="mt-auto flex flex-col items-start gap-1 rounded-lg border border-line bg-soft p-3" data-copy-source>
+        <div class="mt-auto flex w-full flex-col items-start gap-1 rounded-lg border border-line bg-soft p-3" data-copy-source>
           <code class="w-full whitespace-pre-wrap break-words text-[0.66rem] leading-[1.75] text-muted">{brewCommand}</code>
           <button class="copy self-end" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
             {t.copy.label}
