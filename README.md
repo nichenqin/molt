@@ -292,8 +292,12 @@ including downloading latest-version metadata and running its upgrade command.
 ## Security and limits
 
 - No sudo prompts are injected. If `brew` or `mas` needs elevation, the command fails with its own output.
+- Updates that need a terminal for input are reported with **Run in Terminal**. Remige never collects
+  passwords or forwards stdin; Terminal runs the same argv with a real TTY.
 - Sparkle apps without a Homebrew cask open the *full* download; delta enclosures are ignored. Remige does not
   replace app bundles itself.
+- Failed command updates keep their complete transcript in the sheet; the CLI prints the command to run when
+  a prompt was detected.
 - Release notes are converted to text before display; scripts and remote images are discarded.
 - Homebrew's index is not auto-updated during scans (`HOMEBREW_NO_AUTO_UPDATE=1`). Run `brew update` when you
   want newer formula metadata.

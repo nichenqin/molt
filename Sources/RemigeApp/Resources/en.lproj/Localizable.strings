@@ -54,6 +54,12 @@
 "upgrade.complete" = "%d updated · %d failed";
 "upgrade.cancelled" = "Cancelled.";
 "upgrade.none" = "Nothing can be updated automatically.";
+"upgrade.needsTerminal" = "%@ needs a terminal for input.";
+"upgrade.runInTerminal" = "Run %d in Terminal";
+"upgrade.terminalOpenedShort" = "Opened in Terminal";
+"upgrade.terminalOpened" = "Opened %d update(s) in Terminal. Remige cannot see their output.";
+"upgrade.terminalFailed" = "Could not open Terminal: %@";
+"upgrade.runInTerminal.help" = "Needed for passwords or confirmations. Terminal runs the command; Remige never sees your input.";
 "footer.lastChecked" = "Checked %@";
 "footer.failed" = "%d sources unavailable";
 "footer.appsUnsupported" = "%d apps unchecked";

@@ -220,6 +220,8 @@ flowchart LR
 
 - 当前公开构建是 ad-hoc 签名。Developer ID 签名 / 公证已接入 release workflow，但需要 Apple Developer Program 账号。
 - 不会注入 sudo。brew / mas 需要提权时，会原样返回其错误。
+- 需要终端输入的更新会显示「在终端中运行」。Remige 不收集密码、不转发 stdin，由 Terminal 用真实
+  TTY 执行同一组 argv。
 - 非 cask 管理的 Sparkle 应用只打开完整下载（忽略 delta 包），Remige 不替换应用包。
 - 更新日志在展示前转成纯文本，脚本和远程图片被丢弃。
 - 扫描时设置 `HOMEBREW_NO_AUTO_UPDATE=1`；需要最新 formula 元数据时自己跑 `brew update`。

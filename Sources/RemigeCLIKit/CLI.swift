@@ -236,6 +236,11 @@ public enum RemigeCLI {
                         print(palette.green("✓ \(item.displayName)"))
                     } else {
                         print(palette.red("✗ \(item.displayName): \(final.message ?? "failed")"))
+                        if final.requiresTerminal {
+                            print(
+                                palette.yellow(
+                                    "  Needs a terminal for input. Run: \(final.command ?? "")"))
+                        }
                     }
                 }
             }

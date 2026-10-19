@@ -35,7 +35,8 @@ final class AppModel {
     var lastUpdateCheck: Date?
     var upgradeTitle = ""
     var upgradeResults: [UpgradeResult] = []
-
+    var upgradeTargets: [OutdatedItem] = []
+    var terminalHandoffOpened = false
     var pendingUpgrade: PendingUpgrade?
 
     var versionPickerItem: OutdatedItem?
@@ -108,6 +109,13 @@ final class AppModel {
     /// Major updates the policy keeps out of Update All.
     var excludedMajorCount: Int {
         items.filter { $0.majorVersionAvailable && !$0.isBatchEligible }.count
+    }
+
+    /// Failed command updates whose output shows they waited for a prompt.
+    var terminalUpgradeItems: [OutdatedItem] {
+        guard !upgradeRunning else { return [] }
+        let ids = Set(upgradeResults.filter(\.requiresTerminal).map(\.itemID))
+        return upgradeTargets.filter { ids.contains($0.id) && $0.upgrade.canRunAutomatically }
     }
 
     var presentSources: [SourceKind] {
@@ -264,6 +272,8 @@ final class AppModel {
         upgradeTitle = title
         upgradeLog = ""
         upgradeResults = []
+        upgradeTargets = targets
+        terminalHandoffOpened = false
         showUpgradeSheet = true
         upgradeRunning = true
         upgradeTask = Task { [weak self] in
@@ -283,6 +293,9 @@ final class AppModel {
                         appendLog(
                             result.success
                                 ? "\n✓ \(result.name)\n" : "\n✗ \(result.name): \(result.message ?? "failed")\n")
+                        if result.requiresTerminal {
+                            appendLog(L.t("upgrade.needsTerminal", result.name) + "\n")
+                        }
                     }
                 }
             }
@@ -297,6 +310,18 @@ final class AppModel {
         upgradeTask?.cancel()
         upgradeRunning = false
         appendLog("\n" + L.t("upgrade.cancelled") + "\n")
+    }
+
+    func openTerminalForFailedUpgrades() {
+        let targets = terminalUpgradeItems
+        guard !targets.isEmpty, !terminalHandoffOpened else { return }
+        do {
+            try TerminalHandoff.open(items: targets)
+            terminalHandoffOpened = true
+            appendLog("\n" + L.t("upgrade.terminalOpened", targets.count) + "\n")
+        } catch {
+            appendLog("\n" + L.t("upgrade.terminalFailed", error.localizedDescription) + "\n")
+        }
     }
 
     func closeUpgradeSheet() {

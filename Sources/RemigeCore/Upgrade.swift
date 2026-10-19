@@ -32,12 +32,50 @@ public struct UpgradeResult: Codable, Sendable {
         self.message = message
         self.output = output
     }
+
+    /// True when the failure looks like a prompt that could not be answered
+    /// because the child process had no terminal.
+    public var requiresTerminal: Bool {
+        guard !success, let command, !command.isEmpty else { return false }
+        return InteractivePrompt.matches((message ?? "") + "\n" + String(output.suffix(8_000)))
+    }
 }
 
 public enum UpgradeEvent: Sendable {
     case started(itemID: String, name: String, command: String)
     case output(String)
     case finished(UpgradeResult)
+}
+
+/// Builds the argv and environment shared by the app, the CLI and Terminal
+/// handoff. `NONINTERACTIVE` belongs only to the background runner: the
+/// handoff exists to let the same command ask for input.
+public enum UpgradeCommand {
+    public static let environment: [String: String] = [
+        "HOMEBREW_NO_AUTO_UPDATE": "1",
+        "HOMEBREW_NO_ANALYTICS": "1",
+        "HOMEBREW_NO_COLOR": "1",
+        "HOMEBREW_NO_ENV_HINTS": "1",
+        "NONINTERACTIVE": "1",
+        "NO_COLOR": "1",
+        "npm_config_color": "false",
+        "npm_config_yes": "true",
+    ]
+
+    public static let terminalEnvironment: [String: String] = environment.filter {
+        $0.key != "NONINTERACTIVE"
+    }
+
+    public static func spec(for item: OutdatedItem) -> CommandSpec? {
+        guard item.upgrade.kind == .command, let executable = item.upgrade.executable else {
+            return nil
+        }
+        return CommandSpec(
+            executable: executable,
+            arguments: item.upgrade.arguments,
+            environment: environment
+        )
+    }
 }
 
 /// Runs one upgrade plan and streams its transcript. Plans that need a GUI
@@ -51,7 +89,7 @@ public struct UpgradeService: Sendable {
     }
 
     public func run(item: OutdatedItem, timeout: TimeInterval = 900) -> AsyncStream<UpgradeEvent> {
-        guard item.upgrade.kind == .command, let executable = item.upgrade.executable else {
+        guard let spec = UpgradeCommand.spec(for: item) else {
             return AsyncStream { continuation in
                 continuation.yield(
                     .finished(
@@ -71,18 +109,8 @@ public struct UpgradeService: Sendable {
             }
         }
 
-        let spec = CommandSpec(
-            executable: executable,
-            arguments: item.upgrade.arguments,
-            environment: [
-                "HOMEBREW_NO_AUTO_UPDATE": "1",
-                "HOMEBREW_NO_ANALYTICS": "1",
-                "HOMEBREW_NO_COLOR": "1",
-                "NO_COLOR": "1",
-                "npm_config_color": "false",
-            ]
-        )
         let stream = runner.stream(spec, timeout: timeout)
+
         return AsyncStream { continuation in
             continuation.yield(.started(itemID: item.id, name: item.displayName, command: spec.display))
             let task = Task {
