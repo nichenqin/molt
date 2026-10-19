@@ -3,7 +3,7 @@ import Foundation
 
 /// Small JSON/data cache with TTLs and atomic writes.
 ///
-/// Files live in `~/Library/Caches/com.nichenqin.remige` by default. Every write
+/// Files live in `~/Library/Caches/app.remige` by default. Every write
 /// is atomic, so a crash never leaves a half-written snapshot for the next
 /// launch to parse.
 public actor DiskCache {
@@ -19,6 +19,10 @@ public actor DiskCache {
         public var data: Data
     }
 
+    /// Bundle identifier of the shipping app; it also names the cache directory
+    /// and the macOS preferences domain. Keep in sync with `Resources/Info.plist`.
+    public static let bundleIdentifier = "app.remige"
+
     public let directory: URL
     private let fileManager: FileManager
 
@@ -31,7 +35,7 @@ public actor DiskCache {
             let base =
                 fileManager.urls(for: .cachesDirectory, in: .userDomainMask).first
                 ?? URL(fileURLWithPath: NSHomeDirectory() + "/Library/Caches")
-            self.directory = base.appendingPathComponent("com.nichenqin.remige", isDirectory: true)
+            self.directory = base.appendingPathComponent(Self.bundleIdentifier, isDirectory: true)
         }
         self.fileManager = fileManager
         try? fileManager.createDirectory(at: self.directory, withIntermediateDirectories: true)
@@ -44,7 +48,7 @@ public actor DiskCache {
         let base =
             FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory() + "/Library/Caches")
-        return base.appendingPathComponent("com.nichenqin.remige", isDirectory: true)
+        return base.appendingPathComponent(bundleIdentifier, isDirectory: true)
     }
 
     public func read<T: Codable>(_ type: T.Type, key: String, maxAge: TimeInterval) -> T? {

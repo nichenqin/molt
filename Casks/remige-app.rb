@@ -19,6 +19,11 @@ cask "remige-app" do
 
   zap trash: [
     "~/.config/remige",
+    "~/Library/Caches/app.remige",
+    "~/Library/HTTPStorages/app.remige",
+    "~/Library/Preferences/app.remige.plist",
+    "~/Library/Saved Application State/app.remige.savedState",
+    # Bundle identifier used before the move to app.remige.
     "~/Library/Caches/com.nichenqin.remige",
     "~/Library/HTTPStorages/com.nichenqin.remige",
     "~/Library/Preferences/com.nichenqin.remige.plist",
