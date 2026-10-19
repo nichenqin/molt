@@ -1,11 +1,11 @@
 cask "remige-app" do
-  version "0.3.0"
-  sha256 "d51ff36990e7f2ea572dcd0a407cc42563fb65e9b1e16ffcc8a498d3d84ee6c4"
+  version "0.3.1"
+  sha256 "5a525f23f606e9fa6592dd7d7114fb9ebfd1a5d722be5e63404d5ff2d5ef4719"
 
-  url "https://github.com/nichenqin/remige/releases/download/v0.3.0/Remige-macos.dmg"
+  url "https://github.com/nichenqin/remige/releases/download/v0.3.1/Remige-macos.dmg"
   name "Remige"
   desc "Every update in one place"
-  homepage "https://remige.vercel.app/"
+  homepage "https://remige.app/"
 
   auto_updates true
   depends_on macos: :sonoma

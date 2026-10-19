@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Remige Docs — Install, CLI, sources, updates</title>
   <meta name="description" content="Remige documentation: install, CLI reference, update sources, custom tools, self-update, security and build instructions.">
-  <link rel="canonical" href="https://remige.vercel.app/docs/">
+  <link rel="canonical" href="https://remige.app/docs/">
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -34,7 +34,7 @@
   <h3>DMG</h3>
   <p>Download <a data-download="dmg" href="https://github.com/nichenqin/remige/releases/latest">Remige-macos.dmg</a>, drag Remige into Applications, then open it. The DMG is universal (Apple Silicon and Intel) and requires macOS 14+.</p>
   <h3>One-line installer</h3>
-  <pre><code>curl -fsSL https://remige.vercel.app/install.sh | sh</code></pre>
+  <pre><code>curl -fsSL https://remige.app/install.sh | sh</code></pre>
   <p>The installer downloads the latest app and CLI, verifies SHA-256, installs the app to <code>/Applications</code> (or <code>~/Applications</code>) and the CLI to <code>/usr/local/bin</code> (or <code>~/.local/bin</code>), and removes the quarantine flag.</p>
   <h3>Homebrew</h3>
   <pre><code>brew tap nichenqin/remige https://github.com/nichenqin/remige
@@ -93,7 +93,7 @@ remige config path|init|show|edit</code></pre>
   <p>In <code>upgradeArgs</code>, the first element is replaced by the detected executable path and the rest is passed through. Omit it to make the row open the release page.</p>
 
   <h2 id="updates">Updating Remige</h2>
-  <p>Remige checks the static feed at <code>https://remige.vercel.app/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Remige → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Remige to quit, swaps the app bundle with rollback, and relaunches it.</p>
+  <p>Remige checks the static feed at <code>https://remige.app/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Remige → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Remige to quit, swaps the app bundle with rollback, and relaunches it.</p>
   <p>The CLI uses the same feed:</p>
   <pre><code>remige update --check
 remige update</code></pre>

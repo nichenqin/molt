@@ -7,3 +7,4 @@ dist/
 Resources/build/
 
 .vercel/
+.cloudflare/

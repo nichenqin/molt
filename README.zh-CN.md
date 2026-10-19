@@ -8,7 +8,7 @@ Remige 是一个原生菜单栏 / Dock 应用，同时提供 CLI。它会在各�
 Homebrew 的 formula 与 cask、npm / pnpm / Bun 全局包、通过 Sparkle 自更新的 DMG 应用、Mac App Store
 应用，以及用 `curl`、安装脚本或压缩包装出来的命令行工具。可以看更新日志，然后一键或一条命令升级。
 
-**官网：** [remige.vercel.app](https://remige.vercel.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
+**官网：** [remige.app](https://remige.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
 
 ![Remige 截图](docs/screenshot.png)
 
@@ -41,7 +41,7 @@ Sparkle 应用只知道自己。Remige 把这些原生数据源并行跑一遍�
 **一行命令：**
 
 ```sh
-curl -fsSL https://remige.vercel.app/install.sh | sh
+curl -fsSL https://remige.app/install.sh | sh
 ```
 
 **Homebrew：**
@@ -93,7 +93,7 @@ remige update
 
 ## 更新 Remige 本体
 
-应用会检查 `https://remige.vercel.app/latest.json`；**Remige → 检查更新…** 打开更新面板。下载的 ZIP
+应用会检查 `https://remige.app/latest.json`；**Remige → 检查更新…** 打开更新面板。下载的 ZIP
 会按 feed 中的 SHA-256 校验，然后由一个小 helper 等待 Remige 退出、带回滚地替换 App 包并重启。CLI 使用
 同一个 feed：
 

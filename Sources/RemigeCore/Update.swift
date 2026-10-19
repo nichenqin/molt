@@ -71,9 +71,9 @@ public struct AvailableUpdate: Sendable {
 public enum RemigeLinks {
     public static let repository = URL(string: "https://github.com/nichenqin/remige")!
     public static let releases = URL(string: "https://github.com/nichenqin/remige/releases")!
-    public static let website = URL(string: "https://remige.vercel.app/")!
-    public static let feed = URL(string: "https://remige.vercel.app/latest.json")!
-    public static let installScript = URL(string: "https://remige.vercel.app/install.sh")!
+    public static let website = URL(string: "https://remige.app/")!
+    public static let feed = URL(string: "https://remige.app/latest.json")!
+    public static let installScript = URL(string: "https://remige.app/install.sh")!
 
     public static var configuredFeed: URL {
         if let raw = ProcessInfo.processInfo.environment["REMIGE_UPDATE_FEED"],

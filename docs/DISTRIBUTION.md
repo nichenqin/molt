@@ -7,9 +7,9 @@ has `remige update`; both read the same static feed.
 
 | Thing | URL |
 | --- | --- |
-| Website | https://remige.vercel.app/ |
-| Update feed | https://remige.vercel.app/latest.json |
-| Installer | https://remige.vercel.app/install.sh |
+| Website | https://remige.app/ |
+| Update feed | https://remige.app/latest.json |
+| Installer | https://remige.app/install.sh |
 | Releases | https://github.com/nichenqin/remige/releases |
 | Homebrew tap | `brew tap nichenqin/remige https://github.com/nichenqin/remige` |
 
@@ -36,7 +36,7 @@ first launch still depends on the user's settings.
 
 ### Optional
 
-- **Custom domain** — about $10–20/year. The site is fully usable on `remige.vercel.app`. A domain
+- **Custom domain** — about $10–20/year. The site is fully usable on `remige.app`. A domain
   such as `remige.nichenqin.com` only requires changing `RemigeLinks.website` / `configuredFeed`, the site
   canonical/OG URLs, and adding the domain in Vercel; Vercel is free.
 - **CDN or worker** — optional; the static Vercel deployment is enough for downloads and the update feed.
@@ -125,7 +125,7 @@ the feed and Homebrew files on `main`, and the Pages workflow redeploys the site
 codesign -dv --verbose=4 /Applications/Remige.app
 spctl -a -vv /Applications/Remige.app
 shasum -a 256 Remige-macos.zip Remige-macos.dmg remige-cli
-curl -fsSL https://remige.vercel.app/latest.json
+curl -fsSL https://remige.app/latest.json
 remige update --check
 ```
 

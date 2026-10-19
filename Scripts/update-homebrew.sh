@@ -20,7 +20,7 @@ mkdir -p Formula Casks
 cat > Formula/remige.rb <<EOF
 class Remige < Formula
   desc "Every macOS update in one place: brew, npm, apps, and CLI tools"
-  homepage "https://remige.vercel.app/"
+  homepage "https://remige.app/"
   url "$BASE/remige-cli"
   version "$VERSION"
   sha256 "$CLI_SHA"
@@ -44,7 +44,7 @@ cask "remige-app" do
   url "$BASE/Remige-macos.dmg"
   name "Remige"
   desc "Every update in one place"
-  homepage "https://remige.vercel.app/"
+  homepage "https://remige.app/"
 
   auto_updates true
   depends_on macos: :sonoma

@@ -9,7 +9,7 @@ lives: Homebrew formulae and casks, global npm/pnpm/Bun packages, Sparkle-update
 apps, and standalone tools installed by `curl`, installers, or tarballs. Read release notes, then update
 with one click or one command.
 
-**Website:** [remige.vercel.app](https://remige.vercel.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
+**Website:** [remige.app](https://remige.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
 
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 
@@ -50,7 +50,7 @@ bundle identifier in the JSON config for apps with a GitHub repo or latest-versi
 **One line:**
 
 ```sh
-curl -fsSL https://remige.vercel.app/install.sh | sh
+curl -fsSL https://remige.app/install.sh | sh
 ```
 
 **Homebrew:**
@@ -130,7 +130,7 @@ stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrad
 
 ## Updating Remige
 
-The app checks `https://remige.vercel.app/latest.json`; **Remige → Check for Updates…** shows the sheet.
+The app checks `https://remige.app/latest.json`; **Remige → Check for Updates…** shows the sheet.
 The update ZIP is verified against the feed's SHA-256, then a small helper waits for Remige to exit, swaps the
 app bundle with rollback, and relaunches it. The CLI uses the same feed:
 

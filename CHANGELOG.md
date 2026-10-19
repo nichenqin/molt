@@ -1,11 +1,16 @@
 # Changelog
 
-## Unreleased
+## 0.3.1 — 2026-10-19
+
+- Moved the official website, installer and update feed to `remige.app` (with `www` redirecting to
+  the apex), and pointed the app, CLI, Homebrew files and documentation at the new domain.
 
 - Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled
   actions stay flat.
 - Rework the main window into a compact native update ledger with consistent typography, spacing,
   aligned list rows, restrained controls, and a clearer detail inspector (`BUG-4`).
+- Source filter chips now accept clicks across the full chip slot, including the padding and the
+  gaps between chips, and highlight on hover.
 
 ## 0.3.0 — 2026-10-19
 
@@ -31,7 +36,7 @@
 
 The distribution release.
 
-- Website at `remige.vercel.app` with English and Chinese landing pages, docs, download and release notes.
+- Website at `remige.app` with English and Chinese landing pages, docs, download and release notes.
 - Universal DMG alongside the ZIP, with SHA-256 checksums.
 - In-app self-update: checks the static feed, verifies SHA-256, swaps the app bundle with rollback, and relaunches.
 - `remige update` / `remige update --check` for the CLI, including a Homebrew guard.

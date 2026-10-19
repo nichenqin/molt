@@ -1,5 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "outputDirectory": "site"
+  "outputDirectory": "site",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.remige.app" }],
+      "destination": "https://remige.app/:path*",
+      "permanent": true
+    }
+  ]
 }
