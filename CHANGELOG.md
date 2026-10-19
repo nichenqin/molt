@@ -4,6 +4,8 @@
 
 - Source filter chips accept clicks across the full chip slot, including the padding and the gaps
   between chips, and highlight on hover.
+- Nested `/docs` pages are included in the Vercel deployment again; the root-only ignore rule no
+  longer hides `site/docs`.
 
 ## 0.3.1 — 2026-10-19
 
