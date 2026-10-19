@@ -228,6 +228,37 @@ struct AppUpdateDetectorTests {
         #expect(result.details.first?.state == .checked)
     }
 
+    @Test func selectsCompatibleElectronArtifactFromUniversalManifest() async throws {
+        let root = temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        _ = try makeApp(
+            in: root, version: "2.2.0", bundleID: "com.example.kimi", name: "Kimi",
+            updateYAML: """
+                provider: generic
+                url: https://updates.example.com/kimi/
+                """
+        )
+        let http = FakeHTTP { url, _, _, _ in
+            guard url.lastPathComponent == "latest-mac.yml" else {
+                return response("", status: 404, url: url)
+            }
+            return response(
+                """
+                version: 2.3.0
+                files:
+                  - url: Kimi-2.3.0-x64-mac.zip
+                  - url: Kimi-2.3.0-arm64-mac.zip
+                """, url: url)
+        }
+        let result = try await AppUpdateDetector(directories: [root]).scan(
+            context(root: root, http: http, architecture: "arm64")
+        )
+        #expect(
+            result.items.first?.upgrade.url?.absoluteString
+                == "https://updates.example.com/kimi/Kimi-2.3.0-arm64-mac.zip"
+        )
+    }
+
     @Test func fallsBackToUniversalElectronManifest() async throws {
         let root = temporaryDirectory()
         defer { try? FileManager.default.removeItem(at: root) }
@@ -286,6 +317,39 @@ struct AppUpdateDetectorTests {
         )
         #expect(result.items.isEmpty)
         #expect(result.details.first?.state == .unavailable)
+    }
+
+    @Test func rejectsNonPublicGithubAndNonDefaultElectronChannel() async throws {
+        let root = temporaryDirectory()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let metadata = [
+            """
+            provider: github
+            host: github.enterprise.example
+            owner: openchamber
+            repo: openchamber
+            """,
+            """
+            provider: generic
+            url: https://updates.example.com/app/
+            channel: beta
+            """,
+        ]
+        for (index, yaml) in metadata.enumerated() {
+            let appRoot = root.appendingPathComponent("App\(index)")
+            _ = try makeApp(
+                in: appRoot, version: "1.0", bundleID: "com.example.custom\(index)",
+                name: "Custom\(index)", updateYAML: yaml
+            )
+        }
+        let result = try await AppUpdateDetector(directories: [root]).scan(
+            context(
+                root: root,
+                http: FakeHTTP { _, _, _, _ in response("", status: 404) }
+            )
+        )
+        #expect(result.items.isEmpty)
+        #expect(result.details.allSatisfy { $0.state == .unsupported })
     }
 
     @Test func malformedMetadataYieldsUnsupportedDetail() async throws {

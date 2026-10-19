@@ -107,3 +107,12 @@ jobs:
             git commit -m "release: Molt $VERSION feed and Homebrew"
             git push origin main
           fi
+
+      - name: Deploy updated website
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm install --global vercel@latest
+          vercel deploy --prod --yes --cwd site --token "$VERCEL_TOKEN"

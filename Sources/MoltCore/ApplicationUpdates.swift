@@ -60,7 +60,9 @@ public enum AppUpdateMetadataReader {
         var provider: String?
         var owner: String?
         var repo: String?
+        var githubHost: String?
         var baseURL: String?
+        var channel: String?
         var manifestPath: String?
         var inFiles = false
         let contents = text.hasPrefix("\u{FEFF}") ? String(text.dropFirst()) : text
@@ -78,7 +80,9 @@ public enum AppUpdateMetadataReader {
                 case "provider": provider = value
                 case "owner": owner = value
                 case "repo": repo = value
+                case "host": githubHost = value
                 case "url": baseURL = value
+                case "channel": channel = value
                 case "path": manifestPath = value
                 case "files": inFiles = value.isEmpty
                 default: break
@@ -100,11 +104,26 @@ public enum AppUpdateMetadataReader {
         }
         switch provider {
         case "github":
-            guard let owner, let repo, Self.isSafeSlugPart(owner), Self.isSafeSlugPart(repo) else {
-                return .unsupported("app-update.yml has an invalid GitHub owner or repository")
+            guard
+                githubHost == nil
+                    || githubHost?.caseInsensitiveCompare("github.com") == .orderedSame
+                    || githubHost?.caseInsensitiveCompare("www.github.com") == .orderedSame,
+                let owner,
+                let repo,
+                Self.isSafeSlugPart(owner),
+                Self.isSafeSlugPart(repo)
+            else {
+                return .unsupported(
+                    "app-update.yml must use public GitHub with a valid owner or repository")
             }
             return .supported(.github(RepoRef(owner: owner, name: repo)))
         case "generic":
+            guard
+                channel == nil || channel?.isEmpty == true
+                    || channel?.caseInsensitiveCompare("latest") == .orderedSame
+            else {
+                return .unsupported("Electron update channel is not the default channel")
+            }
             guard let baseURL, let url = Self.secureURL(baseURL) else {
                 return .unsupported("app-update.yml generic url must be HTTPS")
             }
@@ -127,15 +146,14 @@ public enum AppUpdateMetadataReader {
     }
 }
 
-/// Parsed `latest-mac.yml` (or arch-specific variant).
 public struct ElectronUpdateManifest: Hashable, Sendable {
     public var version: String
-    /// Relative path or absolute HTTPS URL from `path` or a `files` entry.
-    public var download: String?
+    /// Relative paths or absolute HTTPS URLs from `path` or `files` entries.
+    public var downloads: [String]
 
-    public init(version: String, download: String?) {
+    public init(version: String, downloads: [String]) {
         self.version = version
-        self.download = download
+        self.downloads = downloads
     }
 }
 
@@ -176,10 +194,7 @@ public enum ElectronUpdateManifestParser {
 
         guard let version, Version(version) != nil else { return nil }
         let candidates = fileURLs + (path.map { [$0] } ?? [])
-        return ElectronUpdateManifest(
-            version: version,
-            download: candidates.first(where: Self.isUsableDownload)
-        )
+        return ElectronUpdateManifest(version: version, downloads: candidates.filter(Self.isUsableDownload))
     }
 
     /// Relative paths inherit the manifest's HTTPS base; absolute URLs must be HTTPS.

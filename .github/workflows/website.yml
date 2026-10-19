@@ -1,0 +1,39 @@
+name: Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "Scripts/install.sh"
+      - "vercel.json"
+      - ".github/workflows/website.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare installer
+        run: cp Scripts/install.sh site/install.sh
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Deploy production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --prod --yes --cwd site --token "$VERCEL_TOKEN"
+      - name: Smoke production
+        run: |
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/ | grep -F "Every update."
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/latest.json | grep -F '"version"'
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://molt-site-five.vercel.app/install.sh | grep -F "Molt installer"

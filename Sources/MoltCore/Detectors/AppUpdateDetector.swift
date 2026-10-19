@@ -318,8 +318,14 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
                 return result(
                     app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
             }
-            guard let download = Self.downloadURL(manifest.download, baseURL: baseURL) else {
-                return result(app, .unavailable, "Update manifest declares no HTTPS download")
+            guard
+                let download = Self.downloadURL(
+                    Self.selectDownload(manifest.downloads, architecture: context.architecture),
+                    baseURL: baseURL
+                )
+            else {
+                return result(
+                    app, .unavailable, "Update manifest declares no compatible HTTPS download")
             }
 
             let item = OutdatedItem(
@@ -401,5 +407,21 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             !host.isEmpty
         else { return nil }
         return resolved
+    }
+
+    private static func selectDownload(_ candidates: [String], architecture: String) -> String? {
+        let normalizedArchitecture = architecture.lowercased()
+        let arm64 = normalizedArchitecture.contains("arm64")
+            || normalizedArchitecture.contains("aarch64")
+        let preferred = arm64 ? ["arm64", "aarch64"] : ["x64", "amd64", "x86_64", "x86-64"]
+        let incompatible = arm64 ? ["x64", "amd64", "x86_64", "x86-64"] : ["arm64", "aarch64"]
+        func hasToken(_ value: String, _ tokens: [String]) -> Bool {
+            let lowercased = value.lowercased()
+            return tokens.contains { lowercased.contains($0) }
+        }
+        if let matching = candidates.first(where: { hasToken($0, preferred) }) {
+            return matching
+        }
+        return candidates.first { !hasToken($0, incompatible) }
     }
 }
