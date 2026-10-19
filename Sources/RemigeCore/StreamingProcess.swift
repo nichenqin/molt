@@ -9,6 +9,30 @@ public protocol StreamingCommandRunning: Sendable {
     func stream(_ command: CommandSpec, timeout: TimeInterval) -> AsyncStream<CommandStreamEvent>
 }
 
+/// Watches a small tail of both output streams for prompts that need a human.
+/// Only the first match is reported so two readability handlers cannot both
+/// terminate the process.
+final class InteractivePromptMonitor: @unchecked Sendable {
+    private let lock = NSLock()
+    private var tail = ""
+    private var detected = false
+
+    func consume(_ data: Data) -> Bool {
+        guard !data.isEmpty else { return false }
+        let text = String(decoding: data, as: UTF8.self)
+        lock.lock()
+        defer { lock.unlock() }
+        guard !detected else { return false }
+        tail.append(text)
+        if tail.count > 4_096 {
+            tail = String(tail.suffix(4_096))
+        }
+        guard InteractivePrompt.matches(tail) else { return false }
+        detected = true
+        return true
+    }
+}
+
 /// Streams a child process while retaining the complete transcript for results.
 public final class StreamingProcessRunner: StreamingCommandRunning, @unchecked Sendable {
     private let baseEnvironment: [String: String]
@@ -33,9 +57,20 @@ public final class StreamingProcessRunner: StreamingCommandRunning, @unchecked S
             process.standardError = stderrPipe
 
             let lock = NSLock()
+            let promptMonitor = InteractivePromptMonitor()
             var stdout = Data()
             var stderr = Data()
             var finished = false
+
+            let stopForPrompt: @Sendable () -> Void = {
+                guard process.isRunning else { return }
+                process.terminate()
+                DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.8) {
+                    if process.isRunning {
+                        kill(process.processIdentifier, SIGKILL)
+                    }
+                }
+            }
             let started = Date()
 
             func append(_ data: Data, to target: inout Data) {
@@ -60,10 +95,12 @@ public final class StreamingProcessRunner: StreamingCommandRunning, @unchecked S
                     handle.readabilityHandler = nil
                     return
                 }
+                let prompt = promptMonitor.consume(data)
                 lock.lock()
                 append(data, to: &stdout)
                 lock.unlock()
                 continuation.yield(.output(String(decoding: data, as: UTF8.self)))
+                if prompt { stopForPrompt() }
             }
             let readErr: @Sendable (FileHandle) -> Void = { handle in
                 let data = handle.availableData
@@ -71,10 +108,12 @@ public final class StreamingProcessRunner: StreamingCommandRunning, @unchecked S
                     handle.readabilityHandler = nil
                     return
                 }
+                let prompt = promptMonitor.consume(data)
                 lock.lock()
                 append(data, to: &stderr)
                 lock.unlock()
                 continuation.yield(.output(String(decoding: data, as: UTF8.self)))
+                if prompt { stopForPrompt() }
             }
 
             stdoutPipe.fileHandleForReading.readabilityHandler = readOut

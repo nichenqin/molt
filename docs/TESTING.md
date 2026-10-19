@@ -33,7 +33,8 @@ default.
 | Config | missing file defaults, partial document, round-trip, invalid JSON |
 | Cache | TTL, `readIgnoringAge`, HTTP ETag entry, snapshot round-trip |
 | Merge | cask/Sparkle dedupe, custom-over-catalog precedence |
-| Processes | stdout/stderr separation, nonzero exit, timeout termination, streaming events, launch error |
+| Processes | stdout/stderr separation, nonzero exit, timeout termination, interactive-prompt termination, streaming events, launch error |
+| Upgrade handoff | prompt detection, `requiresTerminal` routing, script quoting/environment, generated script exit status |
 | CLI | long/short options, `--`, unknown option rejection, query resolution, grouping/table text |
 
 The suite is deterministic (`swift test`).

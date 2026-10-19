@@ -168,6 +168,12 @@ the full transcript for result reporting. A timeout task terminates then SIGKILL
 the child. The app displays the live stream in a sheet; the CLI prints it or collects it under `--json`.
 After a successful batch, the app rescans; the CLI does not, so scripts can decide when to refresh.
 
+`InteractivePrompt` watches a small tail of both streams. A password, sign-in, TTY or confirmation prompt
+terminates the child instead of waiting for the 15-minute timeout; the result exposes `requiresTerminal`.
+The app turns that into **Run in Terminal**, which writes the same argv into a temporary `.command` script
+and opens it with Terminal. The handoff environment deliberately omits `NONINTERACTIVE`; Remige never
+collects or forwards the answer. The CLI prints the command instead.
+
 ## Performance choices
 
 - Snapshot first, network second in the app.

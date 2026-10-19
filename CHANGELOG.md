@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Detect upgrade commands that stop at a password, sign-in, TTY or confirmation prompt, stop them instead
+  of waiting for the timeout, and offer **Run in Terminal** with the same argument vector. Remige never
+  collects or forwards credentials; the CLI prints the command for manual use.
 - Add a major-version update policy (`prompt` by default) and exact version targets for npm/pnpm/Bun.
   Update rows now distinguish `latestVersion` from `targetVersion`, show major/held badges, and exclude
   prompted major updates from Update All and `remige upgrade --all`. `--include-major` overrides the batch

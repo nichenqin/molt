@@ -54,6 +54,12 @@
 "upgrade.complete" = "已更新 %d 个 · 失败 %d 个";
 "upgrade.cancelled" = "已取消。";
 "upgrade.none" = "没有可自动更新的项目。";
+"upgrade.needsTerminal" = "%@ 需要终端输入。";
+"upgrade.runInTerminal" = "在终端中运行 %d 项";
+"upgrade.terminalOpenedShort" = "已在终端中打开";
+"upgrade.terminalOpened" = "已在终端中打开 %d 项更新，Remige 无法查看其输出。";
+"upgrade.terminalFailed" = "无法打开终端：%@";
+"upgrade.runInTerminal.help" = "用于输入密码或确认操作。命令由终端执行，Remige 不会看到你的输入。";
 "footer.lastChecked" = "检查于%@";
 "footer.failed" = "%d 个来源不可用";
 "footer.appsUnsupported" = "%d 个应用未检查";

@@ -931,7 +931,21 @@ private struct UpgradeSheet: View {
 
             Divider()
 
-            HStack {
+            HStack(spacing: 8) {
+                if !model.upgradeRunning, !model.terminalUpgradeItems.isEmpty {
+                    Button {
+                        model.openTerminalForFailedUpgrades()
+                    } label: {
+                        Label(
+                            model.terminalHandoffOpened
+                                ? L.t("upgrade.terminalOpenedShort")
+                                : L.t("upgrade.runInTerminal", model.terminalUpgradeItems.count),
+                            systemImage: "terminal"
+                        )
+                    }
+                    .disabled(model.terminalHandoffOpened)
+                    .help(L.t("upgrade.runInTerminal.help"))
+                }
                 Spacer()
                 if model.upgradeRunning {
                     Button(L.t("upgrade.cancel")) { model.cancelUpgrade() }
