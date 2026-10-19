@@ -74,6 +74,10 @@
 "source.desc.mas" = "通过 mas 检查 App Store";
 "source.desc.custom" = "~/.config/remige/config.json";
 "menu.update" = "检查更新…";
+"menu.website" = "Remige 官网";
+"menu.changelog" = "更新日志";
+"menu.reportIssue" = "报告问题…";
+"menu.privacy" = "隐私";
 "update.available" = "Remige %@ 已发布";
 "update.have" = "当前版本 %@。";
 "update.install" = "更新";

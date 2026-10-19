@@ -6,6 +6,11 @@ class Remige < Formula
   sha256 "efdfcef078b50526f18dc1d68446b22503a293c8c9486217fa5e297216754e6b"
   license "MIT"
 
+  livecheck do
+    url "https://github.com/nichenqin/remige"
+    strategy :github_latest
+  end
+
   def install
     bin.install "remige-cli" => "remige"
   end

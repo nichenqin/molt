@@ -31,7 +31,7 @@ brew install remige
 
 Homebrew installations should be updated with `brew upgrade`; Remige detects a Homebrew-managed CLI and says so instead of replacing it.
 
-<div class="notice"><strong>Signing status.</strong> Developer ID signing and Apple notarization are wired into the release workflow. They require an Apple Developer Program membership and are not yet enabled for the public build. If macOS blocks the first launch, right-click → Open, or run <code>xattr -dr com.apple.quarantine /Applications/Remige.app</code>.</div>
+<div class="notice"><strong>Signing status.</strong> Developer ID signing and Apple notarization are wired into the release workflow. They require an Apple Developer Program membership and are not yet enabled for the public build. If macOS blocks the first launch, right-click → Open, or run <code>xattr -dr com.apple.quarantine /Applications/Remige.app</code>. Current status and the update-integrity model are on the <a href="/security/">security page</a>.</div>
 
 ## CLI
 

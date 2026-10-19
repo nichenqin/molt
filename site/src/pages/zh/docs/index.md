@@ -31,7 +31,7 @@ brew install remige
 
 Homebrew 安装的版本用 `brew upgrade` 更新；Remige 检测到 CLI 由 Homebrew 管理时会提示，而不会自行覆盖。
 
-<div class="notice"><strong>签名状态。</strong> Developer ID 签名和 Apple 公证已接入发布流水线，但需要 Apple Developer Program 账号，当前公开构建尚未启用。若 macOS 首次拦截，右键 → 打开，或执行 <code>xattr -dr com.apple.quarantine /Applications/Remige.app</code>。</div>
+<div class="notice"><strong>签名状态。</strong> Developer ID 签名和 Apple 公证已接入发布流水线，但需要 Apple Developer Program 账号，当前公开构建尚未启用。若 macOS 首次拦截，右键 → 打开，或执行 <code>xattr -dr com.apple.quarantine /Applications/Remige.app</code>。当前状态与更新链路校验模型见<a href="/zh/security/">安全页面</a>。</div>
 
 ## CLI
 

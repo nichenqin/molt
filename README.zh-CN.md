@@ -1,6 +1,9 @@
 # Remige
 
 [![CI](https://github.com/nichenqin/remige/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/remige/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nichenqin/remige?color=111111)](https://github.com/nichenqin/remige/releases/latest)
+[![License](https://img.shields.io/github/license/nichenqin/remige?color=111111)](https://github.com/nichenqin/remige/blob/main/LICENSE)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-111111?logo=apple&logoColor=white)](https://remige.app/docs/#install)
 
 **一个窗口，看全 Mac 上的所有更新。**
 
@@ -8,7 +11,9 @@ Remige 是一个原生菜单栏 / Dock 应用，同时提供 CLI。它会在各�
 Homebrew 的 formula 与 cask、npm / pnpm / Bun 全局包、通过 Sparkle 自更新的 DMG 应用、Mac App Store
 应用，以及用 `curl`、安装脚本或压缩包装出来的命令行工具。可以看更新日志，然后一键或一条命令升级。
 
-**官网：** [remige.app](https://remige.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
+**官网：** [remige.app](https://remige.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest) ·
+**更新日志：** [remige.app/changelog](https://remige.app/changelog/) · **支持：** [remige.app/support](https://remige.app/support/) ·
+**安全：** [SECURITY.md](SECURITY.md)
 
 ![Remige 截图](docs/screenshot.png)
 
@@ -56,7 +61,15 @@ brew install remige
 （或 `~/.local/bin`），并移除 quarantine。卸载：`curl ... | sh -s -- --uninstall`。
 
 当前公开构建是 ad-hoc 签名。Developer ID 签名和 Apple 公证已接入发布流水线，但需要 Apple Developer
-Program 账号；在此之前首次打开可能遇到 Gatekeeper 提示。
+Program 账号；在此之前首次打开可能遇到 Gatekeeper 提示。当前签名状态与更新链路校验模型见
+[安全页面](https://remige.app/security/)。
+
+## 信任与支持
+
+- [更新日志](https://remige.app/changelog/) — 每个已发布版本。
+- [支持](https://remige.app/support/) — bug 报告、提问、诊断与常见修复。
+- [安全政策](SECURITY.md) — 私密漏洞报告与范围。
+- [隐私](https://remige.app/privacy/) — 本地保存什么，以及会访问哪些服务。
 
 从源码构建：
 

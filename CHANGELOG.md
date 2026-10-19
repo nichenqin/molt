@@ -14,6 +14,13 @@
   the download path in sync with the version field.
 - The detail inspector uses a white reading surface with light-gray cards instead of a gray canvas,
   so opened items no longer render on the legacy window background.
+- Add public changelog, privacy, security, support, and press pages to the Astro site in English and
+  Chinese, with sitemap entries and header/footer navigation.
+- Add `SECURITY.md`, private vulnerability reporting, issue and PR templates, and enable GitHub Discussions.
+- Add Help menu entries for the website, changelog, issue tracker, and privacy page.
+- Add security headers to the Vercel deployment and a `/.well-known/security.txt` contact file.
+- Add Homebrew `livecheck` blocks and a cask `zap` cleanup list; audit the cask and formula.
+- Point the GitHub repository homepage at `https://remige.app` instead of the old Vercel URL.
 
 ## 0.3.1 — 2026-10-19
 

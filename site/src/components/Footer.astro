@@ -4,13 +4,15 @@ import type { Lang } from '../i18n/ui';
 import { ui } from '../i18n/ui';
 
 interface Props {
+  page: 'home' | 'docs' | '404' | 'changelog' | 'support' | 'privacy' | 'security' | 'press';
   lang: Lang;
 }
 
-const { lang } = Astro.props;
+const { lang, page } = Astro.props;
 const t = ui[lang];
 const other: Lang = lang === 'en' ? 'zh' : 'en';
-const otherHref = getRelativeLocaleUrl(other);
+const route = page === 'home' || page === '404' ? '' : page;
+const otherHref = getRelativeLocaleUrl(other, route);
 ---
 
 <footer class="border-t border-line py-7">
@@ -21,6 +23,11 @@ const otherHref = getRelativeLocaleUrl(other);
     </div>
     <div class="ml-auto flex flex-wrap gap-5 text-xs">
       <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'docs')}>{t.footer.docs}</a>
+      <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'changelog')}>{t.footer.changelog}</a>
+      <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'support')}>{t.footer.support}</a>
+      <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'privacy')}>{t.footer.privacy}</a>
+      <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'security')}>{t.footer.security}</a>
+      <a class="text-muted no-underline hover:text-ink" href={getRelativeLocaleUrl(lang, 'press')}>{t.footer.press}</a>
       <a class="text-muted no-underline hover:text-ink" href="https://github.com/nichenqin/remige/releases">
         {t.footer.releases}
       </a>

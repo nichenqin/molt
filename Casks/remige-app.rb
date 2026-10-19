@@ -7,8 +7,21 @@ cask "remige-app" do
   desc "Every update in one place"
   homepage "https://remige.app/"
 
+  livecheck do
+    url "https://github.com/nichenqin/remige"
+    strategy :github_latest
+  end
+
   auto_updates true
   depends_on macos: :sonoma
 
   app "Remige.app"
+
+  zap trash: [
+    "~/.config/remige",
+    "~/Library/Caches/com.nichenqin.remige",
+    "~/Library/HTTPStorages/com.nichenqin.remige",
+    "~/Library/Preferences/com.nichenqin.remige.plist",
+    "~/Library/Saved Application State/com.nichenqin.remige.savedState",
+  ]
 end

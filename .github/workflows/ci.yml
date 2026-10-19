@@ -57,4 +57,15 @@ jobs:
           test -f site/dist/zh/docs/index.html
           test -f site/dist/404.html
           test -f site/dist/latest.json
+          test -f site/dist/privacy/index.html
+          test -f site/dist/security/index.html
+          test -f site/dist/support/index.html
+          test -f site/dist/press/index.html
+          test -f site/dist/changelog/index.html
+          test -f site/dist/zh/privacy/index.html
+          test -f site/dist/zh/security/index.html
+          test -f site/dist/zh/support/index.html
+          test -f site/dist/zh/press/index.html
+          test -f site/dist/zh/changelog/index.html
+          test -f site/dist/.well-known/security.txt
           test -f site/dist/install.sh

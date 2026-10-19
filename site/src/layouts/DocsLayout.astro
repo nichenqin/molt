@@ -26,7 +26,11 @@ const home = getRelativeLocaleUrl(lang);
     <slot />
     <p class="fine mt-14">
       MIT © 2026 nichenqin ·
-      <a href="https://github.com/nichenqin/remige">GitHub</a>
+      <a href="https://github.com/nichenqin/remige">GitHub</a> ·
+      <a href={getRelativeLocaleUrl(lang, 'changelog')}>{lang === 'zh' ? '更新日志' : 'Changelog'}</a> ·
+      <a href={getRelativeLocaleUrl(lang, 'support')}>{lang === 'zh' ? '支持' : 'Support'}</a> ·
+      <a href={getRelativeLocaleUrl(lang, 'privacy')}>{lang === 'zh' ? '隐私' : 'Privacy'}</a> ·
+      <a href={getRelativeLocaleUrl(lang, 'security')}>{lang === 'zh' ? '安全' : 'Security'}</a>
     </p>
   </article>
 </BaseLayout>

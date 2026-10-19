@@ -5,14 +5,15 @@ import { ui } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
-  page: 'home' | 'docs' | '404';
+  page: 'home' | 'docs' | '404' | 'changelog' | 'support' | 'privacy' | 'security' | 'press';
 }
 
 const { lang, page } = Astro.props;
 const t = ui[lang];
 const home = getRelativeLocaleUrl(lang);
 const other: Lang = lang === 'en' ? 'zh' : 'en';
-const switchHref = getRelativeLocaleUrl(other, page === 'docs' ? 'docs' : '');
+const route = page === 'home' || page === '404' ? '' : page;
+const switchHref = getRelativeLocaleUrl(other, route);
 const docHref = getRelativeLocaleUrl(lang, 'docs');
 const releasesUrl = 'https://github.com/nichenqin/remige/releases';
 
@@ -21,6 +22,7 @@ const links = [
   { href: `${home}#sources`, label: t.header.sources, section: 'sources' },
   { href: `${home}#install`, label: t.header.install, section: 'install' },
   { href: docHref, label: t.header.docs, section: 'docs' },
+  { href: getRelativeLocaleUrl(lang, 'changelog'), label: t.header.changelog, section: 'changelog' },
   { href: releasesUrl, label: t.header.releases, section: 'releases' },
 ];
 ---
@@ -37,7 +39,7 @@ const links = [
           <a
             href={link.href}
             class="text-muted no-underline transition-colors hover:text-ink"
-            aria-current={page === 'docs' && link.section === 'docs' ? 'page' : undefined}
+            aria-current={page === link.section ? 'page' : undefined}
           >
             {link.label}
           </a>

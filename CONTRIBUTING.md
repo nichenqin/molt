@@ -24,6 +24,20 @@ Implement `OutdatedSourceDetector`, add a `SourceKind` case if it is not covered
 into `Scanner.detectors`, and extend `Scanner.merge` if it can duplicate another source's install. Add the
 source to settings localization and the README table.
 
+## Website
+
+The site in `site/` is Astro + Tailwind CSS with Astro i18n routing (`/` English, `/zh/` Chinese).
+Build it before opening a PR that touches it:
+
+```sh
+npm --prefix site ci
+npm --prefix site run build
+```
+
+The public changelog is generated from `CHANGELOG.md` at build time. Add release notes under
+`## Unreleased`, and keep user-facing docs in both `site/src/pages/docs/` and
+`site/src/pages/zh/docs/`.
+
 ## Release
 
 ```sh

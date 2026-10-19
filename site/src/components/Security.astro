@@ -1,0 +1,111 @@
+---
+import ContentLayout from '../layouts/ContentLayout.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const advisory = 'https://github.com/nichenqin/remige/security/advisories/new';
+const copy = zh
+  ? {
+      title: '安全 — Remige',
+      description: '如何私下报告 Remige 安全问题、更新链路会校验什么，以及当前的签名与公证状态。',
+      heading: '安全',
+      lede: '私下报告漏洞，并了解 Remige 在运行或安装任何东西之前到底校验了什么。',
+      notice: '当前签名状态。公开构建使用 ad-hoc 签名。Developer ID 签名与 Apple 公证已接入发布流程，但尚未启用。在此之前，macOS 无法验证发布者，首次打开可能出现 Gatekeeper 提示。',
+      report: '报告漏洞',
+      reportBody: '请使用 GitHub 的私密漏洞报告：',
+      button: '打开私密 advisory →',
+      reportNotes:
+        '不要为疑似漏洞开公开 issue。请包含受影响的组件（App、CLI、安装脚本、更新 feed 或发布流程）、版本、macOS 版本、复现步骤、影响，以及可能的修复建议。三个工作日内确认；这是小项目，修复尽力而为，没有赏金计划。',
+      scope: '范围',
+      inScope: [
+        '<code>Remige.app</code>、<code>remige</code> CLI 和 <code>install.sh</code>。',
+        '<code>https://remige.app/latest.json</code> 更新 manifest，以及 App/CLI 更新链路。',
+        '发布流程和已发布的 release 资产。',
+      ],
+      outOfScope:
+        '不在范围内：Homebrew、npm、pnpm、Bun、Mac App Store、Sparkle appcast，以及 Remige 只负责检测或调用的第三方应用；社会工程；需要本机账号已被攻破的 issues。',
+      verifies: '更新链路会校验什么',
+      checks: [
+        'feed 和资产必须使用 HTTPS。',
+        '下载的 ZIP 或 CLI 必须匹配 release 元数据中的 SHA-256 和大小。',
+        '安装前检查 App bundle 的版本和标识符。',
+        '新 bundle 先暂存在旧 bundle 旁边，替换失败会回滚。',
+        'CLI 不会覆盖由 Homebrew 管理的二进制。',
+      ],
+      feedNote:
+        'feed 目前没有单独签名。如果 Vercel 上的 feed 与 GitHub 上的资产同时被篡改，完整性只能依赖这两个来源；Developer ID 签名与公证会提供独立校验。发现疑似篡改请立即报告。',
+      posture: '安全设计',
+      postureItems: [
+        '不做 shell 拼接：包名和版本都以 argv 数组传递。',
+        '不注入 sudo；需要提权的包管理器会原样返回自己的错误。',
+        '远程更新日志在展示前转成纯文本。',
+        '没有后台守护进程、没有账号、应用内没有统计。',
+      ],
+      txt: '本页也提供 <a href="/.well-known/security.txt">security.txt</a>。',
+    }
+  : {
+      title: 'Security — Remige',
+      description: 'How to report a Remige security issue, what the update path verifies, and the current signing and notarization status.',
+      heading: 'Security',
+      lede: 'Report vulnerabilities privately, and understand exactly what Remige verifies before it runs or installs anything.',
+      notice:
+        'Current signing status. Public builds are ad-hoc signed. Developer ID signing and Apple notarization are implemented in the release workflow but are not enabled yet. Until they are, macOS cannot verify the publisher and may show a Gatekeeper prompt on first launch.',
+      report: 'Reporting a vulnerability',
+      reportBody: 'Use GitHub&rsquo;s private vulnerability reporting:',
+      button: 'Open a private advisory →',
+      reportNotes:
+        'Do not open a public issue for a suspected vulnerability. Include the affected component (app, CLI, installer, update feed, or release workflow), version, macOS version, reproduction steps, impact, and any suggested fix. Expect an acknowledgement within three business days; this is a small project and fixes are best effort. There is no bug bounty.',
+      scope: 'Scope',
+      inScope: [
+        '<code>Remige.app</code>, the <code>remige</code> CLI, and <code>install.sh</code>.',
+        'The update manifest at <code>https://remige.app/latest.json</code> and the app/CLI update path.',
+        'The release workflow and published release assets.',
+      ],
+      outOfScope:
+        'Out of scope: vulnerabilities in Homebrew, npm, pnpm, Bun, the Mac App Store, Sparkle appcasts, or third-party apps that Remige only detects or invokes; social engineering; issues that require an already-compromised local account.',
+      verifies: 'What the update path verifies',
+      checks: [
+        'The feed and assets must use HTTPS.',
+        'The downloaded ZIP or CLI must match the SHA-256 and size from the release metadata.',
+        'The app bundle&rsquo;s version and identifier are checked before staging.',
+        'The replacement is staged next to the old bundle and rolled back if the move fails.',
+        'The CLI refuses to overwrite a Homebrew-managed binary.',
+      ],
+      feedNote:
+        'The feed is currently not separately signed. If both the Vercel feed and the GitHub asset were compromised, integrity would depend on those origins; Developer ID signing and notarization will add an independent check. Report suspected tampering immediately.',
+      posture: 'Security posture',
+      postureItems: [
+        'No shell interpolation: package names and versions are passed as argv arrays.',
+        'No sudo injection; package managers report their own elevation errors.',
+        'Remote release notes are converted to plain text before display.',
+        'No daemon, no account, no analytics in the app.',
+      ],
+      txt: 'This page is also available as <a href="/.well-known/security.txt">security.txt</a>.',
+    };
+---
+
+<ContentLayout lang={lang} page="security" title={copy.title} description={copy.description} heading={copy.heading} lede={copy.lede}>
+  <div class="notice"><strong>{zh ? '当前签名状态。' : 'Current signing status.'}</strong> {copy.notice.replace(/^当前签名状态。|^Current signing status\./, '').trim()}</div>
+
+  <h2>{copy.report}</h2>
+  <p set:html={copy.reportBody}></p>
+  <p><a class="btn btn-primary" href={advisory}>{copy.button}</a></p>
+  <p>{copy.reportNotes}</p>
+
+  <h2>{copy.scope}</h2>
+  <ul>{copy.inScope.map((item) => <li set:html={item} />)}</ul>
+  <p>{copy.outOfScope}</p>
+
+  <h2>{copy.verifies}</h2>
+  <ul>{copy.checks.map((item) => <li set:html={item} />)}</ul>
+  <p>{copy.feedNote}</p>
+
+  <h2>{copy.posture}</h2>
+  <ul>{copy.postureItems.map((item) => <li>{item}</li>)}</ul>
+
+  <p class="fine" set:html={copy.txt} />
+</ContentLayout>

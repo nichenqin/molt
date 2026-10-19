@@ -47,6 +47,20 @@ struct RemigeApp: App {
                 }
                 .keyboardShortcut("q", modifiers: .command)
             }
+            CommandGroup(replacing: .help) {
+                Button(L.t("menu.website")) {
+                    NSWorkspace.shared.open(RemigeLinks.website)
+                }
+                Button(L.t("menu.changelog")) {
+                    NSWorkspace.shared.open(RemigeLinks.changelog)
+                }
+                Button(L.t("menu.reportIssue")) {
+                    NSWorkspace.shared.open(RemigeLinks.issues)
+                }
+                Button(L.t("menu.privacy")) {
+                    NSWorkspace.shared.open(RemigeLinks.privacy)
+                }
+            }
         }
 
         MenuBarExtra {

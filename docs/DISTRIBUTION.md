@@ -12,6 +12,11 @@ has `remige update`; both read the same static feed.
 | Installer | https://remige.app/install.sh |
 | Releases | https://github.com/nichenqin/remige/releases |
 | Homebrew tap | `brew tap nichenqin/remige https://github.com/nichenqin/remige` |
+| Changelog | https://remige.app/changelog/ |
+| Support | https://remige.app/support/ |
+| Privacy | https://remige.app/privacy/ |
+| Security | https://remige.app/security/ |
+| Press kit | https://remige.app/press/ |
 
 The website is an Astro project in `site/` (Tailwind CSS, Astro i18n), connected to the Vercel project
 `remige` for automatic deployment from `main`. Build it with `npm ci --prefix site && npm run build --prefix
@@ -110,7 +115,8 @@ The package script:
 swift test
 make lint
 ARCHS=universal VERSION=0.2.1 Scripts/package.sh
-swift Scripts/make-feed.swift 0.2.1 dist site
+swift Scripts/make-feed.swift 0.2.1 dist site/public
+npm --prefix site run build
 Scripts/update-homebrew.sh 0.2.1 dist
 git add -A && git commit -m "release: 0.2.1"
 git tag -a v0.2.1 -m "Remige 0.2.1"
@@ -118,7 +124,7 @@ git push origin main v0.2.1
 ```
 
 The tag-triggered workflow rebuilds, signs/notarizes when secrets exist, publishes the release, regenerates
-the feed and Homebrew files on `main`, and the Pages workflow redeploys the site.
+the feed and Homebrew files on `main`, and the Website workflow redeploys the site.
 
 ## Verifying a release
 
