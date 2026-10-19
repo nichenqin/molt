@@ -8,6 +8,8 @@
   longer hides `site/docs`.
 - Download and other non-one-click actions in the detail inspector use the standard bordered button
   style instead of a low-contrast dark fill, restoring readable text.
+- Homebrew formula and cask release URLs interpolate `#{version}`, keeping `brew audit` clean and
+  the download path in sync with the version field.
 
 ## 0.3.1 — 2026-10-19
 
