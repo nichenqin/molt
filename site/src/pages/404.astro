@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { ui } from '../i18n/ui';
+
+const t = ui.en;
+---
+
+<BaseLayout lang="en" page="404" title="Not found — Remige" description="That page is not here." noindex>
+  <section class="wrap py-28">
+    <p class="font-mono text-[0.8rem] text-faint">404</p>
+    <h1 class="section-title mt-2">{t.notFound.title}</h1>
+    <p class="text-[0.95rem] text-muted">
+      {t.notFound.body}
+      <a class="text-blue underline underline-offset-2" href="/">{t.notFound.back}</a>.
+    </p>
+  </section>
+</BaseLayout>

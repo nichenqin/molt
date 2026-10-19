@@ -1,0 +1,98 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import type { Lang } from '../i18n/ui';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  page: 'home' | 'docs' | '404';
+}
+
+const { lang, page } = Astro.props;
+const t = ui[lang];
+const home = getRelativeLocaleUrl(lang);
+const other: Lang = lang === 'en' ? 'zh' : 'en';
+const switchHref = getRelativeLocaleUrl(other, page === 'docs' ? 'docs' : '');
+const docHref = getRelativeLocaleUrl(lang, 'docs');
+const releasesUrl = 'https://github.com/nichenqin/remige/releases';
+
+const links = [
+  { href: `${home}#features`, label: t.header.features, section: 'features' },
+  { href: `${home}#sources`, label: t.header.sources, section: 'sources' },
+  { href: `${home}#install`, label: t.header.install, section: 'install' },
+  { href: docHref, label: t.header.docs, section: 'docs' },
+  { href: releasesUrl, label: t.header.releases, section: 'releases' },
+];
+---
+
+<header class="sticky top-0 z-30 border-b border-line bg-paper/85 backdrop-blur-xl">
+  <div class="topbar-inner flex h-16 items-center gap-8">
+    <a class="flex items-center gap-2 text-[0.95rem] font-semibold tracking-[-0.01em] no-underline" href={home}>
+      <img src="/assets/icon-256.png" alt="" width="26" height="26" class="rounded-md" />
+      <span>Remige</span>
+    </a>
+    <nav class="hidden items-center gap-6 text-[0.8rem] lg:flex" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a
+            href={link.href}
+            class="text-muted no-underline transition-colors hover:text-ink"
+            aria-current={page === 'docs' && link.section === 'docs' ? 'page' : undefined}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <div class="ml-auto flex items-center gap-4">
+      <a
+        class="hidden text-xs text-muted no-underline hover:text-ink sm:inline"
+        href={switchHref}
+        hreflang={other === 'zh' ? 'zh-Hans' : 'en'}
+      >
+        {t.header.language}
+      </a>
+      <a class="text-muted hover:text-ink" href="https://github.com/nichenqin/remige" aria-label={t.header.github}>
+        <svg viewBox="0 0 24 24" class="h-[19px] w-[19px] fill-current" aria-hidden="true">
+          <path
+            d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"
+          ></path>
+        </svg>
+      </a>
+      <a class="btn btn-primary btn-compact hidden md:inline-flex" data-download="dmg" href={releasesUrl}>
+        {t.header.download}
+      </a>
+      <details class="relative lg:hidden" data-mobile-menu>
+        <summary
+          class="flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-md border border-line text-ink marker:content-none [&::-webkit-details-marker]:hidden"
+          aria-label={t.header.menu}
+        >
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16"></path>
+          </svg>
+        </summary>
+        <div
+          class="absolute right-0 top-11 w-56 rounded-xl border border-line bg-surface p-3 shadow-[var(--shadow)]"
+        >
+          <nav class="flex flex-col gap-1 text-sm" aria-label="Mobile">
+            {
+              links.map((link) => (
+                <a class="rounded-md px-2 py-1.5 text-muted no-underline hover:bg-soft hover:text-ink" href={link.href}>
+                  {link.label}
+                </a>
+              ))
+            }
+            <a
+              class="rounded-md px-2 py-1.5 text-muted no-underline hover:bg-soft hover:text-ink"
+              href={switchHref}
+              hreflang={other === 'zh' ? 'zh-Hans' : 'en'}
+            >
+              {t.header.language}
+            </a>
+            <a class="btn btn-primary mt-2" data-download="dmg" href={releasesUrl}>{t.header.download}</a>
+          </nav>
+        </div>
+      </details>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,69 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import displayFont from '@fontsource-variable/familjen-grotesk/files/familjen-grotesk-latin-wght-normal.woff2?url';
+import bodyFont from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import type { Lang } from '../i18n/ui';
+import { ui } from '../i18n/ui';
+import '../styles/global.css';
+
+interface Props {
+  lang: Lang;
+  page: 'home' | 'docs' | '404';
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { lang, page, noindex = false } = Astro.props;
+const t = ui[lang];
+const title = Astro.props.title ?? t.meta.title;
+const description = Astro.props.description ?? t.meta.description;
+const locale = lang === 'zh' ? 'zh_Hans' : 'en_US';
+const route = page === 'docs' ? 'docs' : '';
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternateEn = new URL(getRelativeLocaleUrl('en', route), Astro.site);
+const alternateZh = new URL(getRelativeLocaleUrl('zh', route), Astro.site);
+const ogImage = new URL('/assets/og.png', Astro.site);
+---
+
+<!doctype html>
+<html lang={lang === 'zh' ? 'zh-Hans' : 'en'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/assets/favicon-64.png" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="alternate" hreflang="en" href={alternateEn} />
+    <link rel="alternate" hreflang="zh-Hans" href={alternateZh} />
+    <link rel="alternate" hreflang="x-default" href={alternateEn} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Remige" />
+    <meta property="og:locale" content={locale} />
+    <meta property="og:title" content={t.meta.ogTitle} />
+    <meta property="og:description" content={t.meta.ogDescription} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <Header lang={lang} page={page} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

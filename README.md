@@ -81,6 +81,16 @@ make install      # ~/Applications/Remige.app + ~/.local/bin/remige
 
 Requires macOS 14+ and Swift 6. The app and CLI share `RemigeCore`; there is no daemon or background service.
 
+### Website
+
+The site in `site/` is Astro + Tailwind CSS with Astro's i18n routing (`/` English, `/zh/` Chinese):
+
+```sh
+npm --prefix site ci
+npm --prefix site run dev     # http://localhost:4321
+npm --prefix site run build   # static output in site/dist
+```
+
 ## CLI
 
 ```sh

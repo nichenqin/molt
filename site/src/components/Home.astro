@@ -1,0 +1,223 @@
+---
+import { Image } from 'astro:assets';
+import screenshotEn from '../assets/screenshot-en.png';
+import screenshotZh from '../assets/screenshot-zh.png';
+import Icon from './Icon.astro';
+import type { Lang } from '../i18n/ui';
+import { ui } from '../i18n/ui';
+import feed from '../../public/latest.json';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang];
+const screenshot = lang === 'zh' ? screenshotZh : screenshotEn;
+const dmgUrl = feed.assets['Remige-macos.dmg']?.url ?? 'https://github.com/nichenqin/remige/releases/latest';
+const installCommand = 'curl -fsSL https://remige.app/install.sh | sh';
+const brewCommand = `brew tap nichenqin/remige https://github.com/nichenqin/remige
+brew install --cask remige-app
+brew install remige`;
+const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
+---
+
+<section class="wrap pt-24 pb-14 text-center">
+  <div class="announce">
+    <span class="announce-dot"></span>
+    {t.hero.versionPrefix}{feed.version} · {t.hero.badgeMeta}
+  </div>
+  <h1 class="hero-title">
+    {t.hero.titleTop}<br /><span class="text-blue">{t.hero.titleBottom}</span>
+  </h1>
+  <p class="lede">{t.hero.lede}</p>
+  <div class="mt-8 mb-5 flex flex-wrap justify-center gap-2.5">
+    <a class="btn btn-primary" data-download="dmg" href={dmgUrl}>{t.hero.download}</a>
+    <a class="btn" href={`${lang === 'zh' ? '/zh' : ''}/docs/`}>{t.hero.docs}</a>
+  </div>
+  <div class="install-line" data-copy-source>
+    <code>{installCommand}</code>
+    <button class="copy" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
+      {t.copy.label}
+    </button>
+  </div>
+  <p class="mt-3.5 text-[0.72rem] text-faint">{t.hero.note}</p>
+
+  <figure
+    class="mx-auto mt-14 max-w-[1040px] overflow-hidden rounded-2xl border border-line bg-surface shadow-[var(--shadow)]"
+  >
+    <Image
+      src={screenshot}
+      alt={t.hero.screenshotAlt}
+      widths={[680, 1020, 1400]}
+      sizes="(max-width: 1080px) 100vw, 1020px"
+      format="webp"
+      quality={82}
+      loading="lazy"
+      decoding="async"
+      class="h-auto w-full"
+    />
+  </figure>
+
+  <div class="mx-auto mt-10 flex max-w-[900px] flex-wrap items-center justify-center gap-x-6 gap-y-2.5 border-t border-line pt-6 text-xs text-muted">
+    <span class="text-[0.62rem] uppercase tracking-[0.09em] text-faint">{t.hero.railLabel}</span>
+    {
+      t.rail.map((label, index) => (
+        <span class="inline-flex items-center gap-1.5">
+          <i class={`inline-block h-1.5 w-1.5 rounded-full dot-${railDots[index]}`} />
+          {label}
+        </span>
+      ))
+    }
+  </div>
+</section>
+
+<section class="mt-14 border-y border-line bg-soft">
+  <div class="wrap grid grid-cols-2 gap-5 py-6 md:grid-cols-4">
+    {
+      t.stats.map((stat) => (
+        <div class="flex flex-col items-center gap-0.5">
+          <strong class="text-[1.4rem] font-bold tracking-[-0.03em]">{stat.value}</strong>
+          <span class="text-[0.62rem] uppercase tracking-[0.09em] text-muted">{stat.label}</span>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<section id="features" class="wrap py-24">
+  <div class="mx-auto mb-10 max-w-[720px] text-center">
+    <div class="kicker">{t.features.kicker}</div>
+    <h2 class="section-title">{t.features.title}</h2>
+    <p class="text-[0.97rem] leading-[1.7] text-muted">{t.features.body}</p>
+  </div>
+  <div class="grid gap-px overflow-hidden rounded-[14px] border border-line bg-line md:grid-cols-3">
+    {
+      t.features.items.map((item) => (
+        <article class="min-h-[194px] bg-surface p-6 pt-7">
+          <Icon name={item.icon} />
+          <h3 class="mt-4 mb-2 text-[0.95rem] font-semibold tracking-[-0.01em]">{item.title}</h3>
+          <p class="text-[0.82rem] leading-[1.65] text-muted" set:html={item.body} />
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<section id="sources" class="border-y border-line bg-soft py-24">
+  <div class="wrap">
+    <div class="mx-auto mb-10 max-w-[720px] text-center">
+      <div class="kicker">{t.sources.kicker}</div>
+      <h2 class="section-title">{t.sources.title}</h2>
+      <p class="text-[0.97rem] leading-[1.7] text-muted">{t.sources.body}</p>
+    </div>
+    <div class="grid gap-px overflow-hidden rounded-[14px] border border-line bg-line md:grid-cols-2">
+      {
+        t.sources.items.map((item) => (
+          <div class="flex items-start gap-3 bg-surface p-5">
+            <span class="source-mark">{item.mark}</span>
+            <div class="min-w-0">
+              <h3 class="mb-0.5 text-[0.82rem] font-semibold">{item.title}</h3>
+              <p class="text-[0.75rem] leading-[1.6] text-muted" set:html={item.body} />
+            </div>
+            <span class="tag">{item.tag}</span>
+          </div>
+        ))
+      }
+    </div>
+    <p class="fine mx-auto mt-5 max-w-[720px] text-center">{t.sources.fine}</p>
+  </div>
+</section>
+
+<section class="wrap grid items-center gap-14 py-24 lg:grid-cols-[0.9fr_1.1fr]">
+  <div>
+    <div class="kicker">{t.cli.kicker}</div>
+    <h2 class="section-title text-[clamp(2rem,3.4vw,2.9rem)]!">{t.cli.title}</h2>
+    <p class="text-[0.88rem] leading-[1.7] text-muted">{t.cli.body}</p>
+    <div class="mt-6 flex items-center gap-5">
+      <a class="btn btn-compact" href={`${lang === 'zh' ? '/zh' : ''}/docs/#cli`}>{t.cli.docsLink}</a>
+      <a class="text-link" href="https://github.com/nichenqin/remige">{t.cli.sourceLink} <span class="text-blue">→</span></a>
+    </div>
+  </div>
+  <pre class="terminal"><span class="prompt">$</span> remige list
+<span class="dim">remige 0.3.1 · just now</span>
+
+<span class="heading">HOMEBREW</span>
+  cc-switch      4.0.14  →  4.0.15  <span class="green">auto</span>
+  sqlite         3.54.0  →  3.54.1  <span class="green">auto</span>
+
+<span class="heading">NPM</span>
+  npm            11.20.0 →  12.2.0  <span class="green">auto</span>
+
+<span class="heading">APPS</span>
+  IINA           1.4.4   →  1.5.0   <span class="cyan">open</span>
+
+<span class="dim">{t.cli.summary}</span></pre>
+</section>
+
+<section id="install" class="border-y border-line bg-soft py-24">
+  <div class="wrap">
+    <div class="mx-auto mb-10 max-w-[720px] text-center">
+      <div class="kicker">{t.install.kicker}</div>
+      <h2 class="section-title">{t.install.title}</h2>
+      <p class="text-[0.97rem] leading-[1.7] text-muted">{t.install.body}</p>
+    </div>
+    <div class="grid items-stretch gap-3.5 lg:grid-cols-[1.15fr_1fr_1fr]">
+      <article class="flex min-w-0 flex-col rounded-[14px] border border-blue/30 bg-surface p-[22px] shadow-[var(--shadow-card)]">
+        <div class="mb-4 flex items-center justify-between">
+          <span class="font-mono text-[0.65rem] text-faint">01</span>
+          <span class="tag m-0!">DMG</span>
+        </div>
+        <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.dmg.title}</h3>
+        <p class="mb-4 text-[0.75rem] text-muted">{t.install.dmg.body}</p>
+        <a class="btn btn-primary btn-full mt-auto" data-download="dmg" href={dmgUrl}>{t.install.dmg.button}</a>
+        <span class="mt-2.5 text-[0.66rem] text-faint">v{feed.version} · {t.install.dmg.meta}</span>
+      </article>
+      <article class="flex min-w-0 flex-col rounded-[14px] border border-line bg-surface p-[22px]">
+        <div class="mb-4 flex items-center justify-between">
+          <span class="font-mono text-[0.65rem] text-faint">02</span>
+          <span class="tag m-0!">curl</span>
+        </div>
+        <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.curl.title}</h3>
+        <p class="mb-4 text-[0.75rem] text-muted">{t.install.curl.body}</p>
+        <div class="mt-auto flex items-center gap-1 rounded-lg border border-line bg-soft p-2 pl-3" data-copy-source>
+          <code class="min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-[0.66rem] text-muted">{installCommand}</code>
+          <button class="copy" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
+            {t.copy.label}
+          </button>
+        </div>
+      </article>
+      <article class="flex min-w-0 flex-col rounded-[14px] border border-line bg-surface p-[22px]">
+        <div class="mb-4 flex items-center justify-between">
+          <span class="font-mono text-[0.65rem] text-faint">03</span>
+          <span class="tag m-0!">brew</span>
+        </div>
+        <h3 class="mb-1 text-[0.95rem] font-semibold">{t.install.brew.title}</h3>
+        <p class="mb-4 text-[0.75rem] text-muted">{t.install.brew.body}</p>
+        <div class="mt-auto flex flex-col items-start gap-1 rounded-lg border border-line bg-soft p-3" data-copy-source>
+          <code class="w-full whitespace-pre-wrap break-words text-[0.66rem] leading-[1.75] text-muted">{brewCommand}</code>
+          <button class="copy self-end" data-copy data-copied-label={t.copy.copied} data-copy-prompt={t.copy.prompt}>
+            {t.copy.label}
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="wrap pb-28 pt-24">
+  <div class="mx-auto mb-9 max-w-[720px] text-center">
+    <div class="kicker">{t.faq.kicker}</div>
+    <h2 class="section-title">{t.faq.title}</h2>
+  </div>
+  <div class="mx-auto max-w-[820px] border-t border-line">
+    {
+      t.faq.items.map((item, index) => (
+        <details class="border-b border-line py-4" open={index === 0}>
+          <summary class="cursor-pointer text-[0.9rem] font-semibold">{item.question}</summary>
+          <p class="mt-2 max-w-[720px] text-[0.82rem] leading-[1.7] text-muted" set:html={item.answer} />
+        </details>
+      ))
+    }
+  </div>
+</section>

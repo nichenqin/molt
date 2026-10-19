@@ -13,10 +13,11 @@ has `remige update`; both read the same static feed.
 | Releases | https://github.com/nichenqin/remige/releases |
 | Homebrew tap | `brew tap nichenqin/remige https://github.com/nichenqin/remige` |
 
-The website is the static `site/` directory, connected to the Vercel project `remige` for automatic
-deployment from `main`. The release workflow writes `site/latest.json`, `Formula/remige.rb`, and
-`Casks/remige-app.rb` and commits them to `main`; Vercel redeploys the site from that push. There is no server
-and no database.
+The website is an Astro project in `site/` (Tailwind CSS, Astro i18n), connected to the Vercel project
+`remige` for automatic deployment from `main`. Build it with `npm ci --prefix site && npm run build --prefix
+site`; the static output lands in `site/dist`. The release workflow writes `site/public/latest.json`,
+`Formula/remige.rb`, and `Casks/remige-app.rb` and commits them to `main`; Vercel redeploys the site from that
+push. There is no server and no database.
 
 ## Accounts and money
 
@@ -133,7 +134,7 @@ remige update --check
 
 ## Updater mechanics
 
-`site/latest.json` is the only update source:
+`site/public/latest.json` is the only update source:
 
 ```json
 {

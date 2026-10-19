@@ -22,8 +22,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
       - name: Prepare installer
-        run: cp Scripts/install.sh site/install.sh
+        run: cp Scripts/install.sh site/public/install.sh
+      - name: Install site dependencies
+        run: npm ci --prefix site
+      - name: Build site
+        run: npm run build --prefix site
+      - name: Verify build output
+        run: |
+          test -f site/dist/index.html
+          test -f site/dist/zh/index.html
+          test -f site/dist/docs/index.html
+          test -f site/dist/zh/docs/index.html
+          test -f site/dist/latest.json
+          test -f site/dist/install.sh
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Deploy production
@@ -35,5 +52,6 @@ jobs:
       - name: Smoke production
         run: |
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/ | grep -F "Every update."
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/zh/ | grep -F "所有更新"
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/latest.json | grep -F '"version"'
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/install.sh | grep -F "Remige installer"
