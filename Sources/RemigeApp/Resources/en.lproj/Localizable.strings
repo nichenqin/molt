@@ -74,6 +74,10 @@
 "source.desc.mas" = "Mac App Store via mas";
 "source.desc.custom" = "~/.config/remige/config.json";
 "menu.update" = "Check for Updates…";
+"menu.website" = "Remige Website";
+"menu.changelog" = "Changelog";
+"menu.reportIssue" = "Report an Issue…";
+"menu.privacy" = "Privacy";
 "update.available" = "Remige %@ is available";
 "update.have" = "You have %@.";
 "update.install" = "Update";

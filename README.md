@@ -1,6 +1,9 @@
 # Remige
 
 [![CI](https://github.com/nichenqin/remige/actions/workflows/ci.yml/badge.svg)](https://github.com/nichenqin/remige/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/nichenqin/remige?color=111111)](https://github.com/nichenqin/remige/releases/latest)
+[![License](https://img.shields.io/github/license/nichenqin/remige?color=111111)](https://github.com/nichenqin/remige/blob/main/LICENSE)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-111111?logo=apple&logoColor=white)](https://remige.app/docs/#install)
 
 **Every update on your Mac, in one place.**
 
@@ -9,7 +12,9 @@ lives: Homebrew formulae and casks, global npm/pnpm/Bun packages, Sparkle-update
 apps, and standalone tools installed by `curl`, installers, or tarballs. Read release notes, then update
 with one click or one command.
 
-**Website:** [remige.app](https://remige.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest)
+**Website:** [remige.app](https://remige.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest) ·
+**Changelog:** [remige.app/changelog](https://remige.app/changelog/) · **Support:** [remige.app/support](https://remige.app/support/) ·
+**Security:** [SECURITY.md](SECURITY.md)
 
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 
@@ -67,7 +72,15 @@ The installer puts `Remige.app` in Applications (or `~/Applications`) and the `r
 
 Public builds are currently ad-hoc signed. Developer ID signing and Apple notarization are wired into the
 release workflow but require an Apple Developer Program membership; until then macOS may show a Gatekeeper
-prompt on first launch.
+prompt on first launch. The current signing status and the update-integrity model are documented on the
+[security page](https://remige.app/security/).
+
+## Trust and support
+
+- [Changelog](https://remige.app/changelog/) — every published release.
+- [Support](https://remige.app/support/) — bug reports, questions, diagnostics, and common fixes.
+- [Security policy](SECURITY.md) — private vulnerability reporting and scope.
+- [Privacy](https://remige.app/privacy/) — what is stored locally and which services are contacted.
 
 ### Build from source
 

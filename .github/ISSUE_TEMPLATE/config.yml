@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and usage help
+    url: https://github.com/nichenqin/remige/discussions
+    about: Ask how to configure a source or interpret a scan result.
+  - name: Security vulnerability
+    url: https://github.com/nichenqin/remige/security/advisories/new
+    about: Report a security issue privately. Do not open a public issue.
+  - name: Documentation
+    url: https://remige.app/docs/
+    about: Install, CLI, sources, custom tools, and updating.

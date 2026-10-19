@@ -506,6 +506,68 @@
   .notice strong {
     color: var(--ink);
   }
+
+  .docs ul {
+    list-style: disc;
+    padding-left: 1.35rem;
+    margin: 0.4rem 0 1rem;
+  }
+
+  .docs ol {
+    list-style: decimal;
+    padding-left: 1.35rem;
+    margin: 0.4rem 0 1rem;
+  }
+
+  .changelog-entry {
+    border-top: 1px solid var(--line);
+    padding: 2rem 0 0.4rem;
+  }
+
+  .changelog-entry:first-of-type {
+    border-top: 0;
+  }
+
+  .changelog-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .changelog-head h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.65rem;
+  }
+
+  .changelog-date {
+    color: var(--faint);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .changelog-badge {
+    display: inline-block;
+    vertical-align: 0.2rem;
+    border: 1px solid color-mix(in srgb, var(--blue) 38%, var(--line));
+    background: var(--blue-soft);
+    color: var(--blue);
+    border-radius: 999px;
+    padding: 0.06rem 0.42rem;
+    font-size: 0.56rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .changelog-body ul {
+    padding-left: 1.35rem;
+    margin: 0.4rem 0 1rem;
+  }
+
+  .changelog-body li {
+    margin: 0.3rem 0;
+  }
 }
 
 @layer components {

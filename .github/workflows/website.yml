@@ -41,6 +41,17 @@ jobs:
           test -f site/dist/zh/docs/index.html
           test -f site/dist/latest.json
           test -f site/dist/install.sh
+          test -f site/dist/privacy/index.html
+          test -f site/dist/security/index.html
+          test -f site/dist/support/index.html
+          test -f site/dist/press/index.html
+          test -f site/dist/changelog/index.html
+          test -f site/dist/zh/privacy/index.html
+          test -f site/dist/zh/security/index.html
+          test -f site/dist/zh/support/index.html
+          test -f site/dist/zh/press/index.html
+          test -f site/dist/zh/changelog/index.html
+          test -f site/dist/.well-known/security.txt
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Deploy production
@@ -55,3 +66,7 @@ jobs:
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/zh/ | grep -F "所有更新"
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/latest.json | grep -F '"version"'
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/install.sh | grep -F "Remige installer"
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/changelog/ | grep -F "Changelog"
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/privacy/ | grep -F "Privacy"
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/security/ | grep -F "Security"
+          curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/.well-known/security.txt | grep -F "Contact:"

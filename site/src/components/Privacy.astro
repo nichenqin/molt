@@ -1,0 +1,95 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import ContentLayout from '../layouts/ContentLayout.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const link = (route: string) => getRelativeLocaleUrl(lang, route);
+const copy = zh
+  ? {
+      title: '隐私 — Remige',
+      description: 'Remige 隐私说明：没有账号、没有应用遥测、扫描数据只存在本机，以及应用会访问哪些网络服务。',
+      heading: '隐私',
+      lede: 'Remige 是本地优先的。没有账号、没有应用遥测、没有后台守护进程。',
+      effective: '生效日期：2026-10-19',
+      stores: 'Remige 会保存什么',
+      cache: '缓存包含包名、版本、更新日志和从更新来源获取的 URL，不会上传到任何地方。可以用',
+      network: '网络请求',
+      networkBody: 'Remige 只访问生成更新列表所需的服务：',
+      requests: [
+        'Homebrew、npm registry，以及你配置的 pnpm/Bun registry；',
+        'GitHub release 页面、GitHub API 和 release Atom feed；',
+        '已安装应用 <code>Info.plist</code> 里的 <code>SUFeedURL</code> appcast；',
+        '安装 <code>mas</code> 时的 Mac App Store；',
+        'Remige 自身的 <code>https://remige.app/latest.json</code> 与 GitHub Releases；',
+        '你在自定义工具或应用配置里声明的 <code>latestURL</code>。',
+      ],
+      exposure: '这些请求会向相应服务暴露你的 IP 地址和 user agent，适用它们各自的隐私政策。Remige 不会额外附加账号、设备标识或分析参数。',
+      website: '网站',
+      websiteBody:
+        '<code>remige.app</code> 是托管在 Vercel 的静态站点：不设置 cookie，不运行统计或广告脚本，不嵌入第三方内容。Vercel 会处理标准访问日志（IP、user agent、路径、时间）以提供站点并防御滥用。',
+      updates: '更新检查',
+      updatesBody: '检查 Remige 更新时会下载公开的 <code>latest.json</code>；有新版本时再下载 release 资产。不会发送机器标识。安装前会校验 SHA-256 和文件大小。',
+      changes: '变更与联系',
+      contact: '本政策的实质性变更会记录在<a href="' + link('changelog') + '">更新日志</a>和本页。问题或更正：请在 <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a> 提出。',
+    }
+  : {
+      title: 'Privacy — Remige',
+      description: 'Remige privacy policy: no account, no app telemetry, local-only scan state, and the network requests the app makes.',
+      heading: 'Privacy',
+      lede: 'Remige is local-first. There is no account, no app telemetry, and no background daemon.',
+      effective: 'Effective 2026-10-19',
+      stores: 'What Remige stores',
+      cache: 'The cache contains package names, versions, release notes, and URLs fetched from update sources. It is not uploaded anywhere. You can remove it with',
+      network: 'Network requests',
+      networkBody: 'Remige contacts only the services needed to build the update list:',
+      requests: [
+        'Homebrew, the npm registry, and your configured pnpm/Bun registries;',
+        'GitHub release pages, the GitHub API, and release Atom feeds;',
+        'the <code>SUFeedURL</code> appcasts of installed apps;',
+        'the Mac App Store through <code>mas</code> when it is installed;',
+        '<code>https://remige.app/latest.json</code> and GitHub Releases for Remige&rsquo;s own updates;',
+        'any <code>latestURL</code> you declare in your own custom-tool or app configuration.',
+      ],
+      exposure: 'These requests necessarily expose your IP address and user agent to those services, under their own privacy policies. Remige does not add accounts, identifiers, or analytics parameters to them.',
+      website: 'Website',
+      websiteBody:
+        '<code>remige.app</code> is a static site hosted on Vercel. It sets no cookies, runs no analytics or advertising scripts, and embeds no third-party content. Vercel processes standard request logs (IP address, user agent, path, timestamp) to serve the site and protect it from abuse.',
+      updates: 'Update checks',
+      updatesBody: 'Checking for a Remige update downloads the public <code>latest.json</code> feed and, when a newer version exists, the release asset. No machine identifier is sent. The app verifies the asset&rsquo;s SHA-256 and size before installing it.',
+      changes: 'Changes and contact',
+      contact: 'Material changes to this policy will be recorded in the <a href="' + link('changelog') + '">changelog</a> and on this page. Questions or corrections: open an issue in <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a>.',
+    };
+---
+
+<ContentLayout lang={lang} page="privacy" title={copy.title} description={copy.description} heading={copy.heading} lede={copy.lede}>
+  <p class="fine">{copy.effective}</p>
+
+  <h2>{copy.stores}</h2>
+  <ul>
+    <li><code>~/.config/remige/config.json</code> — {zh ? '只有在你创建自定义工具或来源设置时存在。' : 'only if you create custom tools or source settings.'}</li>
+    <li><code>~/Library/Caches/com.nichenqin.remige</code> — {zh ? '上次扫描快照、更新日志，以及用于减少重复请求的 HTTP 响应。' : 'the last scan snapshot, release notes, and HTTP responses used to avoid repeated network calls.'}</li>
+    <li><code>com.nichenqin.remige</code> — {zh ? '标准 macOS 偏好设置（窗口与应用设置）。' : 'standard macOS preferences for window and app settings.'}</li>
+  </ul>
+  <p set:html={`${copy.cache} <code>remige cache clear</code>${zh ? ' 删除。' : '.'}`} />
+
+  <h2>{copy.network}</h2>
+  <p>{copy.networkBody}</p>
+  <ul>
+    {copy.requests.map((item) => <li set:html={item} />)}
+  </ul>
+  <p>{copy.exposure}</p>
+
+  <h2>{copy.website}</h2>
+  <p set:html={copy.websiteBody} />
+
+  <h2>{copy.updates}</h2>
+  <p set:html={copy.updatesBody} />
+
+  <h2>{copy.changes}</h2>
+  <p set:html={copy.contact} />
+</ContentLayout>

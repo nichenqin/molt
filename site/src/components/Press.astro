@@ -1,0 +1,117 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import ContentLayout from '../layouts/ContentLayout.astro';
+import type { Lang } from '../i18n/ui';
+import screenshotEn from '../assets/screenshot-en.png';
+import screenshotZh from '../assets/screenshot-zh.png';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const link = (route: string) => getRelativeLocaleUrl(lang, route);
+const screenshot = zh ? screenshotZh : screenshotEn;
+const copy = zh
+  ? {
+      title: '媒体资料 — Remige',
+      description: 'Remige 媒体资料：产品描述、截图、图标、品牌色和下载链接。',
+      heading: '媒体资料',
+      lede: '写 Remige 所需的一切。素材可用于报道本产品；请不要暗示官方背书。',
+      download: '下载媒体包（.zip，1.1 MB）',
+      facts: '事实表',
+      name: '名称',
+      tagline: '一句话',
+      category: '类别',
+      platform: '平台',
+      price: '价格',
+      license: '许可',
+      firstRelease: '首次发布',
+      website: '官网',
+      source: '源码',
+      short: '一句话描述',
+      shortBody: 'Remige 是原生 macOS 应用与 CLI，聚合 Homebrew、npm、pnpm、Bun、Sparkle 应用、Mac App Store 和 curl 工具的更新；看更新日志，在一个列表里完成升级。',
+      long: '完整描述',
+      longBody: '更新入口是碎的：<code>brew outdated</code> 不知道 npm 全局包，<code>npm outdated -g</code> 不知道 IINA，Sparkle 应用只知道自己。Remige 并行运行这些原生来源，去重、缓存快照以秒开，然后给每一行一个安全、可见的下一步。它由 SwiftUI 窗口、菜单栏项和共享核心的 CLI 组成；没有账号、没有遥测、没有守护进程，也不会静默替换应用包。',
+      brand: '品牌',
+      brandItems: [
+        '图标：<a href="/assets/icon-256.png">icon-256.png</a>（PNG，256×256）',
+        '墨色：<code>#111113</code>；纸色：<code>#fbfbfa</code>；强调色：<code>#2563eb</code>。',
+        '字体：Familjen Grotesk 与 Manrope（SIL Open Font License）；中文使用系统 PingFang SC。',
+        '请保留图标周围留白，不要改色或旋转。',
+      ],
+      shots: '截图',
+      shotNote: '截图展示当前界面。压缩包内同时包含中英文截图和社交预览图。',
+      contact: '联系',
+      contactBody: '更正请用 <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a>。安全问题请使用 <a href="https://github.com/nichenqin/remige/security/advisories/new">私密报告</a>。',
+    }
+  : {
+      title: 'Press kit — Remige',
+      description: 'Remige press kit: product description, screenshots, icon, brand colors, and download links for writers.',
+      heading: 'Press kit',
+      lede: 'Everything needed to write about Remige. Assets may be used in coverage of the product; please do not imply endorsement.',
+      download: 'Download press kit (.zip, 1.1 MB)',
+      facts: 'Fact sheet',
+      name: 'Name',
+      tagline: 'Tagline',
+      category: 'Category',
+      platform: 'Platform',
+      price: 'Price',
+      license: 'License',
+      firstRelease: 'First release',
+      website: 'Website',
+      source: 'Source',
+      short: 'Short description',
+      shortBody: 'Remige is a native macOS app and CLI that finds updates from Homebrew, npm, pnpm, Bun, Sparkle apps, the Mac App Store, and curl-installed tools — then lets you read the release notes and update from one list.',
+      long: 'Long description',
+      longBody: 'Updaters are fragmented: <code>brew outdated</code> does not know about global npm packages, <code>npm outdated -g</code> does not know about IINA, and Sparkle apps only know themselves. Remige runs those native sources in parallel, deduplicates the results, caches a snapshot for instant launch, and presents one ledger with one safe next step per row. It is a SwiftUI window and menu-bar item sharing a core with a scriptable CLI. There is no account, no analytics, no daemon, and no silent bundle replacement.',
+      brand: 'Brand',
+      brandItems: [
+        'Icon: <a href="/assets/icon-256.png">icon-256.png</a> (PNG, 256×256)',
+        'Ink: <code>#111113</code>; paper: <code>#fbfbfa</code>; accent: <code>#2563eb</code>.',
+        'Typefaces: Familjen Grotesk and Manrope (SIL Open Font License); PingFang SC for Chinese.',
+        'Please keep clear space around the icon and do not recolor or rotate it.',
+      ],
+      shots: 'Screenshots',
+      shotNote: 'The archive includes English and Chinese screenshots plus the social preview image.',
+      contact: 'Contact',
+      contactBody: 'Use <a href="https://github.com/nichenqin/remige/issues">GitHub Issues</a> for corrections. For security issues, use <a href="https://github.com/nichenqin/remige/security/advisories/new">private reporting</a>.',
+    };
+---
+
+<ContentLayout lang={lang} page="press" title={copy.title} description={copy.description} heading={copy.heading} lede={copy.lede}>
+  <p><a class="btn btn-primary" href="/assets/remige-press-kit.zip">{copy.download}</a></p>
+
+  <h2>{copy.facts}</h2>
+  <table>
+    <tr><th>{copy.name}</th><td>Remige</td></tr>
+    <tr><th>{copy.tagline}</th><td>{zh ? '一个窗口，看全 Mac 上的所有更新。' : 'Every update on your Mac, in one place.'}</td></tr>
+    <tr><th>{copy.category}</th><td>{zh ? 'macOS 工具 / 包管理' : 'macOS utilities / package management'}</td></tr>
+    <tr><th>{copy.platform}</th><td>{zh ? 'macOS 14 Sonoma 或更新；通用二进制（Apple Silicon 与 Intel）' : 'macOS 14 Sonoma or later; universal (Apple Silicon and Intel)'}</td></tr>
+    <tr><th>{copy.price}</th><td>{zh ? '免费' : 'Free'}</td></tr>
+    <tr><th>{copy.license}</th><td>MIT</td></tr>
+    <tr><th>{copy.firstRelease}</th><td>2026-10-18</td></tr>
+    <tr><th>{copy.website}</th><td><a href="https://remige.app/">remige.app</a></td></tr>
+    <tr><th>{copy.source}</th><td><a href="https://github.com/nichenqin/remige">github.com/nichenqin/remige</a></td></tr>
+  </table>
+
+  <h2>{copy.short}</h2>
+  <p>{copy.shortBody}</p>
+
+  <h2>{copy.long}</h2>
+  <p set:html={copy.longBody} />
+
+  <h2>{copy.brand}</h2>
+  <ul>{copy.brandItems.map((item) => <li set:html={item} />)}</ul>
+
+  <h2>{copy.shots}</h2>
+  <p>{copy.shotNote}</p>
+  <img src={screenshot.src} width={screenshot.width} height={screenshot.height} alt={zh ? 'Remige 主窗口截图' : 'Remige main window'} class="rounded-xl border border-line" />
+  <p class="fine">
+    <a href="/assets/remige-press-kit.zip">{copy.download}</a> ·
+    <a href={link('privacy')}>{zh ? '隐私' : 'Privacy'}</a>
+  </p>
+
+  <h2>{copy.contact}</h2>
+  <p set:html={copy.contactBody} />
+</ContentLayout>

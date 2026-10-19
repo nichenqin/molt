@@ -45,6 +45,7 @@ export interface Dictionary {
     sources: string;
     install: string;
     docs: string;
+    changelog: string;
     releases: string;
     download: string;
     menu: string;
@@ -105,6 +106,11 @@ export interface Dictionary {
     github: string;
     license: string;
     copyright: string;
+    changelog: string;
+    support: string;
+    privacy: string;
+    security: string;
+    press: string;
   };
   copy: {
     label: string;
@@ -137,6 +143,7 @@ export const ui: Record<Lang, Dictionary> = {
       sources: 'Sources',
       install: 'Install',
       docs: 'Docs',
+      changelog: 'Changelog',
       releases: 'Releases',
       download: 'Download',
       menu: 'Menu',
@@ -276,7 +283,7 @@ export const ui: Record<Lang, Dictionary> = {
         {
           question: 'Is Remige signed and notarized?',
           answer:
-            'Releases are built and checksummed on GitHub Actions. Developer ID signing and Apple notarization are wired into the release pipeline but require an Apple Developer Program membership; until those credentials are provided, macOS may show a Gatekeeper prompt. The installer clears the quarantine flag for you.',
+            'Releases are built and checksummed on GitHub Actions. Developer ID signing and Apple notarization are wired into the release pipeline but require an Apple Developer Program membership; until those credentials are provided, macOS may show a Gatekeeper prompt. The installer clears the quarantine flag for you. Details: <a href="/security/">security page</a>.',
         },
         {
           question: 'Does Remige install updates silently?',
@@ -306,6 +313,11 @@ export const ui: Record<Lang, Dictionary> = {
       github: 'GitHub',
       license: 'MIT',
       copyright: '© 2026 nichenqin. Built for macOS.',
+      changelog: 'Changelog',
+      support: 'Support',
+      privacy: 'Privacy',
+      security: 'Security',
+      press: 'Press',
     },
     copy: {
       label: 'Copy',
@@ -335,6 +347,7 @@ export const ui: Record<Lang, Dictionary> = {
       sources: '来源',
       install: '安装',
       docs: '文档',
+      changelog: '更新日志',
       releases: '版本',
       download: '下载',
       menu: '菜单',
@@ -474,7 +487,7 @@ export const ui: Record<Lang, Dictionary> = {
         {
           question: 'Remige 签名和公证了吗？',
           answer:
-            'Release 由 GitHub Actions 构建并生成校验和。Developer ID 签名与 Apple 公证已接入发布流水线，但需要 Apple Developer Program 账号；在提供证书之前，macOS 可能显示 Gatekeeper 提示。安装脚本会移除 quarantine 标记。',
+            'Release 由 GitHub Actions 构建并生成校验和。Developer ID 签名与 Apple 公证已接入发布流水线，但需要 Apple Developer Program 账号；在提供证书之前，macOS 可能显示 Gatekeeper 提示。安装脚本会移除 quarantine 标记。详见<a href="/zh/security/">安全页面</a>。',
         },
         {
           question: '会静默安装更新吗？',
@@ -502,6 +515,11 @@ export const ui: Record<Lang, Dictionary> = {
       github: 'GitHub',
       license: 'MIT',
       copyright: '© 2026 nichenqin. 为 macOS 构建。',
+      changelog: '更新日志',
+      support: '支持',
+      privacy: '隐私',
+      security: '安全',
+      press: '媒体',
     },
     copy: {
       label: '复制',

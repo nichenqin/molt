@@ -1,0 +1,56 @@
+---
+import ContentLayout from '../layouts/ContentLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { getChangelogEntries, inlineMarkdown } from '../lib/changelog';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const entries = getChangelogEntries();
+const copy = zh
+  ? {
+      title: '更新日志 — Remige',
+      description: 'Remige 的版本历史与发布说明。',
+      heading: '更新日志',
+      lede: '每个已发布的 Remige 版本。条目由仓库的 CHANGELOG.md 生成。',
+      latest: '最新',
+    }
+  : {
+      title: 'Changelog — Remige',
+      description: 'Release history and notes for Remige.',
+      heading: 'Changelog',
+      lede: "Every published Remige release. Entries are generated from the repository's CHANGELOG.md.",
+      latest: 'Latest',
+    };
+---
+
+<ContentLayout lang={lang} page="changelog" title={copy.title} description={copy.description} heading={copy.heading} lede={copy.lede}>
+  {
+    entries.map((entry, index) => (
+      <section class="changelog-entry" id={entry.anchor}>
+        <header class="changelog-head">
+          <h2>
+            {entry.version}
+            {index === 0 && <span class="changelog-badge">{copy.latest}</span>}
+          </h2>
+          <span class="changelog-date">{entry.date}</span>
+        </header>
+        <div class="changelog-body">
+          {entry.blocks.map((block) =>
+            block.type === 'list' ? (
+              <ul>
+                {block.items.map((item) => (
+                  <li set:html={inlineMarkdown(item)} />
+                ))}
+              </ul>
+            ) : (
+              <p set:html={inlineMarkdown(block.text)} />
+            )
+          )}
+        </div>
+      </section>
+    ))
+  }
+</ContentLayout>

@@ -1,0 +1,105 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import ContentLayout from '../layouts/ContentLayout.astro';
+import type { Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const zh = lang === 'zh';
+const link = (route: string) => getRelativeLocaleUrl(lang, route);
+const copy = zh
+  ? {
+      title: '支持 — Remige',
+      description: '获取 Remige 帮助：报告 bug、提问、运行诊断，以及安全问题的正确渠道。',
+      heading: '支持',
+      lede: '按问题类型选择渠道。Remige 在 GitHub 上公开维护。',
+      questions: '问题与配置帮助',
+      questionsBody: '“怎么配置……”、自定义工具示例、来源行为等问题，请使用',
+      discussions: 'GitHub Discussions',
+      afterQuestions: '。',
+      bugs: '报告 bug',
+      bugsBody: '打开',
+      issues: 'issue',
+      bugsAfter: '。模板会要求版本、macOS 版本、安装方式和诊断信息。',
+      diagnostics: '粘贴前请删除隐私信息。如果 App 打不开，请附上 Gatekeeper 或崩溃的完整文字，并说明是通过 DMG、一行命令还是 Homebrew 安装的。',
+      security: '安全问题',
+      securityBody: '不要开公开 issue。请使用',
+      privateReport: '私密漏洞报告',
+      securityAfter: '，并阅读',
+      securityPolicy: '安全政策',
+      fixes: '常见问题',
+      gatekeeper: '首次打开被 Gatekeeper 拦截',
+      gatekeeperBody: '在 Apple 公证启用前，公开构建使用 ad-hoc 签名。右键 App → 打开，或使用一行安装脚本（会移除 quarantine）。见',
+      installDocs: '安装文档',
+      stale: '某个来源报错或显示 stale',
+      staleBody: '运行 <code>remige doctor --json</code>。未安装的包管理器会跳过；网络失败时会保留上次缓存并标记为 stale，不会清空列表。',
+      oldList: '更新列表看起来是旧的',
+      oldListBody: '点刷新，或运行 <code>remige list --json</code>。<code>remige cache clear</code> 会删除本地快照和 HTTP 缓存。',
+      brew: 'Homebrew 安装',
+      brewBody: '使用 <code>brew upgrade remige</code> 和 <code>brew upgrade --cask remige-app</code>。Remige 不会覆盖 Homebrew 管理的 CLI。',
+    }
+  : {
+      title: 'Support — Remige',
+      description: 'Get help with Remige: report a bug, ask a question, run diagnostics, and find the right channel for security issues.',
+      heading: 'Support',
+      lede: 'Pick the channel that fits. Remige is maintained in the open on GitHub.',
+      questions: 'Questions and configuration help',
+      questionsBody: 'Use',
+      discussions: 'GitHub Discussions',
+      afterQuestions: ' for “how do I…” questions, custom-tool examples, and source behavior.',
+      bugs: 'Bug reports',
+      bugsBody: 'Open an',
+      issues: 'issue',
+      bugsAfter: '. The bug template asks for version, macOS version, install method, and diagnostics.',
+      diagnostics: 'Remove anything private before pasting. If the app will not open, include the exact Gatekeeper or crash text and whether you installed from DMG, the one-line installer, or Homebrew.',
+      security: 'Security issues',
+      securityBody: 'Do not use a public issue. Use',
+      privateReport: 'private vulnerability reporting',
+      securityAfter: '. See the',
+      securityPolicy: 'security policy',
+      fixes: 'Common fixes',
+      gatekeeper: 'Gatekeeper blocks the first launch',
+      gatekeeperBody: 'Public builds are ad-hoc signed until Apple notarization is enabled. Right-click the app → Open, or use the one-line installer, which removes the quarantine flag. See the',
+      installDocs: 'install docs',
+      stale: 'A source shows an error or stale rows',
+      staleBody: 'Run <code>remige doctor --json</code>. If a package manager is missing, its source is skipped. If a network call failed, the previous cached rows are labeled stale instead of blanking the list.',
+      oldList: 'The update list looks old',
+      oldListBody: 'Press Refresh, or run <code>remige list --json</code>. <code>remige cache clear</code> removes the local snapshot and cached HTTP responses.',
+      brew: 'Homebrew-managed install',
+      brewBody: 'Use <code>brew upgrade remige</code> and <code>brew upgrade --cask remige-app</code>. Remige will not overwrite a Homebrew-owned CLI.',
+    };
+---
+
+<ContentLayout lang={lang} page="support" title={copy.title} description={copy.description} heading={copy.heading} lede={copy.lede}>
+  <h2>{copy.questions}</h2>
+  <p>
+    {copy.questionsBody} <a href="https://github.com/nichenqin/remige/discussions">{copy.discussions}</a>{copy.afterQuestions}
+  </p>
+
+  <h2>{copy.bugs}</h2>
+  <p>
+    {copy.bugsBody} <a href="https://github.com/nichenqin/remige/issues/new/choose">{copy.issues}</a>{copy.bugsAfter}
+  </p>
+  <pre><code>remige version
+remige doctor --json
+remige list --json</code></pre>
+  <p>{copy.diagnostics}</p>
+
+  <h2>{copy.security}</h2>
+  <p>
+    {copy.securityBody} <a href="https://github.com/nichenqin/remige/security/advisories/new">{copy.privateReport}</a>{copy.securityAfter}
+    <a href={link('security')}>{copy.securityPolicy}</a>.
+  </p>
+
+  <h2>{copy.fixes}</h2>
+  <h3>{copy.gatekeeper}</h3>
+  <p>{copy.gatekeeperBody} <a href={link('docs') + '#install'}>{copy.installDocs}</a>.</p>
+  <h3>{copy.stale}</h3>
+  <p set:html={copy.staleBody} />
+  <h3>{copy.oldList}</h3>
+  <p set:html={copy.oldListBody} />
+  <h3>{copy.brew}</h3>
+  <p set:html={copy.brewBody} />
+</ContentLayout>

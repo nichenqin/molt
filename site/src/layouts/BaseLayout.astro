@@ -10,7 +10,7 @@ import '../styles/global.css';
 
 interface Props {
   lang: Lang;
-  page: 'home' | 'docs' | '404';
+  page: 'home' | 'docs' | '404' | 'changelog' | 'support' | 'privacy' | 'security' | 'press';
   title?: string;
   description?: string;
   noindex?: boolean;
@@ -21,7 +21,7 @@ const t = ui[lang];
 const title = Astro.props.title ?? t.meta.title;
 const description = Astro.props.description ?? t.meta.description;
 const locale = lang === 'zh' ? 'zh_Hans' : 'en_US';
-const route = page === 'docs' ? 'docs' : '';
+const route = page === 'home' || page === '404' ? '' : page;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const alternateEn = new URL(getRelativeLocaleUrl('en', route), Astro.site);
 const alternateZh = new URL(getRelativeLocaleUrl('zh', route), Astro.site);
@@ -54,6 +54,8 @@ const ogImage = new URL('/assets/og.png', Astro.site);
     <meta property="og:image" content={ogImage} />
     <meta property="og:url" content={canonical} />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
   </head>
   <body>
     <a class="skip-link" href="#main">{t.skip}</a>
@@ -61,7 +63,7 @@ const ogImage = new URL('/assets/og.png', Astro.site);
     <main id="main">
       <slot />
     </main>
-    <Footer lang={lang} />
+    <Footer lang={lang} page={page} />
     <script>
       import '../scripts/site';
     </script>
