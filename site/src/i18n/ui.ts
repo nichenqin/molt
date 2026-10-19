@@ -90,7 +90,7 @@ export interface Dictionary {
     kicker: string;
     title: string;
     body: string;
-    dmg: { title: string; body: string; button: string; meta: string };
+    dmg: { title: string; body: string; button: string };
     curl: { title: string; body: string };
     brew: { title: string; body: string };
   };
@@ -259,7 +259,6 @@ export const ui: Record<Lang, Dictionary> = {
         title: 'Download the app',
         body: 'The normal route. Drag Remige into Applications.',
         button: 'Download DMG',
-        meta: 'universal',
       },
       curl: {
         title: 'One-line install',
@@ -458,7 +457,6 @@ export const ui: Record<Lang, Dictionary> = {
         title: '下载 App',
         body: '最直接的方式，拖进 Applications 即可。',
         button: '下载 DMG',
-        meta: '通用',
       },
       curl: {
         title: '一行命令',
