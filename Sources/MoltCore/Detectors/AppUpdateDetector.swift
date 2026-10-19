@@ -411,8 +411,8 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
 
     private static func selectDownload(_ candidates: [String], architecture: String) -> String? {
         let normalizedArchitecture = architecture.lowercased()
-        let arm64 = normalizedArchitecture.contains("arm64")
-            || normalizedArchitecture.contains("aarch64")
+        let arm64 =
+            normalizedArchitecture.contains("arm64") || normalizedArchitecture.contains("aarch64")
         let preferred = arm64 ? ["arm64", "aarch64"] : ["x64", "amd64", "x86_64", "x86-64"]
         let incompatible = arm64 ? ["x64", "amd64", "x86_64", "x86-64"] : ["arm64", "aarch64"]
         func hasToken(_ value: String, _ tokens: [String]) -> Bool {
