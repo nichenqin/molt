@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Rename the bundle identifier to `app.remige` (reverse DNS of `remige.app`) instead of the
+  personal `com.nichenqin.remige`; the cache directory and preferences domain follow the new
+  identifier, and the Homebrew cask also cleans up the old paths.
 
 - Menu bar rows show the installed-to-available version transition and open that item's detail with
   its release notes when clicked.
