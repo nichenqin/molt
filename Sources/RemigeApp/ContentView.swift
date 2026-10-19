@@ -526,17 +526,7 @@ private struct DetailContent: View {
 
     private var actions: some View {
         HStack(spacing: AppTheme.Spacing.small) {
-            Button {
-                model.perform(item)
-            } label: {
-                Label(primaryTitle, systemImage: primarySymbol)
-                    .font(.system(size: 12, weight: .semibold))
-                    .frame(minWidth: 116)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.small)
-            .tint(item.upgrade.kind == .command ? Color.accentColor : Color.secondary)
-            .help(item.upgrade.displayCommand ?? item.upgrade.hint ?? "")
+            primaryAction
 
             Button {
                 model.openChangelogPage(item)
@@ -572,6 +562,28 @@ private struct DetailContent: View {
             .fixedSize()
 
             Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var primaryAction: some View {
+        let button = Button {
+            model.perform(item)
+        } label: {
+            Label(primaryTitle, systemImage: primarySymbol)
+                .font(.system(size: 12, weight: .semibold))
+                .frame(minWidth: 116)
+        }
+        .controlSize(.small)
+        .help(item.upgrade.displayCommand ?? item.upgrade.hint ?? "")
+
+        if item.upgrade.kind == .command {
+            button
+                .buttonStyle(.borderedProminent)
+                .tint(.accentColor)
+        } else {
+            button
+                .buttonStyle(.bordered)
         }
     }
 
