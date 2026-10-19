@@ -205,6 +205,16 @@ Atom 日志、更新 feed、SHA-256 校验、CLI 原子替换、App bundle 替�
 参数解析、进程超时、流式升级和输出格式。网络和进程均通过协议注入，测试不访问外网。详见
 [docs/TESTING.md](docs/TESTING.md)。
 
+## 官网
+
+`site/` 是 Astro + Tailwind CSS 项目，使用 Astro i18n（`/` 英文，`/zh/` 中文）：
+
+```sh
+npm --prefix site ci
+npm --prefix site run dev     # http://localhost:4321
+npm --prefix site run build   # 静态产物在 site/dist
+```
+
 ## 许可
 
 MIT © 2026 nichenqin

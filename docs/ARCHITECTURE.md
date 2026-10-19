@@ -158,8 +158,9 @@ After a successful batch, the app rescans; the CLI does not, so scripts can deci
 
 ## Distribution and self-update
 
-The website is a static Vercel deployment of `site/`; there is no server component. A release writes
-`site/latest.json` with the version, release notes, and SHA-256/size for the ZIP, DMG and CLI. Both the app
+The website is a static Astro build (`site/`, Tailwind CSS, Astro i18n) deployed to Vercel; there is no server
+component. A release writes `site/public/latest.json` with the version, release notes, and SHA-256/size for the
+ZIP, DMG and CLI. Both the app
 and CLI read that one manifest.
 
 - The app checks at launch (throttled to 24 h) and from **Check for Updates…**. A downloaded ZIP is verified

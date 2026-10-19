@@ -21,11 +21,6 @@ jobs:
         run: swift test
       - name: Lint
         run: xcrun swift-format lint --recursive Sources Tests
-      - name: Website files
-        run: |
-          test -f site/index.html
-          test -f site/zh/index.html
-          test -f site/latest.json
       - name: Package app
         run: ARCHS=arm64 Scripts/package.sh
       - name: Smoke test
@@ -40,3 +35,26 @@ jobs:
             dist/Remige-macos.zip
             dist/Remige-macos.dmg
             dist/remige-cli
+
+  website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install site dependencies
+        run: npm ci --prefix site
+      - name: Build site
+        run: npm run build --prefix site
+      - name: Verify routes
+        run: |
+          test -f site/dist/index.html
+          test -f site/dist/zh/index.html
+          test -f site/dist/docs/index.html
+          test -f site/dist/zh/docs/index.html
+          test -f site/dist/404.html
+          test -f site/dist/latest.json
+          test -f site/dist/install.sh

@@ -1,0 +1,32 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import BaseLayout from './BaseLayout.astro';
+import type { Lang } from '../i18n/ui';
+import { ui } from '../i18n/ui';
+
+interface Frontmatter {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  heading: string;
+  lede: string;
+}
+
+const { frontmatter } = Astro.props as { frontmatter: Frontmatter };
+const { lang } = frontmatter;
+const t = ui[lang];
+const home = getRelativeLocaleUrl(lang);
+---
+
+<BaseLayout lang={lang} page="docs" title={frontmatter.title ?? t.meta.docsTitle} description={frontmatter.description ?? t.meta.docsDescription}>
+  <article class="docs wrap">
+    <a class="docs-back" href={home}>← {lang === 'zh' ? 'Remige 首页' : 'Remige home'}</a>
+    <h1>{frontmatter.heading}</h1>
+    <p class="lede mx-0! text-left!">{frontmatter.lede}</p>
+    <slot />
+    <p class="fine mt-14">
+      MIT © 2026 nichenqin ·
+      <a href="https://github.com/nichenqin/remige">GitHub</a>
+    </p>
+  </article>
+</BaseLayout>
