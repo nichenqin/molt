@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- The upgrade progress log follows new output while you stay at the bottom, stops following when you
+  scroll up to read earlier lines, and shows a real scrollbar whose thumb reflects the log length.
+
 - Rename the bundle identifier to `app.remige` (reverse DNS of `remige.app`) instead of the
   personal `com.nichenqin.remige`; the cache directory and preferences domain follow the new
   identifier, and the Homebrew cask also cleans up the old paths.

@@ -866,15 +866,8 @@ private struct UpgradeSheet: View {
 
             Divider()
 
-            ScrollView {
-                Text(model.upgradeLog.isEmpty ? L.t("upgrade.running") : model.upgradeLog)
-                    .font(.system(size: 10.5, design: .monospaced))
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(14)
-            }
-            .background(Color(nsColor: .textBackgroundColor).opacity(0.5))
+            UpgradeLogView(text: model.upgradeLog, placeholder: L.t("upgrade.running"))
+                .background(Color(nsColor: .textBackgroundColor).opacity(0.5))
 
             Divider()
 
