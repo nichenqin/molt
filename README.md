@@ -14,7 +14,7 @@ with one click or one command.
 
 **Website:** [remige.app](https://remige.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest) ·
 **Changelog:** [remige.app/changelog](https://remige.app/changelog/) · **Support:** [remige.app/support](https://remige.app/support/) ·
-**Security:** [SECURITY.md](SECURITY.md)
+**Security:** [SECURITY.md](SECURITY.md) · **Demo:** [18-second teaser](https://remige.app/assets/remige-teaser.mp4)
 
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 

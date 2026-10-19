@@ -13,7 +13,7 @@ Homebrew 的 formula 与 cask、npm / pnpm / Bun 全局包、通过 Sparkle 自�
 
 **官网：** [remige.app](https://remige.app/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/remige/releases/latest) ·
 **更新日志：** [remige.app/changelog](https://remige.app/changelog/) · **支持：** [remige.app/support](https://remige.app/support/) ·
-**安全：** [SECURITY.md](SECURITY.md)
+**安全：** [SECURITY.md](SECURITY.md) · **演示：** [18 秒预告](https://remige.app/assets/remige-teaser.mp4)
 
 ![Remige 截图](docs/screenshot.png)
 
