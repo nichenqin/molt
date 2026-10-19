@@ -31,6 +31,23 @@ struct ContentView: View {
             UpdateSheet()
                 .environment(model)
         }
+        .confirmationDialog(
+            model.pendingUpgrade?.title ?? "",
+            isPresented: Binding(
+                get: { model.pendingUpgrade != nil },
+                set: { if !$0 { model.cancelPendingUpgrade() } }
+            ),
+            titleVisibility: .visible,
+            presenting: model.pendingUpgrade
+        ) { pending in
+            Button(L.t("confirm.upgrade.action")) { model.confirmPendingUpgrade() }
+            if let url = pending.changelogURL {
+                Button(L.t("action.releaseNotes")) { NSWorkspace.shared.open(url) }
+            }
+            Button(L.t("action.cancel"), role: .cancel) { model.cancelPendingUpgrade() }
+        } message: { pending in
+            Text(pending.message)
+        }
         .overlay(alignment: .bottom) {
             if let toast = model.toast {
                 ToastView(message: toast)

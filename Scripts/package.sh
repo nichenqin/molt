@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 CONFIG="${CONFIG:-release}"
 ARCHS="${ARCHS:-arm64}"
 VERSION="${VERSION:-0.1.0}"
-DIST="dist"
+DIST="${DIST:-dist}"
 APP="$DIST/Remige.app"
 
 echo "Building Remige $VERSION ($ARCHS)"

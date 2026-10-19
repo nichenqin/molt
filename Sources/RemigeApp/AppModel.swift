@@ -36,6 +36,8 @@ final class AppModel {
     var upgradeTitle = ""
     var upgradeResults: [UpgradeResult] = []
 
+    var pendingUpgrade: PendingUpgrade?
+
     var changelogs: [String: ChangelogResult] = [:]
     var changelogLoading: Set<String> = []
     private let scanner = RemigeCore.Scanner()
@@ -44,6 +46,14 @@ final class AppModel {
     private let upgradeService = UpgradeService()
     private var scanTask: Task<Void, Never>?
     private var upgradeTask: Task<Void, Never>?
+
+    struct PendingUpgrade: Identifiable {
+        let id = UUID()
+        var title: String
+        var message: String
+        var items: [OutdatedItem]
+        var changelogURL: URL?
+    }
 
     init() {
         loadConfig()
@@ -170,7 +180,13 @@ final class AppModel {
     func perform(_ item: OutdatedItem) {
         switch item.upgrade.kind {
         case .command:
-            startUpgrade(items: [item], title: item.displayName)
+            requestUpgrade(
+                items: [item],
+                title: L.t("confirm.upgrade.title", item.displayName),
+                message: L.t("confirm.upgrade.message", item.currentVersion, item.latestVersion),
+                changelogURL: changelogs[item.id]?.webURL ?? item.changelogURL
+                    ?? item.repo?.releasesURL
+            )
         case .openURL:
             if let url = item.upgrade.url {
                 NSWorkspace.shared.open(url)
@@ -186,7 +202,48 @@ final class AppModel {
             showToast(L.t("upgrade.none"))
             return
         }
-        startUpgrade(items: targets, title: L.t("upgrade.all.title"))
+        requestUpgrade(
+            items: targets,
+            title: L.t("confirm.upgradeAll.title", targets.count),
+            message: L.t("confirm.upgradeAll.message", Self.nameList(targets)),
+            changelogURL: nil
+        )
+    }
+
+    func confirmPendingUpgrade() {
+        guard let pending = pendingUpgrade else { return }
+        pendingUpgrade = nil
+        let title =
+            pending.items.count == 1
+            ? pending.items[0].displayName : L.t("upgrade.all.title")
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            self?.startUpgrade(items: pending.items, title: title)
+        }
+    }
+
+    func cancelPendingUpgrade() {
+        pendingUpgrade = nil
+    }
+
+    private func requestUpgrade(
+        items: [OutdatedItem],
+        title: String,
+        message: String,
+        changelogURL: URL?
+    ) {
+        pendingUpgrade = PendingUpgrade(
+            title: title,
+            message: message,
+            items: items,
+            changelogURL: changelogURL
+        )
+    }
+
+    private static func nameList(_ items: [OutdatedItem]) -> String {
+        let names = Array(items.prefix(8).map(\.displayName))
+        let list = ListFormatter.localizedString(byJoining: names)
+        return items.count > names.count ? list + "…" : list
     }
 
     private func startUpgrade(items targets: [OutdatedItem], title: String) {

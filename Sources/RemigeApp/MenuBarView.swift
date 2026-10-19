@@ -50,7 +50,7 @@ struct MenuBarView: View {
                         Button {
                             MenuBarPanel.dismiss()
                             model.selectedID = item.id
-                            model.perform(item)
+                            NSApp.activate(ignoringOtherApps: true)
                             openWindow(id: "main")
                         } label: {
                             HStack(spacing: 8) {
@@ -69,8 +69,7 @@ struct MenuBarView: View {
                         }
                         .buttonStyle(.plain)
                         .hoverHighlight(cornerRadius: 6, horizontalInset: 4)
-                        .disabled(model.upgradeRunning)
-                        .help(rowHelp(item))
+                        .help(L.t("menubar.row.help"))
                     }
                 }
                 .padding(.vertical, 4)
@@ -134,14 +133,6 @@ struct MenuBarView: View {
         .frame(width: 330)
         .onAppear {
             model.refreshIfStale()
-        }
-    }
-
-    private func rowHelp(_ item: OutdatedItem) -> String {
-        switch item.upgrade.kind {
-        case .command: L.t("action.upgrade")
-        case .openURL: L.t("action.download")
-        case .manual: L.t("action.manual")
         }
     }
 }

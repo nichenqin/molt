@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Menu bar rows show the installed-to-available version transition and start that item's update
-  when clicked, opening the app to show progress.
+- Menu bar rows show the installed-to-available version transition and open that item's detail with
+  its release notes when clicked.
+- Starting an update, either for one item or for everything, now requires an explicit confirmation.
 - Source filter chips accept clicks across the full chip slot, including the padding and the gaps
   between chips, and highlight on hover.
 - Nested `/docs` pages are included in the Vercel deployment again; the root-only ignore rule no
