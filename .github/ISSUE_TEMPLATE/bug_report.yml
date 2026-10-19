@@ -31,7 +31,7 @@ body:
     attributes:
       label: Remige version
       description: Output of `remige version`, or the version in Remige → About.
-      placeholder: 0.3.1
+      placeholder: 0.4.0
     validations:
       required: true
   - type: input

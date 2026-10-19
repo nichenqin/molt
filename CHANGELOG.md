@@ -1,32 +1,42 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-10-19
+
 - The upgrade progress log follows new output while you stay at the bottom, stops following when you
-  scroll up to read earlier lines, and shows a real scrollbar whose thumb reflects the log length.
+  scroll up to read earlier lines, and shows a real scrollbar whose thumb reflects the log length
+  (`FEAT-7`).
 
 - Rename the bundle identifier to `app.remige` (reverse DNS of `remige.app`) instead of the
   personal `com.nichenqin.remige`; the cache directory and preferences domain follow the new
-  identifier, and the Homebrew cask also cleans up the old paths.
+  identifier, and the Homebrew cask also cleans up the old paths (`FEAT-6`).
 
 - Menu bar rows show the installed-to-available version transition and open that item's detail with
-  its release notes when clicked.
+  its release notes when clicked (`FEAT-3`).
 - Starting an update, either for one item or for everything, now requires an explicit confirmation.
-- Add an 18-second product teaser to the press page, press kit, and README.
-- Source filter chips accept clicks across the full chip slot, including the padding and the gaps
-  between chips, and highlight on hover.
-- Nested `/docs` pages are included in the Vercel deployment again; the root-only ignore rule no
-  longer hides `site/docs`.
+- Rebuild the website with Astro, Tailwind CSS and framework i18n routing, with English and Chinese
+  pages and locale-matched screenshots (`FEAT-2`).
+- Host the website on Cloudflare Workers static assets instead of Vercel, keeping the build in
+  GitHub Actions and preserving the security headers (`FEAT-5`).
+- Bring the main window to the front when "Open Remige" is chosen from the menu bar panel, even
+  when another app is active (`BUG-9`).
 - Download and other non-one-click actions in the detail inspector use the standard bordered button
-  style instead of a low-contrast dark fill, restoring readable text.
+  style instead of a low-contrast dark fill, restoring readable text (`BUG-5`).
+- The detail inspector uses a white reading surface with light-gray cards instead of a gray canvas,
+  so opened items no longer render on the legacy window background (`BUG-6`).
+- Website feature icons render at 24×24 in the accent color instead of filling their cards
+  (`BUG-7`).
+- Install cards share one baseline for their action rows, lining up the DMG button, the curl
+  command and both Copy buttons (`BUG-8`).
+- Add an 18-second product teaser to the press page, press kit, and README.
+- Nested `/docs` pages are included in the static site build again; the root-only ignore rule no
+  longer hides `site/docs`.
 - Homebrew formula and cask release URLs interpolate `#{version}`, keeping `brew audit` clean and
   the download path in sync with the version field.
-- The detail inspector uses a white reading surface with light-gray cards instead of a gray canvas,
-  so opened items no longer render on the legacy window background.
 - Add public changelog, privacy, security, support, and press pages to the Astro site in English and
   Chinese, with sitemap entries and header/footer navigation.
 - Add `SECURITY.md`, private vulnerability reporting, issue and PR templates, and enable GitHub Discussions.
 - Add Help menu entries for the website, changelog, issue tracker, and privacy page.
-- Add security headers to the Vercel deployment and a `/.well-known/security.txt` contact file.
+- Add security headers to the website deployment and a `/.well-known/security.txt` contact file.
 - Add Homebrew `livecheck` blocks and a cask `zap` cleanup list; audit the cask and formula.
 - Point the GitHub repository homepage at `https://remige.app` instead of the old Vercel URL.
 
