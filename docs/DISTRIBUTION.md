@@ -36,9 +36,9 @@ first launch still depends on the user's settings.
 
 ### Optional
 
-- **Custom domain** — about $10–20/year. The site is fully usable on `remige.app`. A domain
-  such as `remige.nichenqin.com` only requires changing `RemigeLinks.website` / `configuredFeed`, the site
-  canonical/OG URLs, and adding the domain in Vercel; Vercel is free.
+- **Domain** — `remige.app` is registered at Cloudflare. DNS: apex `CNAME` to
+  `5efb74b16da2762b.vercel-dns-017.com` (Cloudflare flattening), `www` CNAME to the same target,
+  proxy off. Renewal is about $15/year; Cloudflare Registrar and Vercel are otherwise free.
 - **CDN or worker** — optional; the static Vercel deployment is enough for downloads and the update feed.
 - **Apple notarization** is included in the Developer Program; no separate fee.
 - **GitHub Actions** — public repositories get free minutes; no payment needed for this workload.
