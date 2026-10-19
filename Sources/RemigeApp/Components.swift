@@ -210,6 +210,50 @@ struct ToastView: View {
     }
 }
 
+// MARK: - Hover feedback
+
+/// Rounded pointer highlight for compact, plain-styled controls.
+///
+/// The menu bar popup uses the same subtle fill as the main window list, and a
+/// disabled control never highlights.
+struct HoverHighlight: ViewModifier {
+    var cornerRadius: CGFloat = 6
+    var horizontalInset: CGFloat = 6
+    var verticalInset: CGFloat = 0
+
+    @Environment(\.isEnabled) private var isEnabled
+    @State private var hovering = false
+
+    func body(content: Content) -> some View {
+        content
+            .background {
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color.secondary.opacity(isEnabled && hovering ? 0.07 : 0))
+                    .padding(.horizontal, horizontalInset)
+                    .padding(.vertical, verticalInset)
+            }
+            .contentShape(Rectangle())
+            .onHover { hovering = $0 }
+            .animation(.easeOut(duration: 0.1), value: hovering)
+    }
+}
+
+extension View {
+    func hoverHighlight(
+        cornerRadius: CGFloat = 6,
+        horizontalInset: CGFloat = 6,
+        verticalInset: CGFloat = 0
+    ) -> some View {
+        modifier(
+            HoverHighlight(
+                cornerRadius: cornerRadius,
+                horizontalInset: horizontalInset,
+                verticalInset: verticalInset
+            )
+        )
+    }
+}
+
 // MARK: - Release notes
 
 /// Release notes are rendered as text on purpose: the AppKit HTML importer is

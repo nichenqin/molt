@@ -29,6 +29,7 @@ struct MenuBarView: View {
                         Image(systemName: "arrow.clockwise")
                     }
                     .buttonStyle(.borderless)
+                    .hoverHighlight(cornerRadius: 6, horizontalInset: 2, verticalInset: 2)
                     .help(L.t("action.refresh"))
                 }
             }
@@ -67,6 +68,7 @@ struct MenuBarView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .hoverHighlight(cornerRadius: 6, horizontalInset: 4)
                     }
                 }
                 .padding(.vertical, 4)
@@ -96,6 +98,7 @@ struct MenuBarView: View {
                         .padding(.vertical, 7)
                 }
                 .buttonStyle(.plain)
+                .hoverHighlight(cornerRadius: 6, horizontalInset: 6, verticalInset: 1)
                 .disabled(model.automaticCount == 0)
 
                 Button {
@@ -110,6 +113,7 @@ struct MenuBarView: View {
                         .padding(.vertical, 7)
                 }
                 .buttonStyle(.plain)
+                .hoverHighlight(cornerRadius: 6, horizontalInset: 6, verticalInset: 1)
 
                 Button {
                     NSApp.terminate(nil)
@@ -121,6 +125,7 @@ struct MenuBarView: View {
                         .padding(.vertical, 7)
                 }
                 .buttonStyle(.plain)
+                .hoverHighlight(cornerRadius: 6, horizontalInset: 6, verticalInset: 1)
             }
             .padding(.vertical, 4)
         }
