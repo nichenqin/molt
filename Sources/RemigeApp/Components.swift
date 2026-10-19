@@ -2,6 +2,29 @@ import AppKit
 import RemigeCore
 import SwiftUI
 
+enum AppTheme {
+    enum Spacing {
+        static let compact: CGFloat = 4
+        static let small: CGFloat = 8
+        static let medium: CGFloat = 12
+        static let large: CGFloat = 16
+        static let section: CGFloat = 20
+    }
+
+    enum Radius {
+        static let control: CGFloat = 7
+        static let selection: CGFloat = 8
+        static let card: CGFloat = 12
+    }
+
+    static let hairline = Color.primary.opacity(0.07)
+    static let quietFill = Color.primary.opacity(0.045)
+    static let hoverFill = Color.primary.opacity(0.05)
+    static let selectionFill = Color.accentColor.opacity(0.11)
+    static let detailBackground = Color(nsColor: .windowBackgroundColor)
+    static let cardBackground = Color(nsColor: .textBackgroundColor)
+}
+
 extension SourceKind {
     var tint: Color {
         switch self {
@@ -66,10 +89,14 @@ struct ItemIcon: View {
                     .interpolation(.high)
             } else {
                 ZStack {
-                    RoundedRectangle(cornerRadius: size * 0.26, style: .continuous)
-                        .fill(item.source.tint.opacity(0.14))
+                    RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+                        .fill(item.source.tint.opacity(0.10))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: size * 0.22, style: .continuous)
+                                .strokeBorder(item.source.tint.opacity(0.12))
+                        }
                     Text(monogram)
-                        .font(.system(size: size * 0.44, weight: .semibold, design: .rounded))
+                        .font(.system(size: size * 0.4, weight: .semibold))
                         .foregroundStyle(item.source.tint)
                 }
             }
@@ -89,19 +116,20 @@ struct SourceBadge: View {
     var compact = false
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: AppTheme.Spacing.compact) {
             Circle()
                 .fill(source.tint)
-                .frame(width: 6, height: 6)
+                .frame(width: 5, height: 5)
             Text(compact ? source.rawValue : L.source(source))
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: compact ? 10.5 : 11, weight: .medium))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, compact ? 0 : 8)
-        .padding(.vertical, compact ? 0 : 3)
+        .padding(.horizontal, compact ? 0 : 7)
+        .padding(.vertical, compact ? 0 : 2)
         .background {
             if !compact {
-                Capsule().fill(Color.secondary.opacity(0.09))
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(AppTheme.quietFill)
             }
         }
     }
@@ -111,18 +139,19 @@ struct VersionTransition: View {
     let item: OutdatedItem
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 5) {
             Text(item.currentVersion)
-                .font(.system(size: 12, design: .monospaced))
+                .font(.system(size: 11.5, design: .monospaced))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
-            Image(systemName: "arrow.right")
-                .font(.system(size: 9, weight: .semibold))
+            Image(systemName: "chevron.right")
+                .font(.system(size: 8, weight: .semibold))
                 .foregroundStyle(.tertiary)
             Text(item.latestVersion)
-                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                .font(.system(size: 11.5, weight: .semibold, design: .monospaced))
                 .lineLimit(1)
         }
+        .monospacedDigit()
     }
 }
 
@@ -170,25 +199,30 @@ struct FilterChip: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
+            HStack(spacing: 5) {
                 Text(title)
                     .font(.system(size: 12, weight: selected ? .semibold : .regular))
                 Text("\(count)")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundStyle(selected ? tint : .secondary)
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .background(Capsule().fill(selected ? tint.opacity(0.15) : Color.secondary.opacity(0.08)))
+                    .font(.system(size: 10.5, weight: .medium))
+                    .monospacedDigit()
+                    .foregroundStyle(selected ? .primary : .tertiary)
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(
-                Capsule().fill(selected ? tint.opacity(0.12) : Color.clear)
-            )
-            .overlay(
-                Capsule().strokeBorder(selected ? tint.opacity(0.35) : Color.clear, lineWidth: 1)
-            )
-            .foregroundStyle(selected ? tint : .secondary)
+            .frame(height: 28)
+            .background {
+                RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                    .fill(selected ? AppTheme.cardBackground : .clear)
+                    .shadow(color: selected ? .black.opacity(0.08) : .clear, radius: 1, y: 1)
+            }
+            .overlay(alignment: .bottom) {
+                if selected {
+                    Capsule()
+                        .fill(tint)
+                        .frame(height: 2)
+                        .padding(.horizontal, 10)
+                }
+            }
+            .foregroundStyle(selected ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
         }
         .buttonStyle(.plain)
     }
@@ -265,8 +299,8 @@ struct HTMLBody: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 12.5))
-            .lineSpacing(3)
+            .font(.system(size: 13))
+            .lineSpacing(4)
             .foregroundStyle(.primary)
             .textSelection(.enabled)
             .frame(maxWidth: .infinity, alignment: .leading)

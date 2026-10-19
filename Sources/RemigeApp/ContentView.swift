@@ -11,14 +11,14 @@ struct ContentView: View {
             HeaderView()
             UpdateBanner()
             FilterBar()
-            Divider().opacity(0.6)
+            Divider().opacity(0.45)
             HSplitView {
                 UpdateList()
-                    .frame(minWidth: 400, idealWidth: 470, maxWidth: 620)
+                    .frame(minWidth: 390, idealWidth: 455, maxWidth: 600)
                 DetailPane()
                     .frame(minWidth: 430)
             }
-            Divider().opacity(0.6)
+            Divider().opacity(0.45)
             FooterView()
         }
         .background(Color(nsColor: .windowBackgroundColor))
@@ -46,25 +46,25 @@ private struct HeaderView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: AppTheme.Spacing.medium) {
             Image(nsImage: NSApplication.shared.applicationIconImage)
                 .resizable()
                 .interpolation(.high)
-                .frame(width: 44, height: 44)
+                .frame(width: 36, height: 36)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 Text(L.t("app.name"))
-                    .font(.system(size: 23, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold))
                 statusLine
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11))
                     .foregroundStyle(.secondary)
             }
 
-            Spacer(minLength: 12)
+            Spacer(minLength: AppTheme.Spacing.medium)
 
             searchField
-                .frame(width: 190)
+                .frame(width: 200)
 
             Button {
                 Task { await model.refresh(force: true) }
@@ -94,14 +94,17 @@ private struct HeaderView: View {
             } label: {
                 Label(L.t("action.upgradeAll"), systemImage: "bolt.fill")
                     .font(.system(size: 12, weight: .semibold))
+                    .padding(.horizontal, 3)
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.small)
             .tint(.accentColor)
             .disabled(model.automaticCount == 0 || model.upgradeRunning)
             .help(L.t("upgrade.all.title"))
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(.horizontal, AppTheme.Spacing.large)
+        .padding(.vertical, 10)
+        .background(.bar)
     }
 
     private var statusLine: some View {
@@ -127,7 +130,7 @@ private struct HeaderView: View {
         @Bindable var model = model
         return HStack(spacing: 6) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 11))
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
             TextField(L.t("search.placeholder"), text: $model.searchText)
                 .textFieldStyle(.plain)
@@ -144,9 +147,15 @@ private struct HeaderView: View {
             }
         }
         .padding(.horizontal, 9)
-        .padding(.vertical, 6)
-        .background(Capsule().fill(Color.secondary.opacity(0.08)))
-        .overlay(Capsule().strokeBorder(Color.primary.opacity(0.06)))
+        .frame(height: 28)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                .fill(Color(nsColor: .textBackgroundColor))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
+                .strokeBorder(AppTheme.hairline)
+        )
     }
 }
 
@@ -157,7 +166,7 @@ private struct FilterBar: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
+            HStack(spacing: AppTheme.Spacing.compact) {
                 FilterChip(
                     title: L.t("filter.all"),
                     count: model.items.count,
@@ -177,9 +186,10 @@ private struct FilterBar: View {
                     }
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.bottom, 10)
+            .padding(.horizontal, AppTheme.Spacing.large)
+            .padding(.vertical, 6)
         }
+        .background(.bar)
     }
 }
 
@@ -220,21 +230,22 @@ private struct UpdateList: View {
     }
 
     private func sectionHeader(_ source: SourceKind) -> some View {
-        HStack(spacing: 7) {
+        HStack(spacing: 6) {
             Image(systemName: source.symbol)
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: 9.5, weight: .semibold))
                 .foregroundStyle(source.tint)
             Text(L.source(source).uppercased())
                 .font(.system(size: 10, weight: .semibold))
-                .tracking(0.7)
+                .tracking(0.65)
                 .foregroundStyle(.secondary)
             Text("\(model.count(for: source))")
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .font(.system(size: 10, weight: .medium))
+                .monospacedDigit()
                 .foregroundStyle(.tertiary)
             Spacer()
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 7)
+        .padding(.horizontal, AppTheme.Spacing.large)
+        .frame(height: 28)
         .background(.bar)
     }
 
@@ -260,19 +271,19 @@ private struct UpdateRow: View {
     @State private var hovering = false
 
     var body: some View {
-        HStack(spacing: 11) {
-            ItemIcon(item: item, size: 32)
+        HStack(spacing: AppTheme.Spacing.medium) {
+            ItemIcon(item: item, size: 30)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(item.displayName)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 13, weight: .semibold))
                         .lineLimit(1)
                     if item.pinned { PinnedBadge() }
                 }
                 if let summary = item.summary, !summary.isEmpty {
                     Text(summary)
-                        .font(.system(size: 10.5))
+                        .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 } else {
@@ -280,9 +291,10 @@ private struct UpdateRow: View {
                 }
             }
 
-            Spacer(minLength: 6)
+            Spacer(minLength: AppTheme.Spacing.small)
 
             VersionTransition(item: item)
+                .frame(maxWidth: 195, alignment: .trailing)
 
             ActionBadge(plan: item.upgrade)
 
@@ -296,13 +308,14 @@ private struct UpdateRow: View {
             .buttonStyle(.plain)
             .help(actionHelp)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                .fill(selected ? Color.accentColor.opacity(0.12) : (hovering ? Color.secondary.opacity(0.055) : .clear))
-                .padding(.horizontal, 8)
-        )
+        .padding(.horizontal, AppTheme.Spacing.large)
+        .frame(minHeight: 50)
+        .background {
+            RoundedRectangle(cornerRadius: AppTheme.Radius.selection, style: .continuous)
+                .fill(selected ? AppTheme.selectionFill : (hovering ? AppTheme.hoverFill : .clear))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+        }
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
         .contextMenu {
@@ -380,8 +393,9 @@ private struct FooterView: View {
                     .help(model.warnings.joined(separator: "\n"))
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 7)
+        .padding(.horizontal, AppTheme.Spacing.large)
+        .frame(height: 30)
+        .background(.bar)
     }
 }
 
@@ -414,26 +428,29 @@ private struct DetailContent: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.large) {
                 header
                 versionCard
                 actions
+                Divider().opacity(0.55)
                 changelog
             }
-            .padding(22)
+            .padding(AppTheme.Spacing.section)
+            .frame(maxWidth: 680, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(AppTheme.detailBackground)
         .task(id: item.id) {
             await model.loadChangelog(for: item)
         }
     }
 
     private var header: some View {
-        HStack(alignment: .top, spacing: 13) {
-            ItemIcon(item: item, size: 52)
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .center, spacing: AppTheme.Spacing.medium) {
+            ItemIcon(item: item, size: 44)
+            VStack(alignment: .leading, spacing: 3) {
                 Text(item.displayName)
-                    .font(.system(size: 20, weight: .semibold, design: .rounded))
+                    .font(.system(size: 18, weight: .semibold))
                     .textSelection(.enabled)
                 HStack(spacing: 7) {
                     SourceBadge(source: item.source)
@@ -447,7 +464,7 @@ private struct DetailContent: View {
                     Text(summary)
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
-                        .padding(.top, 1)
+                        .lineLimit(2)
                 }
             }
             Spacer()
@@ -455,36 +472,35 @@ private struct DetailContent: View {
     }
 
     private var versionCard: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: AppTheme.Spacing.large) {
             versionColumn(title: L.t("detail.installed"), version: item.currentVersion, muted: true)
             Image(systemName: "arrow.right")
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.tertiary)
-                .padding(.horizontal, 18)
             versionColumn(title: L.t("detail.latest"), version: item.latestVersion, muted: false)
-            Spacer()
+            Spacer(minLength: AppTheme.Spacing.small)
             actionBadge
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(AppTheme.Spacing.large)
         .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(Color.secondary.opacity(0.06))
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .fill(AppTheme.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.05))
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .strokeBorder(AppTheme.hairline)
         )
     }
 
     private func versionColumn(title: String, version: String, muted: Bool) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title.uppercased())
-                .font(.system(size: 9, weight: .semibold))
-                .tracking(0.6)
+                .font(.system(size: 9.5, weight: .semibold))
+                .tracking(0.55)
                 .foregroundStyle(.tertiary)
             Text(version)
-                .font(.system(size: muted ? 14 : 16, weight: muted ? .regular : .semibold, design: .monospaced))
+                .font(.system(size: muted ? 13.5 : 15, weight: muted ? .regular : .semibold, design: .monospaced))
+                .monospacedDigit()
                 .foregroundStyle(muted ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
                 .lineLimit(1)
         }
@@ -509,15 +525,16 @@ private struct DetailContent: View {
     }
 
     private var actions: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: AppTheme.Spacing.small) {
             Button {
                 model.perform(item)
             } label: {
                 Label(primaryTitle, systemImage: primarySymbol)
                     .font(.system(size: 12, weight: .semibold))
-                    .frame(minWidth: 108)
+                    .frame(minWidth: 116)
             }
             .buttonStyle(.borderedProminent)
+            .controlSize(.small)
             .tint(item.upgrade.kind == .command ? Color.accentColor : Color.secondary)
             .help(item.upgrade.displayCommand ?? item.upgrade.hint ?? "")
 
@@ -527,6 +544,7 @@ private struct DetailContent: View {
                 Label(L.t("action.releaseNotes"), systemImage: "doc.text")
             }
             .buttonStyle(.bordered)
+            .controlSize(.small)
 
             if item.installedPath != nil {
                 Button {
@@ -535,6 +553,7 @@ private struct DetailContent: View {
                     Image(systemName: "folder")
                 }
                 .buttonStyle(.bordered)
+                .controlSize(.small)
                 .help(L.t("action.reveal"))
             }
 
@@ -570,7 +589,7 @@ private struct DetailContent: View {
 
     @ViewBuilder
     private var changelog: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.medium) {
             HStack {
                 Text(L.t("detail.whatsNew"))
                     .font(.system(size: 13, weight: .semibold))
@@ -583,7 +602,7 @@ private struct DetailContent: View {
                         NSWorkspace.shared.open(url)
                     } label: {
                         Label(L.t("detail.openNotes"), systemImage: "arrow.up.forward.square")
-                            .font(.system(size: 10.5))
+                            .font(.system(size: 11))
                     }
                     .buttonStyle(.link)
                 }
@@ -593,7 +612,7 @@ private struct DetailContent: View {
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
                     Text(L.t("detail.loading"))
-                        .font(.system(size: 11.5))
+                        .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 8)
@@ -603,7 +622,7 @@ private struct DetailContent: View {
                 }
             } else {
                 Text(L.t("detail.noNotes"))
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .padding(.vertical, 6)
             }
@@ -615,15 +634,15 @@ private struct ReleaseCard: View {
     let release: ChangelogRelease
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.small) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(release.title)
-                    .font(.system(size: 12.5, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold))
                     .lineLimit(2)
                 Spacer()
                 if let date = release.publishedAt {
                     Text(date, format: .dateTime.year().month().day())
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                         .foregroundStyle(.tertiary)
                 }
             }
@@ -635,20 +654,20 @@ private struct ReleaseCard: View {
                     NSWorkspace.shared.open(url)
                 } label: {
                     Text(url.host ?? url.absoluteString)
-                        .font(.system(size: 10))
+                        .font(.system(size: 10.5))
                 }
                 .buttonStyle(.link)
             }
         }
-        .padding(12)
+        .padding(AppTheme.Spacing.large)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(Color.secondary.opacity(0.045))
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .fill(AppTheme.cardBackground)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.045))
+            RoundedRectangle(cornerRadius: AppTheme.Radius.card, style: .continuous)
+                .strokeBorder(AppTheme.hairline)
         )
     }
 }
