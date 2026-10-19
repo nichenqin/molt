@@ -12,6 +12,8 @@
   style instead of a low-contrast dark fill, restoring readable text.
 - Homebrew formula and cask release URLs interpolate `#{version}`, keeping `brew audit` clean and
   the download path in sync with the version field.
+- The detail inspector uses a white reading surface with light-gray cards instead of a gray canvas,
+  so opened items no longer render on the legacy window background.
 
 ## 0.3.1 — 2026-10-19
 
