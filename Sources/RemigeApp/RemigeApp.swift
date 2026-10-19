@@ -6,6 +6,7 @@ import SwiftUI
 struct RemigeApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var model = AppModel()
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
         Window(L.t("app.name"), id: "main") {
@@ -27,6 +28,8 @@ struct RemigeApp: App {
 
                 Button(L.t("action.upgradeAll")) {
                     model.upgradeAll()
+                    openWindow(id: "main")
+                    NSApp.activate(ignoringOtherApps: true)
                 }
                 .keyboardShortcut("u", modifiers: [.command, .shift])
                 .disabled(model.automaticCount == 0 || model.upgradeRunning)

@@ -19,6 +19,7 @@
 "action.copyID" = "复制 ID";
 "action.homepage" = "主页";
 "action.copied" = "已复制";
+"action.cancel" = "取消";
 "filter.all" = "全部";
 "source.homebrew" = "Homebrew";
 "source.npm" = "npm";
@@ -41,6 +42,11 @@
 "detail.oneClick" = "可一键更新";
 "detail.download" = "将打开下载页";
 "detail.manual" = "需要手动处理";
+"confirm.upgrade.title" = "更新 %@？";
+"confirm.upgrade.message" = "当前版本 %@，将更新到 %@。更新过程会在主窗口中显示，可随时取消。";
+"confirm.upgrade.action" = "确认更新";
+"confirm.upgradeAll.title" = "更新 %d 个软件？";
+"confirm.upgradeAll.message" = "将依次更新：%@。可随时取消。";
 "upgrade.all.title" = "正在全部更新";
 "upgrade.running" = "处理中…";
 "upgrade.cancel" = "取消";
@@ -54,6 +60,7 @@
 "menu.open" = "打开 Remige";
 "menu.quit" = "退出 Remige";
 "menu.more" = "还有 %d 个…";
+"menubar.row.help" = "查看详情与更新日志";
 "settings.general" = "通用";
 "settings.launchAtLogin" = "登录时打开";
 "settings.sources" = "更新来源";

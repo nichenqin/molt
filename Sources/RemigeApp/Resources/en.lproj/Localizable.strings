@@ -19,6 +19,7 @@
 "action.copyID" = "Copy id";
 "action.homepage" = "Homepage";
 "action.copied" = "Copied";
+"action.cancel" = "Cancel";
 "filter.all" = "All";
 "source.homebrew" = "Homebrew";
 "source.npm" = "npm";
@@ -41,6 +42,11 @@
 "detail.oneClick" = "One-click update";
 "detail.download" = "Opens a download page";
 "detail.manual" = "Needs a manual step";
+"confirm.upgrade.title" = "Update %@?";
+"confirm.upgrade.message" = "Installed %@, updating to %@. Progress appears in the main window and you can cancel at any time.";
+"confirm.upgrade.action" = "Update";
+"confirm.upgradeAll.title" = "Update %d packages?";
+"confirm.upgradeAll.message" = "Updates will run in order: %@. You can cancel at any time.";
 "upgrade.all.title" = "Updating everything";
 "upgrade.running" = "Working…";
 "upgrade.cancel" = "Cancel";
@@ -54,6 +60,7 @@
 "menu.open" = "Open Remige";
 "menu.quit" = "Quit Remige";
 "menu.more" = "%d more…";
+"menubar.row.help" = "View details and release notes";
 "settings.general" = "General";
 "settings.launchAtLogin" = "Open at login";
 "settings.sources" = "Sources";
