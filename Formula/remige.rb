@@ -3,7 +3,7 @@ class Remige < Formula
   homepage "https://remige.app/"
   url "https://github.com/nichenqin/remige/releases/download/v0.3.1/remige-cli"
   version "0.3.1"
-  sha256 "e19fedc70bb2e17174b7ee43b24ccc8f113370ce1c2b36112a974d9302cd3a13"
+  sha256 "efdfcef078b50526f18dc1d68446b22503a293c8c9486217fa5e297216754e6b"
   license "MIT"
 
   def install

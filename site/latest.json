@@ -2,26 +2,26 @@
   "assets" : {
     "Remige-macos.dmg" : {
       "name" : "Remige-macos.dmg",
-      "sha256" : "5a525f23f606e9fa6592dd7d7114fb9ebfd1a5d722be5e63404d5ff2d5ef4719",
-      "size" : 3334147,
+      "sha256" : "b7e7a7c58a119154a602604985ad41cf0d1c1b8fbbbe5c1b104875e4a71f8fa8",
+      "size" : 3300917,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/Remige-macos.dmg"
     },
     "Remige-macos.zip" : {
       "name" : "Remige-macos.zip",
-      "sha256" : "235a5f6f2298b731bc2b900251bf250978023600ad8b6ce1ec4f9ac98843614f",
-      "size" : 2907072,
+      "sha256" : "88e516c624399c19e84bf8d8ff723aafbd810b71b131ef8267fbff547b42fdf6",
+      "size" : 2879644,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/Remige-macos.zip"
     },
     "remige-cli" : {
       "name" : "remige-cli",
-      "sha256" : "e19fedc70bb2e17174b7ee43b24ccc8f113370ce1c2b36112a974d9302cd3a13",
-      "size" : 4731016,
+      "sha256" : "efdfcef078b50526f18dc1d68446b22503a293c8c9486217fa5e297216754e6b",
+      "size" : 4688728,
       "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/remige-cli"
     }
   },
-  "notes" : "- Moved the official website, installer and update feed to `remige.app` (with `www` redirecting to\n  the apex), and pointed the app, CLI, Homebrew files and documentation at the new domain.\n\n- Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled\n  actions stay flat.\n- Source filter chips now accept clicks across the full chip slot, including the padding and the\n  gaps between chips, and highlight on hover.",
+  "notes" : "- Moved the official website, installer and update feed to `remige.app` (with `www` redirecting to\n  the apex), and pointed the app, CLI, Homebrew files and documentation at the new domain.\n\n- Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled\n  actions stay flat.\n- Rework the main window into a compact native update ledger with consistent typography, spacing,\n  aligned list rows, restrained controls, and a clearer detail inspector (`BUG-4`).\n- Source filter chips now accept clicks across the full chip slot, including the padding and the\n  gaps between chips, and highlight on hover.",
   "pageURL" : "https://github.com/nichenqin/remige/releases/tag/v0.3.1",
-  "published" : "2026-10-19T02:07:15Z",
+  "published" : "2026-10-19T02:10:48Z",
   "schema" : 1,
   "version" : "0.3.1"
 }
