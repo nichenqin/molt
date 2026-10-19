@@ -12,6 +12,19 @@ Remige is a small Swift package. Keep it that way.
 6. If you change an exported model, update the JSON schema section of the README and the snapshot cache
    schema if needed.
 
+## Local app builds
+
+For UI work, build and relaunch the working tree (uncommitted changes included) with:
+
+```sh
+remige-dev
+```
+
+It packages a debug app into `dist-dev/Remige.app` with a `-dev` version suffix, quits the running
+Remige, and opens the new bundle. Release artifacts in `dist/` stay untouched. Without the global
+command, the equivalent is `CONFIG=debug DIST=dist-dev VERSION=<VersionInfo.current>-dev make app`
+then `open dist-dev/Remige.app` (quit Remige first).
+
 ## Adding a standalone tool
 
 Add a `CLITool` to `ToolCatalog` with a GitHub repo or text latest source, version args, optional regex, and

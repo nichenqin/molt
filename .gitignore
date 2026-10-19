@@ -3,6 +3,7 @@
 *.xcodeproj
 xcuserdata/
 dist/
+dist-dev/
 .remige-test/
 Resources/build/
 
