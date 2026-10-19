@@ -7,13 +7,13 @@ let image = NSImage(size: NSSize(width: width, height: height))
 image.lockFocus()
 
 let background = NSGradient(colors: [
-    NSColor(calibratedRed: 0.03, green: 0.13, blue: 0.11, alpha: 1),
-    NSColor(calibratedRed: 0.02, green: 0.06, blue: 0.06, alpha: 1),
+    NSColor(calibratedRed: 0.07, green: 0.07, blue: 0.08, alpha: 1),
+    NSColor(calibratedRed: 0.03, green: 0.03, blue: 0.04, alpha: 1),
 ])!
 background.draw(in: NSRect(x: 0, y: 0, width: width, height: height), angle: -55)
 
 let glow = NSBezierPath(ovalIn: NSRect(x: 720, y: -160, width: 720, height: 720))
-NSColor(calibratedRed: 0.18, green: 0.85, blue: 0.72, alpha: 0.14).setFill()
+NSColor(calibratedRed: 0.15, green: 0.39, blue: 0.92, alpha: 0.20).setFill()
 glow.fill()
 
 if let icon = NSImage(contentsOfFile: "Resources/build/icon-1024.png") {
@@ -33,7 +33,7 @@ draw(
     at: NSPoint(x: 90, y: 150),
     size: 22,
     weight: .regular,
-    color: NSColor(calibratedRed: 0.45, green: 0.94, blue: 0.82, alpha: 1)
+    color: NSColor(calibratedRed: 0.48, green: 0.64, blue: 1.0, alpha: 1)
 )
 draw("Native macOS 14+  ·  Universal binary  ·  MIT", at: NSPoint(x: 90, y: 76), size: 20, weight: .regular, color: NSColor(calibratedWhite: 0.62, alpha: 1))
 draw("github.com/nichenqin/molt", at: NSPoint(x: 850, y: 76), size: 20, weight: .medium, color: NSColor(calibratedWhite: 0.74, alpha: 1))
@@ -53,8 +53,8 @@ for (name, version, oneClick) in rows {
     draw(version, at: NSPoint(x: 812, y: y + 17), size: 16, weight: .regular, color: NSColor(calibratedWhite: 0.72, alpha: 1))
     let dot = NSBezierPath(ovalIn: NSRect(x: 1072, y: y + 21, width: 12, height: 12))
     (oneClick
-        ? NSColor(calibratedRed: 0.45, green: 0.94, blue: 0.82, alpha: 1)
-        : NSColor(calibratedRed: 0.58, green: 0.70, blue: 0.68, alpha: 1)).setFill()
+        ? NSColor(calibratedRed: 0.48, green: 0.64, blue: 1.0, alpha: 1)
+        : NSColor(calibratedRed: 0.48, green: 0.49, blue: 0.54, alpha: 1)).setFill()
     dot.fill()
     y -= 68
 }

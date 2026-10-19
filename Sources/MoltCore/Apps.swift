@@ -8,6 +8,8 @@ public struct InstalledApp: Identifiable, Hashable, Sendable {
     public var shortVersion: String?
     public var buildVersion: String?
     public var feedURL: URL?
+    /// Standard Electron Builder metadata; Sparkle feeds still take precedence.
+    public var updateMetadata: AppUpdateMetadata?
     public var updateChannel: String?
     public var minimumSystemVersion: String?
 
@@ -21,7 +23,8 @@ public struct InstalledApp: Identifiable, Hashable, Sendable {
         buildVersion: String?,
         feedURL: URL?,
         updateChannel: String?,
-        minimumSystemVersion: String?
+        minimumSystemVersion: String?,
+        updateMetadata: AppUpdateMetadata? = nil
     ) {
         self.path = path
         self.bundleIdentifier = bundleIdentifier
@@ -31,6 +34,7 @@ public struct InstalledApp: Identifiable, Hashable, Sendable {
         self.feedURL = feedURL
         self.updateChannel = updateChannel
         self.minimumSystemVersion = minimumSystemVersion
+        self.updateMetadata = updateMetadata
     }
 }
 
@@ -114,6 +118,7 @@ public enum AppScanner {
         {
             feed = url
         }
+        let metadata = feed == nil ? AppUpdateMetadataReader.read(fromAppAt: url) : nil
         return InstalledApp(
             path: url.path,
             bundleIdentifier: bundleID,
@@ -122,7 +127,8 @@ public enum AppScanner {
             buildVersion: info["CFBundleVersion"].map { String(describing: $0) },
             feedURL: feed,
             updateChannel: info["SUUpdateChannel"] as? String,
-            minimumSystemVersion: info["LSMinimumSystemVersion"] as? String
+            minimumSystemVersion: info["LSMinimumSystemVersion"] as? String,
+            updateMetadata: metadata
         )
     }
 }

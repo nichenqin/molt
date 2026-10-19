@@ -5,6 +5,8 @@ public struct ScanContext: Sendable {
     public var http: HTTPGetting
     public var cache: DiskCache
     public var config: MoltConfig
+    /// Host CPU architecture, used to pick arch-specific Electron update manifests.
+    public var architecture: String
     public var environment: EnvironmentInfo
     public var forceRefresh: Bool
 
@@ -14,7 +16,8 @@ public struct ScanContext: Sendable {
         cache: DiskCache,
         config: MoltConfig,
         environment: EnvironmentInfo,
-        forceRefresh: Bool = false
+        forceRefresh: Bool = false,
+        architecture: String = HostInfo.current().architecture
     ) {
         self.runner = runner
         self.http = http
@@ -22,6 +25,7 @@ public struct ScanContext: Sendable {
         self.config = config
         self.environment = environment
         self.forceRefresh = forceRefresh
+        self.architecture = architecture
     }
 }
 
@@ -29,11 +33,19 @@ public struct DetectorOutput: Sendable {
     public var items: [OutdatedItem]
     public var message: String?
     public var skipped: Bool
+    /// Coverage rows that must never be rendered as updates.
+    public var details: [SourceReportDetail]
 
-    public init(items: [OutdatedItem] = [], message: String? = nil, skipped: Bool = false) {
+    public init(
+        items: [OutdatedItem] = [],
+        message: String? = nil,
+        skipped: Bool = false,
+        details: [SourceReportDetail] = []
+    ) {
         self.items = items
         self.message = message
         self.skipped = skipped
+        self.details = details
     }
 
     public static func skipped(_ message: String) -> DetectorOutput {

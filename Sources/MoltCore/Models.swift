@@ -231,6 +231,35 @@ public enum SourceState: String, Codable, Sendable {
     case disabled
 }
 
+/// Per-app coverage for sources that inspect a collection rather than a manager.
+/// Detail rows never become update items: unsupported apps stay out of the list.
+public struct SourceReportDetail: Codable, Identifiable, Hashable, Sendable {
+    public enum State: String, Codable, Sendable {
+        /// Checked successfully and a newer version exists (shown as an update).
+        case checked
+        /// Checked successfully with nothing newer available.
+        case current
+        /// No supported update source was found or declared.
+        case unsupported
+        /// A source exists but could not be read or parsed.
+        case unavailable
+        /// Another package manager owns the installation and checks it instead.
+        case managed
+    }
+
+    public var id: String
+    public var name: String
+    public var state: State
+    public var message: String?
+
+    public init(id: String, name: String, state: State, message: String? = nil) {
+        self.id = id
+        self.name = name
+        self.state = state
+        self.message = message
+    }
+}
+
 public struct SourceReport: Codable, Identifiable, Hashable, Sendable {
     public var source: SourceKind
     public var state: SourceState
@@ -239,6 +268,8 @@ public struct SourceReport: Codable, Identifiable, Hashable, Sendable {
     public var count: Int
     /// True when a failed source is showing items from the previous scan.
     public var stale: Bool
+    /// Structured coverage for collection sources such as installed apps.
+    public var details: [SourceReportDetail]
 
     public var id: SourceKind { source }
 
@@ -248,7 +279,8 @@ public struct SourceReport: Codable, Identifiable, Hashable, Sendable {
         message: String? = nil,
         duration: Double = 0,
         count: Int = 0,
-        stale: Bool = false
+        stale: Bool = false,
+        details: [SourceReportDetail] = []
     ) {
         self.source = source
         self.state = state
@@ -256,6 +288,29 @@ public struct SourceReport: Codable, Identifiable, Hashable, Sendable {
         self.duration = duration
         self.count = count
         self.stale = stale
+        self.details = details
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case source
+        case state
+        case message
+        case duration
+        case count
+        case stale
+        case details
+    }
+
+    /// Older snapshots have no `details`; decoding them must keep working.
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        source = try container.decode(SourceKind.self, forKey: .source)
+        state = try container.decode(SourceState.self, forKey: .state)
+        message = try container.decodeIfPresent(String.self, forKey: .message)
+        duration = try container.decodeIfPresent(Double.self, forKey: .duration) ?? 0
+        count = try container.decodeIfPresent(Int.self, forKey: .count) ?? 0
+        stale = try container.decodeIfPresent(Bool.self, forKey: .stale) ?? false
+        details = try container.decodeIfPresent([SourceReportDetail].self, forKey: .details) ?? []
     }
 }
 

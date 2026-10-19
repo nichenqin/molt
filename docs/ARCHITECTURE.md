@@ -28,7 +28,7 @@ CommandRunning / HTTPGetting (protocols)
         ├── NpmGlobalDetector ─ npm outdated + registry metadata
         ├── PnpmGlobalDetector ─ pnpm list + registry
         ├── BunGlobalDetector ─ global package.json + registry
-        ├── AppUpdateDetector ─ Info.plist + Sparkle appcasts or cataloged GitHub releases
+        ├── AppUpdateDetector ─ Info.plist, Sparkle, app-update.yml, catalog/config
         ├── MacAppStoreDetector ─ mas list/outdated
         ├── CLIToolDetector ─── catalog + --version + latest tag
         └── CustomToolDetector ─ config + same machinery
@@ -63,9 +63,9 @@ CommandRunning / HTTPGetting (protocols)
    connections per host; detector fan-out is capped by `Concurrency.map`.
 5. **Stable IDs.** `brew:formula:<name>`, `brew:cask:<name>`, `npm:<pkg>`, `bun:<pkg>`, `app:<bundle-id>`,
    `cli:<name>`, `mas:<id>`, `custom:<name>`. IDs survive scans, so selection and upgrade logs remain valid.
-6. **One row per install.** App rows for a cask-managed app are merged into the Homebrew cask row (the
-   cask row keeps the app icon and one-click plan). Custom tools win over a catalog entry for the same
-   executable path.
+6. **One row per install.** App rows never duplicate a Homebrew cask: cask-managed apps are skipped and
+   reported as `managed`, so the cask row stays authoritative. Custom tools win over a catalog entry for
+   the same executable path.
 7. **The cache is disposable.** Every file is JSON with a timestamp and is written atomically. Deleting the
    cache only costs one fresh scan.
 
@@ -102,7 +102,7 @@ used where Molt must decide (appcasts, cataloged app releases, standalone tools,
 ## Application updates
 
 The app scanner reads `CFBundleShortVersionString`, `CFBundleVersion`, `SUFeedURL`, and `SUUpdateChannel`
-from each app's `Info.plist`. Appcasts are parsed with `XMLParser`:
+from each app's `Info.plist`, plus a safe subset of `Contents/Resources/app-update.yml` when Sparkle is absent.
 
 - namespace prefixes are retained by Foundation and normalized by the parser;
 - items on a channel are ignored unless the app opts into that exact channel;
@@ -111,16 +111,23 @@ from each app's `Info.plist`. Appcasts are parsed with `XMLParser`:
 - duplicate versions are collapsed, preferring the item with notes and a full enclosure.
 
 Sparkle's own EdDSA signatures are not verified because Molt does not install the payload; it opens the
-full download or hands the cask to Homebrew.
+full download. Cask-managed apps are left entirely to Homebrew.
 
-Apps without a Sparkle feed can have an explicit bundle-ID-to-repository entry in `AppUpdateDetector`.
-Magpie (`com.yetone.magpie`) uses `yetone/magpie-releases`, its official updater's release repository.
-The detector reads the installed version from the bundle, compares the latest tag using the shared
-`LatestTagResolver`, and attaches GitHub release notes. This works without a CLI on PATH and does not
-execute the app. Sparkle takes precedence when a feed exists; unknown apps are not inferred by name.
-Cask-managed apps retain their brew upgrade plan; other cataloged apps open the release page.
-Sparkle feeds and cataloged releases are checked concurrently, with per-source failures reported
-without hiding successful checks. Tests inject application directories to exercise real plist discovery.
+Apps without a Sparkle feed resolve their source in this order: explicit `appUpdates` configuration keyed
+by bundle identifier, the bundled `AppUpdateCatalog` (Magpie uses `yetone/magpie-releases`, its official
+updater's release repository), then standard Electron Builder metadata. Only `provider: github`
+(`owner`/`repo`) and `provider: generic` with an HTTPS base URL are accepted. The detector reads the
+installed version from the bundle, compares latest versions with the shared `Version` type, and attaches
+GitHub release notes. Generic providers are read from `latest-mac-arm64.yml` on Apple Silicon, falling
+back to `latest-mac.yml`; manifests must expose an HTTPS file URL. This works without a CLI on PATH and
+does not execute the app. Sparkle takes precedence when a feed exists, and display names are never used
+to infer a source.
+
+Cask-managed apps are marked `managed` and skipped so Homebrew remains authoritative. Apps with no usable
+source, unavailable manifests, and current versions are reported as `SourceReport.details` entries
+(`unsupported`, `unavailable`, `current`, `managed`); only genuine newer versions become `OutdatedItem`
+rows. Checks run concurrently, with per-app failures reported without hiding successful checks. Tests
+inject application directories to exercise real plist and `app-update.yml` discovery.
 
 ## Changelogs
 

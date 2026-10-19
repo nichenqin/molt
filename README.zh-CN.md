@@ -26,13 +26,13 @@ Sparkle 应用只知道自己。Molt 把这些原生数据源并行跑一遍，�
 | npm 全局包 | `npm outdated -g --json` | `npm install -g <pkg>@latest` | GitHub Releases |
 | pnpm 全局包 | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub Releases |
 | Bun 全局包 | `~/.bun/install/global` + registry | `bun add -g <pkg>@latest` | GitHub Releases |
-| Sparkle 应用 | `Info.plist` 的 `SUFeedURL` | cask 管理的走 brew；否则打开完整下载页 | Appcast |
-| 目录内 GitHub 应用 | bundle id 白名单（如 magpie） | brew cask，或打开 release | GitHub Releases |
+| Sparkle 应用 | `Info.plist` 的 `SUFeedURL` | 打开完整下载页；cask 管理的应用由 Homebrew 负责 | Appcast |
+| 其他应用 | 标准 Electron Builder `app-update.yml`（GitHub 或 HTTPS generic manifest）或 bundle id 目录 | 打开发布页或下载页 | GitHub Releases / 更新 manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store |
 | 独立 CLI 工具 | 内置目录 + `--version` + GitHub latest | 已知自更新命令，否则发布页 | GitHub Releases |
 | 自定义 curl 工具 | JSON 配置 | 你指定的命令 | GitHub Releases |
 
-没有更新源、没有 Homebrew cask、也没有显式 bundle id 目录项的应用不会被瞎猜；可以在配置里按“自定义工具”声明。
+没有 Sparkle feed、Homebrew cask、可识别的 Electron manifest 或显式目录项的应用不会瞎猜，而是以“未检查”出现在应用来源中。可在 JSON 配置的 `appUpdates` 里按 bundle id 声明 GitHub 仓库或 latest URL。
 
 ## 安装
 
@@ -128,6 +128,19 @@ Homebrew 安装请用 `brew upgrade molt` 与 `brew upgrade --cask molt-app`。
 - 最新版本来源可以是 `github: "owner/repo"`，或 `latestURL` + `latestRegex`。
 - `upgradeArgs` 的第一个元素会被替换为检测到的可执行文件路径，其余原样传入。不写则打开发布页。
 - `disabledSources` 可以关闭来源，例如 `["mas", "pnpm"]`。
+
+既没有 Sparkle 也没有 Electron Builder 元数据的应用，可以按 bundle id 声明：
+
+```json
+{
+  "appUpdates": [
+    {"bundleIdentifier": "com.example.app", "github": "owner/repo"},
+    {"bundleIdentifier": "com.example.other", "latestURL": "https://example.com/version", "latestRegex": "v([0-9.]+)"}
+  ]
+}
+```
+
+仍然不会按应用显示名称猜测来源；cask 管理的应用继续由 Homebrew 负责。
 
 ## 架构
 

@@ -11,6 +11,7 @@
 </head>
 <body>
 <header class="topbar">
+  <div class="topbar-inner">
   <a class="brand" href="../../"><img src="../../assets/icon-256.png" alt="" width="30" height="30"><span>Molt</span></a>
   <nav class="nav" id="nav">
     <a href="../../#features">能力</a><a href="../../#sources">来源</a><a href="../../#install">安装</a><a href="./">文档</a><a href="https://github.com/nichenqin/molt/releases">版本</a>
@@ -18,8 +19,9 @@
   <div class="top-actions">
     <a class="lang" href="../../docs/">English</a>
     <a class="github" href="https://github.com/nichenqin/molt" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg></a>
-    <a class="button small" href="../../#install">下载</a>
+    <a class="btn primary compact" href="../../#install">下载</a>
     <button class="menu-toggle" id="menu-toggle" aria-label="菜单" aria-expanded="false">☰</button>
+  </div>
   </div>
 </header>
 
@@ -66,7 +68,8 @@ molt config path|init|show|edit</code></pre>
       <tr><td>npm 全局</td><td><code>npm outdated -g --json</code></td><td><code>npm install -g pkg@latest</code></td></tr>
       <tr><td>pnpm 全局</td><td><code>pnpm list -g</code> + registry</td><td><code>pnpm add -g pkg@latest</code></td></tr>
       <tr><td>Bun 全局</td><td><code>~/.bun/install/global</code> + registry</td><td><code>bun add -g pkg@latest</code></td></tr>
-      <tr><td>Sparkle 应用</td><td><code>SUFeedURL</code> appcast</td><td>brew cask，或打开完整下载</td></tr>
+      <tr><td>Sparkle 应用</td><td><code>SUFeedURL</code> appcast</td><td>打开完整下载页；cask 管理的应用由 Homebrew 负责</td></tr>
+      <tr><td>其他应用</td><td>Electron Builder <code>app-update.yml</code>（GitHub 或 HTTPS manifest）或 bundle id 目录/配置</td><td>打开发布页或下载页</td></tr>
       <tr><td>Mac App Store</td><td><code>mas outdated</code></td><td><code>mas upgrade</code></td></tr>
       <tr><td>独立工具</td><td>目录 + 版本命令 + latest tag</td><td>自更新，或发布页</td></tr>
     </tbody>
@@ -103,7 +106,7 @@ molt update</code></pre>
     <li>更新下载必须 HTTPS，并用 feed 中的 SHA-256 校验。</li>
     <li>忽略 Sparkle delta 包，使用完整下载。</li>
     <li>扫描时设置 <code>HOMEBREW_NO_AUTO_UPDATE=1</code>；想立刻拿最新 formula 元数据需自行 <code>brew update</code>。</li>
-    <li>没有 Sparkle feed 或 Homebrew cask 的应用不会被猜测，请按自定义工具声明。</li>
+    <li>应用更新来自 Sparkle feed、Electron Builder <code>app-update.yml</code>（GitHub 或 HTTPS manifest）或显式的 bundle id 目录/配置项；绝不按显示名称猜测。Magpie 使用 <code>com.yetone.magpie</code> 与 <code>yetone/magpie-releases</code>。没有可用更新源的应用会以“未检查”出现在应用来源详情中。</li>
   </ul>
 
   <h2 id="build">从源码构建</h2>

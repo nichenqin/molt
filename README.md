@@ -33,14 +33,15 @@ upgrade button per row.
 | npm global packages | `npm outdated -g --json` | `npm install -g <pkg>@latest` | GitHub releases |
 | pnpm global packages | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub releases |
 | Bun global packages | `~/.bun/install/global` + npm registry | `bun add -g <pkg>@latest` | GitHub releases |
-| Sparkle apps | `SUFeedURL` appcasts, channel-aware | `brew upgrade --cask` when cask-managed; otherwise opens the full download | Appcast |
-| Cataloged GitHub apps | bundle-id allowlist (e.g. magpie) | brew cask, or opens the release | GitHub releases |
+| Sparkle apps | `SUFeedURL` appcasts, channel-aware | opens the full download; cask-managed apps stay with Homebrew | Appcast |
+| Other apps | standard Electron Builder `app-update.yml` (GitHub or HTTPS generic manifest) or a bundle-id catalog entry | opens the release or download page | GitHub releases / update manifest |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store page |
 | Standalone CLI tools | curated catalog + `--version` + GitHub latest tag | self-update when known, otherwise release page | GitHub releases |
 | Your own curl tools | JSON config | any command you specify | GitHub releases |
 
-Apps with no update feed, no Homebrew cask, and no explicit bundle-id catalog entry are not guessed. Add
-them as a custom tool if they have a version command and a GitHub repo or latest-version URL.
+Apps without a Sparkle feed, Homebrew cask, recognized Electron manifest, or explicit catalog entry are
+listed as *unchecked* in the Apps source instead of being guessed. Add an `appUpdates` entry keyed by
+bundle identifier in the JSON config for apps with a GitHub repo or latest-version URL.
 
 ## Install
 
@@ -166,6 +167,19 @@ Homebrew installations should use `brew upgrade molt` and `brew upgrade --cask m
   through unchanged. Omit it to make the row open the release page instead.
 - `disabledSources` can turn off any source, e.g. `["mas", "pnpm"]`.
 
+Apps that ship neither Sparkle nor Electron Builder metadata can be declared by bundle ID:
+
+```json
+{
+  "appUpdates": [
+    {"bundleIdentifier": "com.example.app", "github": "owner/repo"},
+    {"bundleIdentifier": "com.example.other", "latestURL": "https://example.com/version", "latestRegex": "v([0-9.]+)"}
+  ]
+}
+```
+
+The source is still never inferred from the app name. Cask-managed apps stay with Homebrew.
+
 ## How it works
 
 ```mermaid
@@ -222,10 +236,11 @@ when the main window becomes stale.
 swift test
 ```
 
-55 deterministic tests cover version ordering, Homebrew/npm/JSON fixtures, Sparkle appcasts (channels,
-minimum OS, delta vs full enclosures), cataloged GitHub apps, Atom changelogs, update-feed parsing,
-checksum verification, atomic CLI replacement, app-bundle swap, config defaults, cache TTL/atomicity,
-dedupe, argument parsing, process timeouts, streaming upgrades, and data formatting. Network and process
+Deterministic tests cover version ordering, Homebrew/npm/JSON fixtures, Sparkle appcasts (channels,
+minimum OS, delta vs full enclosures), Electron Builder metadata and manifests, cataloged GitHub apps,
+Atom changelogs, update-feed parsing, checksum verification, atomic CLI replacement, app-bundle swap,
+config defaults, cache TTL/atomicity, dedupe, argument parsing, process timeouts, streaming upgrades, and
+data formatting. Network and process
 access are injected through `HTTPGetting` / `CommandRunning`, so the suite makes no live requests. See
 [docs/TESTING.md](docs/TESTING.md).
 

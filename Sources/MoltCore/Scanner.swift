@@ -131,7 +131,8 @@ public struct Scanner: Sendable {
                             source: source,
                             state: .skipped,
                             message: output.message,
-                            duration: run.duration
+                            duration: run.duration,
+                            details: output.details
                         )
                     )
                 } else {
@@ -142,7 +143,8 @@ public struct Scanner: Sendable {
                             state: .ok,
                             message: output.message,
                             duration: run.duration,
-                            count: output.items.count
+                            count: output.items.count,
+                            details: output.details
                         )
                     )
                 }

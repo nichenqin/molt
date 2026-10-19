@@ -37,25 +37,66 @@ public struct CustomToolConfig: Codable, Hashable, Sendable {
     }
 }
 
+/// Explicit update source for an installed app that ships no standard metadata.
+/// Entries are keyed by bundle identifier so display names never drive matching.
+public struct AppUpdateConfig: Codable, Hashable, Sendable {
+    public var bundleIdentifier: String
+    public var github: String?
+    public var latestURL: String?
+    public var latestRegex: String?
+
+    public init(
+        bundleIdentifier: String,
+        github: String? = nil,
+        latestURL: String? = nil,
+        latestRegex: String? = nil
+    ) {
+        self.bundleIdentifier = bundleIdentifier
+        self.github = github
+        self.latestURL = latestURL
+        self.latestRegex = latestRegex
+    }
+
+    /// A valid entry must name either a GitHub repository or an HTTPS page and regex.
+    public var source: AppUpdateSource? {
+        if let github = github?.trimmingCharacters(in: .whitespacesAndNewlines), !github.isEmpty {
+            guard let repo = RepoRef(urlLike: github) else { return nil }
+            return .github(repo)
+        }
+        guard
+            let rawURL = latestURL?.trimmingCharacters(in: .whitespacesAndNewlines),
+            let url = AppUpdateMetadataReader.secureURL(rawURL),
+            let regex = latestRegex?.trimmingCharacters(in: .whitespacesAndNewlines),
+            !regex.isEmpty,
+            (try? NSRegularExpression(pattern: regex)) != nil
+        else { return nil }
+        return .text(url, regex: regex)
+    }
+}
+
 public struct MoltConfig: Codable, Hashable, Sendable {
     public var schema: Int
     public var disabledSources: [String]
     public var customTools: [CustomToolConfig]
+    public var appUpdates: [AppUpdateConfig]
 
     public init(
         schema: Int = 1,
         disabledSources: [String] = [],
-        customTools: [CustomToolConfig] = []
+        customTools: [CustomToolConfig] = [],
+        appUpdates: [AppUpdateConfig] = []
     ) {
         self.schema = schema
         self.disabledSources = disabledSources
         self.customTools = customTools
+        self.appUpdates = appUpdates
     }
 
     private enum CodingKeys: String, CodingKey {
         case schema
         case disabledSources
         case customTools
+        case appUpdates
     }
 
     /// A hand-written file may contain only the keys the user cares about.
@@ -64,6 +105,7 @@ public struct MoltConfig: Codable, Hashable, Sendable {
         schema = try container.decodeIfPresent(Int.self, forKey: .schema) ?? 1
         disabledSources = try container.decodeIfPresent([String].self, forKey: .disabledSources) ?? []
         customTools = try container.decodeIfPresent([CustomToolConfig].self, forKey: .customTools) ?? []
+        appUpdates = try container.decodeIfPresent([AppUpdateConfig].self, forKey: .appUpdates) ?? []
     }
 
     public static let empty = MoltConfig()

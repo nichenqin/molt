@@ -102,6 +102,24 @@ final class AppModel {
         reports.filter { $0.state == .failed }
     }
 
+    var appCoverageDetails: [SourceReportDetail] {
+        reports.first { $0.source == .app }?.details ?? []
+    }
+
+    /// Apps with no usable update source stay out of the list but remain visible.
+    var unsupportedAppDetails: [SourceReportDetail] {
+        appCoverageDetails.filter { $0.state == .unsupported }
+    }
+
+    var appCoverageHelp: String {
+        unsupportedAppDetails
+            .map { detail in
+                guard let message = detail.message else { return detail.name }
+                return "\(detail.name) — \(message)"
+            }
+            .joined(separator: "\n")
+    }
+
     var filteredBySource: [SourceKind: [OutdatedItem]] {
         Dictionary(grouping: filteredItems, by: \.source)
     }

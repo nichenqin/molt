@@ -5,6 +5,10 @@
 - Detect Magpie updates through its bundle ID and official `yetone/magpie-releases` source, including
   installations without Sparkle metadata or a CLI on PATH. Show versions and GitHub release notes under
   Apps; unmanaged installations open the release page instead of replacing the running app.
+- Detect app updates from standard Electron Builder `app-update.yml` metadata (GitHub releases and
+  HTTPS generic manifests, including Apple Silicon variants), with `appUpdates` config overrides and a
+  separate bundle-id catalog. Unsupported apps are listed as unchecked in source details instead of
+  being guessed or silently dropped; cask-managed apps stay owned by Homebrew.
 
 ## 0.2.0 — 2026-10-19
 
@@ -16,7 +20,7 @@ The distribution release.
 - `molt update` / `molt update --check` for the CLI, including a Homebrew guard.
 - Static update feed and Homebrew Formula/Cask generated from the release assets.
 - Optional Developer ID signing, hardened runtime, notarisation and stapling in the release pipeline.
-- 55 deterministic tests, including update feed, checksum, atomic CLI replacement, app-swap helpers and cataloged app detection.
+- 67 deterministic tests, including update feed, checksum, atomic CLI replacement, app-swap helpers and cataloged app detection.
 
 ## 0.1.0 — 2026-10-18
 

@@ -1,165 +1,361 @@
 import Foundation
 
-/// Detects installed apps through Sparkle feeds or explicitly cataloged release repositories.
+/// Detects installed app updates from standard metadata and explicit catalogs:
+/// Sparkle appcasts, Electron Builder manifests, and GitHub releases.
 /// Homebrew retains ownership of cask-managed apps.
 public struct AppUpdateDetector: OutdatedSourceDetector {
     public let source = SourceKind.app
 
     private let directories: [URL]?
 
-    // Apps without a standard update feed need an explicit, verified release source.
-    // Match bundle identity, never the display name or app filename.
-    private static let releaseRepos: [String: RepoRef] = [
-        "com.yetone.magpie": RepoRef(owner: "yetone", name: "magpie-releases")
-    ]
-
     public init(directories: [URL]? = nil) {
         self.directories = directories
     }
 
-    private struct FeedResult {
-        var items: [AppcastItem]?
+    private struct CheckResult {
+        var item: OutdatedItem?
+        var detail: SourceReportDetail
+    }
+
+    private struct DocumentResult {
+        var data: Data?
         var error: String?
     }
 
-    private struct ReleaseResult {
-        var item: OutdatedItem?
-        var unavailable = false
+    private enum Resolution {
+        case source(AppUpdateSource)
+        case unsupported(String)
     }
 
     public func scan(_ context: ScanContext) async throws -> DetectorOutput {
-        var seenBundles = Set<String>()
-        let apps = AppScanner.scan(directories: directories).filter { app in
-            guard app.feedURL != nil || Self.releaseRepos[app.bundleIdentifier ?? ""] != nil else {
-                return false
-            }
-            let key = app.bundleIdentifier ?? app.path
-            return seenBundles.insert(key).inserted
-        }
+        let apps = Self.discoveredApps(directories: directories)
         guard !apps.isEmpty else {
-            return DetectorOutput(message: "No supported apps found")
+            return DetectorOutput(message: "No third-party apps found")
         }
 
-        let sparkleApps = apps.filter { $0.feedURL != nil }
-        let releaseApps = apps.filter { $0.feedURL == nil }
-        let resolver = LatestTagResolver(http: context.http, cache: context.cache, force: context.forceRefresh)
-        async let releaseResults = Concurrency.map(releaseApps, limit: 6) { app in
-            await self.checkRelease(app, resolver: resolver, context: context)
-        }
-        let grouped = Dictionary(grouping: sparkleApps) { $0.feedURL! }
-        let feeds = grouped.keys.sorted { $0.absoluteString < $1.absoluteString }
-        let results = await Concurrency.map(feeds, limit: 6) { url in
-            await self.loadFeed(url, context: context)
-        }
-        var byFeed: [URL: [AppcastItem]] = [:]
-        var feedErrors = 0
-        for (index, url) in feeds.enumerated() {
-            if let items = results[index]?.items {
-                byFeed[url] = items
-            } else {
-                feedErrors += 1
-            }
+        let resolver = LatestTagResolver(
+            http: context.http,
+            cache: context.cache,
+            force: context.forceRefresh
+        )
+        let results: [CheckResult?] = await Concurrency.map(apps, limit: 6) { app -> CheckResult? in
+            await self.check(app, resolver: resolver, context: context)
         }
 
         var items: [OutdatedItem] = []
-        for app in sparkleApps {
-            guard let feed = app.feedURL, let feedItems = byFeed[feed],
-                let installedVersion = app.version,
-                let latest = AppcastSelector.latest(
-                    items: feedItems,
-                    installedVersion: installedVersion,
-                    updateChannel: app.updateChannel,
-                    currentOS: context.environment.osVersion?.raw
-                ),
-                let latestVersion = latest.displayVersion
-            else { continue }
-
-            let token = context.environment.caskIndex.token(for: app.path)
-            let plan: UpgradePlan
-            if let brew = context.environment.brew, let token {
-                plan = .command(brew.executable, ["upgrade", "--cask", token])
-            } else if let download = latest.downloadURL, download.scheme == "https" {
-                plan = .open(download)
-            } else if let notes = latest.releaseNotesURL, notes.scheme == "https" {
-                plan = .open(notes)
-            } else {
-                plan = .manual("Download the update and replace the app in Applications.")
-            }
-
-            items.append(
-                OutdatedItem(
-                    id: "app:\(app.bundleIdentifier ?? app.path)",
-                    name: app.name,
-                    source: .app,
-                    kind: .application,
-                    currentVersion: DetectorSupport.cleanVersion(installedVersion),
-                    latestVersion: DetectorSupport.cleanVersion(latestVersion),
-                    summary: nil,
-                    homepage: nil,
-                    repo: nil,
-                    changelogURL: feed,
-                    changelogKind: .appcast,
-                    installedPath: app.path,
-                    bundleIdentifier: app.bundleIdentifier,
-                    upgrade: plan
-                )
-            )
-        }
-
-        for result in await releaseResults {
-            if let item = result?.item { items.append(item) }
-            if result?.unavailable == true { feedErrors += 1 }
+        var details: [SourceReportDetail] = []
+        for case let result? in results {
+            if let item = result.item { items.append(item) }
+            details.append(result.detail)
         }
 
         var message = "\(apps.count) apps"
-        if feedErrors > 0 { message += " · \(feedErrors) update sources unavailable" }
-        return DetectorOutput(items: items, message: message)
+        let unsupported = details.filter { $0.state == .unsupported }.count
+        if unsupported > 0 { message += " · \(unsupported) without update source" }
+        let unavailable = details.filter { $0.state == .unavailable }.count
+        if unavailable > 0 { message += " · \(unavailable) sources unavailable" }
+        return DetectorOutput(items: items, message: message, details: details)
     }
 
-    private func checkRelease(
-        _ app: InstalledApp, resolver: LatestTagResolver, context: ScanContext
-    ) async -> ReleaseResult {
-        guard let bundleID = app.bundleIdentifier, let repo = Self.releaseRepos[bundleID],
-            let installedVersion = app.version, let current = Version(installedVersion)
-        else { return ReleaseResult() }
-        guard let latest = await resolver.resolve(.github(repo)) else {
-            return ReleaseResult(unavailable: true)
+    // MARK: - Coverage
+
+    private static func discoveredApps(directories: [URL]?) -> [InstalledApp] {
+        var seen = Set<String>()
+        var apps: [InstalledApp] = []
+        for app in AppScanner.scan(directories: directories) {
+            // Bundle identity wins; an app copied elsewhere must not be checked twice.
+            let key =
+                app.bundleIdentifier.map { "id:\($0.lowercased())" }
+                ?? "path:\(app.path.lowercased())"
+            guard seen.insert(key).inserted else { continue }
+            apps.append(app)
         }
-        guard let version = Version(latest.version), version > current else { return ReleaseResult() }
+        return apps
+    }
+
+    /// Priority: Sparkle metadata, explicit configuration, bundled catalog, then
+    /// standard Electron Builder metadata. Display names are never consulted.
+    private func resolution(for app: InstalledApp, config: MoltConfig) -> Resolution {
+        if let feed = app.feedURL { return .source(.sparkle(feed)) }
+
+        if let bundleID = app.bundleIdentifier,
+            let entry = config.appUpdates.first(where: {
+                $0.bundleIdentifier.caseInsensitiveCompare(bundleID) == .orderedSame
+            })
+        {
+            guard let source = entry.source else {
+                return .unsupported("Configured app update source is invalid")
+            }
+            return .source(source)
+        }
+
+        if let source = AppUpdateCatalog.source(for: app.bundleIdentifier) {
+            return .source(source)
+        }
+
+        switch app.updateMetadata {
+        case .supported(let source): return .source(source)
+        case .unsupported(let reason): return .unsupported(reason)
+        case nil: return .unsupported("No standard update source")
+        }
+    }
+
+    private func check(
+        _ app: InstalledApp,
+        resolver: LatestTagResolver,
+        context: ScanContext
+    ) async -> CheckResult {
+        if let token = context.environment.caskIndex.token(for: app.path) {
+            return result(app, .managed, "Homebrew cask \(token)")
+        }
+
+        switch resolution(for: app, config: context.config) {
+        case .unsupported(let reason):
+            return result(app, .unsupported, reason)
+        case .source(let source):
+            guard let rawVersion = app.version, let installed = Version(rawVersion) else {
+                return result(app, .unsupported, "Installed version is missing or not comparable")
+            }
+            switch source {
+            case .sparkle(let feed):
+                return await checkSparkle(
+                    app, feed: feed, rawVersion: rawVersion, context: context)
+            case .github(let repo):
+                return await checkGitHub(
+                    app, repo: repo, rawVersion: rawVersion, installed: installed,
+                    resolver: resolver)
+            case .electronGeneric(let baseURL):
+                return await checkElectron(
+                    app, baseURL: baseURL, rawVersion: rawVersion, installed: installed,
+                    context: context)
+            case .text(let url, let regex):
+                return await checkText(
+                    app, url: url, regex: regex, rawVersion: rawVersion, installed: installed,
+                    resolver: resolver)
+            }
+        }
+    }
+
+    private func result(
+        _ app: InstalledApp,
+        _ state: SourceReportDetail.State,
+        _ message: String? = nil,
+        item: OutdatedItem? = nil
+    ) -> CheckResult {
+        CheckResult(
+            item: item,
+            detail: SourceReportDetail(
+                id: "app:\(app.bundleIdentifier ?? app.path)",
+                name: app.name,
+                state: state,
+                message: message
+            )
+        )
+    }
+
+    // MARK: - Sources
+
+    private func checkSparkle(
+        _ app: InstalledApp,
+        feed: URL,
+        rawVersion: String,
+        context: ScanContext
+    ) async -> CheckResult {
+        let document = await loadDocument(feed, context: context) {
+            (try? AppcastParser.parse($0)) != nil
+        }
+        guard let data = document.data else {
+            return result(app, .unavailable, document.error ?? "Could not load appcast")
+        }
+        guard let feedItems = try? AppcastParser.parse(data) else {
+            return result(app, .unavailable, "Could not parse appcast")
+        }
+        guard
+            let latest = AppcastSelector.latest(
+                items: feedItems,
+                installedVersion: rawVersion,
+                updateChannel: app.updateChannel,
+                currentOS: context.environment.osVersion?.raw
+            ),
+            let latestVersion = latest.displayVersion
+        else {
+            return result(
+                app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
+        }
 
         let plan: UpgradePlan
-        if let brew = context.environment.brew,
-            let token = context.environment.caskIndex.token(for: app.path)
-        {
-            plan = .command(brew.executable, ["upgrade", "--cask", token])
+        if let download = latest.downloadURL, download.scheme?.lowercased() == "https" {
+            plan = .open(download)
+        } else if let notes = latest.releaseNotesURL, notes.scheme?.lowercased() == "https" {
+            plan = .open(notes)
         } else {
-            plan = .open(latest.url ?? repo.releasesURL)
+            plan = .manual("Download the update and replace the app in Applications.")
         }
-        return ReleaseResult(
-            item: OutdatedItem(
-                id: "app:\(bundleID)",
+
+        let item = OutdatedItem(
+            id: "app:\(app.bundleIdentifier ?? app.path)",
+            name: app.name,
+            source: .app,
+            kind: .application,
+            currentVersion: DetectorSupport.cleanVersion(rawVersion),
+            latestVersion: DetectorSupport.cleanVersion(latestVersion),
+            summary: nil,
+            homepage: nil,
+            repo: nil,
+            changelogURL: feed,
+            changelogKind: .appcast,
+            installedPath: app.path,
+            bundleIdentifier: app.bundleIdentifier,
+            upgrade: plan
+        )
+        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+    }
+
+    private func checkGitHub(
+        _ app: InstalledApp,
+        repo: RepoRef,
+        rawVersion: String,
+        installed: Version,
+        resolver: LatestTagResolver
+    ) async -> CheckResult {
+        guard let latest = await resolver.resolve(.github(repo)),
+            let latestVersion = Version(latest.version)
+        else {
+            return result(app, .unavailable, "Could not resolve the latest GitHub release")
+        }
+        guard latestVersion > installed else {
+            return result(
+                app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
+        }
+
+        let item = OutdatedItem(
+            id: "app:\(app.bundleIdentifier ?? app.path)",
+            name: app.name,
+            source: .app,
+            kind: .application,
+            currentVersion: DetectorSupport.cleanVersion(rawVersion),
+            latestVersion: DetectorSupport.cleanVersion(latest.display),
+            summary: nil,
+            homepage: repo.webURL,
+            repo: repo,
+            changelogURL: repo.releasesURL,
+            changelogKind: .githubReleases,
+            installedPath: app.path,
+            bundleIdentifier: app.bundleIdentifier,
+            upgrade: .open(latest.url ?? repo.releasesURL)
+        )
+        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+    }
+
+    private func checkText(
+        _ app: InstalledApp,
+        url: URL,
+        regex: String,
+        rawVersion: String,
+        installed: Version,
+        resolver: LatestTagResolver
+    ) async -> CheckResult {
+        guard let latest = await resolver.resolve(.text(url, regex: regex)),
+            let latestVersion = Version(latest.version)
+        else {
+            return result(app, .unavailable, "Could not read the configured latest version")
+        }
+        guard latestVersion > installed else {
+            return result(
+                app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
+        }
+
+        let item = OutdatedItem(
+            id: "app:\(app.bundleIdentifier ?? app.path)",
+            name: app.name,
+            source: .app,
+            kind: .application,
+            currentVersion: DetectorSupport.cleanVersion(rawVersion),
+            latestVersion: DetectorSupport.cleanVersion(latest.display),
+            summary: nil,
+            homepage: nil,
+            repo: nil,
+            changelogURL: url,
+            changelogKind: .web,
+            installedPath: app.path,
+            bundleIdentifier: app.bundleIdentifier,
+            upgrade: .open(latest.url ?? url)
+        )
+        return result(app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+    }
+
+    private func checkElectron(
+        _ app: InstalledApp,
+        baseURL: URL,
+        rawVersion: String,
+        installed: Version,
+        context: ScanContext
+    ) async -> CheckResult {
+        let manifestNames =
+            context.architecture.lowercased() == "arm64"
+            ? ["latest-mac-arm64.yml", "latest-mac.yml"]
+            : ["latest-mac.yml"]
+        var lastError = "Could not load the Electron update manifest"
+
+        for name in manifestNames {
+            let manifestURL = baseURL.appendingPathComponent(name)
+            let document = await loadDocument(manifestURL, context: context) {
+                ElectronUpdateManifestParser.parse(String(decoding: $0, as: UTF8.self)) != nil
+            }
+            guard let data = document.data else {
+                lastError = document.error ?? "Could not load \(name)"
+                continue
+            }
+            guard
+                let manifest = ElectronUpdateManifestParser.parse(
+                    String(decoding: data, as: UTF8.self)),
+                let latestVersion = Version(manifest.version)
+            else {
+                lastError = "Could not parse \(name)"
+                continue
+            }
+            guard latestVersion > installed else {
+                return result(
+                    app, .current, "Up to date at \(DetectorSupport.cleanVersion(rawVersion))")
+            }
+            guard let download = Self.downloadURL(manifest.download, baseURL: baseURL) else {
+                return result(app, .unavailable, "Update manifest declares no HTTPS download")
+            }
+
+            let item = OutdatedItem(
+                id: "app:\(app.bundleIdentifier ?? app.path)",
                 name: app.name,
                 source: .app,
                 kind: .application,
-                currentVersion: DetectorSupport.cleanVersion(installedVersion),
-                latestVersion: latest.display,
-                homepage: repo.webURL,
-                repo: repo,
-                changelogURL: repo.releasesURL,
-                changelogKind: .githubReleases,
+                currentVersion: DetectorSupport.cleanVersion(rawVersion),
+                latestVersion: DetectorSupport.cleanVersion(manifest.version),
+                summary: nil,
+                homepage: nil,
+                repo: nil,
+                changelogURL: nil,
+                changelogKind: .none,
                 installedPath: app.path,
-                bundleIdentifier: bundleID,
-                upgrade: plan
-            ))
+                bundleIdentifier: app.bundleIdentifier,
+                upgrade: .open(download)
+            )
+            return result(
+                app, .checked, "\(item.currentVersion) → \(item.latestVersion)", item: item)
+        }
+        return result(app, .unavailable, lastError)
     }
 
-    private func loadFeed(_ url: URL, context: ScanContext) async -> FeedResult {
+    // MARK: - Documents
+
+    private func loadDocument(
+        _ url: URL,
+        context: ScanContext,
+        isValid: (Data) -> Bool
+    ) async -> DocumentResult {
         if !context.forceRefresh,
-            let cached = await context.cache.readHTTP(url, maxAge: 900)
+            let cached = await context.cache.readHTTP(url, maxAge: 900),
+            isValid(cached.data)
         {
-            if let items = try? AppcastParser.parse(cached.data) {
-                return FeedResult(items: items)
-            }
+            return DocumentResult(data: cached.data)
         }
 
         var headers: [String: String] = [:]
@@ -168,21 +364,42 @@ public struct AppUpdateDetector: OutdatedSourceDetector {
             headers["If-None-Match"] = etag
         }
         do {
-            let response = try await context.http.get(url, headers: headers, timeout: 12, method: "GET")
-            if response.status == 304, let old {
-                return FeedResult(items: try? AppcastParser.parse(old.data))
+            let response = try await context.http.get(
+                url, headers: headers, timeout: 12, method: "GET")
+            if response.status == 304, let old, isValid(old.data) {
+                return DocumentResult(data: old.data)
             }
             guard response.isSuccess else {
-                return FeedResult(error: "HTTP \(response.status)")
+                if let old, isValid(old.data) { return DocumentResult(data: old.data) }
+                return DocumentResult(error: "HTTP \(response.status)")
             }
             await context.cache.writeHTTP(response, for: url)
-            let items = try AppcastParser.parse(response.data)
-            return FeedResult(items: items)
+            return DocumentResult(data: response.data)
         } catch {
-            if let old, let items = try? AppcastParser.parse(old.data) {
-                return FeedResult(items: items, error: error.localizedDescription)
-            }
-            return FeedResult(error: error.localizedDescription)
+            if let old, isValid(old.data) { return DocumentResult(data: old.data) }
+            return DocumentResult(error: error.localizedDescription)
         }
+    }
+
+    private static func downloadURL(_ raw: String?, baseURL: URL) -> URL? {
+        guard let raw = raw?.trimmingCharacters(in: .whitespacesAndNewlines), !raw.isEmpty else {
+            return nil
+        }
+        if let absolute = URL(string: raw), absolute.scheme != nil {
+            guard absolute.scheme?.lowercased() == "https", let host = absolute.host,
+                !host.isEmpty
+            else { return nil }
+            return absolute
+        }
+        guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
+        else { return nil }
+        if !components.path.hasSuffix("/") { components.path += "/" }
+        guard let directory = components.url,
+            let resolved = URL(string: raw, relativeTo: directory)?.absoluteURL,
+            resolved.scheme?.lowercased() == "https",
+            let host = resolved.host,
+            !host.isEmpty
+        else { return nil }
+        return resolved
     }
 }

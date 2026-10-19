@@ -104,6 +104,18 @@ public enum MoltCLI {
                     + palette.yellow(
                         "\(report.source.rawValue): \(report.message ?? "failed")\(report.stale ? " (cached)" : "")"))
         }
+        if let appReport = filtered.reports.first(where: { $0.source == .app }) {
+            let unsupported = appReport.details.filter { $0.state == .unsupported }
+            if !unsupported.isEmpty {
+                let names = unsupported.map(\.name)
+                let visible = names.prefix(6).joined(separator: ", ")
+                let suffix = names.count > 6 ? ", …" : ""
+                print(
+                    "  "
+                        + palette.dim(
+                            "\(unsupported.count) apps without update source: \(visible)\(suffix)"))
+            }
+        }
         for warning in snapshot.warnings ?? [] {
             print("  " + palette.yellow("config: \(warning)"))
         }
@@ -350,7 +362,7 @@ public enum MoltCLI {
             (.npm, environment.npm != nil, environment.npm ?? "not installed"),
             (.pnpm, environment.pnpm != nil, environment.pnpm ?? "not installed"),
             (.bun, environment.bun != nil, environment.bun ?? "not installed"),
-            (.app, true, "Sparkle appcasts + cataloged app releases"),
+            (.app, true, "Sparkle appcasts, Electron manifests and cataloged app releases"),
             (.cli, true, "\(ToolCatalog.tools.count) catalog tools"),
             (.mas, environment.mas != nil, environment.mas ?? "not installed"),
             (.custom, !(config?.customTools.isEmpty ?? true), "\(config?.customTools.count ?? 0) configured"),
@@ -651,7 +663,7 @@ public enum MoltCLI {
                   npm       global packages via `npm outdated -g --json`
                   pnpm      global packages via `pnpm list -g` + the npm registry
                   bun       global packages in ~/.bun/install/global
-                  app       Sparkle appcasts + cataloged releases for installed apps
+                  app       Sparkle appcasts, Electron manifests and cataloged releases
                   cli       curl/installer tools (uv, claude, rustup, rg, …)
                   mas       Mac App Store updates when `mas` is installed
                   custom    tools declared in ~/.config/molt/config.json

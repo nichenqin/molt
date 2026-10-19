@@ -355,6 +355,15 @@ private struct FooterView: View {
 
             Spacer()
 
+            if !model.unsupportedAppDetails.isEmpty {
+                Label(
+                    L.t("footer.appsUnsupported", model.unsupportedAppDetails.count),
+                    systemImage: "questionmark.circle"
+                )
+                .font(.system(size: 10.5))
+                .foregroundStyle(.secondary)
+                .help(model.appCoverageHelp)
+            }
             if !model.failedReports.isEmpty {
                 Label(
                     L.t("footer.failed", model.failedReports.count),

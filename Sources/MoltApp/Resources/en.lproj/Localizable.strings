@@ -50,6 +50,7 @@
 "upgrade.none" = "Nothing can be updated automatically.";
 "footer.lastChecked" = "Checked %@";
 "footer.failed" = "%d sources unavailable";
+"footer.appsUnsupported" = "%d apps unchecked";
 "menu.open" = "Open Molt";
 "menu.quit" = "Quit Molt";
 "menu.more" = "%d more…";
@@ -68,7 +69,7 @@
 "source.desc.npm" = "npm global packages";
 "source.desc.pnpm" = "pnpm global packages";
 "source.desc.bun" = "bun global packages";
-"source.desc.app" = "Sparkle appcasts + cataloged app releases";
+"source.desc.app" = "Sparkle appcasts, Electron manifests + app catalog";
 "source.desc.cli" = "curl / installer tools";
 "source.desc.mas" = "Mac App Store via mas";
 "source.desc.custom" = "~/.config/molt/config.json";

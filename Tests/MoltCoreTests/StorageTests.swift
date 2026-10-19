@@ -81,6 +81,33 @@ struct StorageTests {
         }
     }
 
+    @Test func configDecodesAppUpdateOverrides() throws {
+        let json = """
+            {"appUpdates":[{"bundleIdentifier":"com.example.app","github":"owner/repo"}]}
+            """
+        let config = try JSONDecoder.molt.decode(MoltConfig.self, from: Data(json.utf8))
+        #expect(config.appUpdates.first?.bundleIdentifier == "com.example.app")
+        #expect(
+            config.appUpdates.first?.source
+                == AppUpdateSource.github(RepoRef(owner: "owner", name: "repo"))
+        )
+    }
+
+    @Test func sourceReportDecodesWithoutDetails() throws {
+        let old = Data(#"{"source":"app","state":"ok","count":2}"#.utf8)
+        let report = try JSONDecoder.molt.decode(SourceReport.self, from: old)
+        #expect(report.count == 2)
+        #expect(report.details.isEmpty)
+
+        let detail = SourceReportDetail(
+            id: "app:com.example.app", name: "Example", state: .unsupported,
+            message: "No standard update source")
+        let encoded = try JSONEncoder.molt.encode(
+            SourceReport(source: .app, state: .ok, count: 1, details: [detail]))
+        let decoded = try JSONDecoder.molt.decode(SourceReport.self, from: encoded)
+        #expect(decoded.details == [detail])
+    }
+
     @Test func mergeDropsSparkleDuplicateOfBrewCask() {
         let cask = OutdatedItem(
             id: "brew:cask:cc-switch",
