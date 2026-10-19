@@ -6,6 +6,8 @@
   between chips, and highlight on hover.
 - Nested `/docs` pages are included in the Vercel deployment again; the root-only ignore rule no
   longer hides `site/docs`.
+- Download and other non-one-click actions in the detail inspector use the standard bordered button
+  style instead of a low-contrast dark fill, restoring readable text.
 
 ## 0.3.1 — 2026-10-19
 
