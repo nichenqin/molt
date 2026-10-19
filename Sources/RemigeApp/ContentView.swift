@@ -166,7 +166,7 @@ private struct FilterBar: View {
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppTheme.Spacing.compact) {
+            HStack(spacing: 0) {
                 FilterChip(
                     title: L.t("filter.all"),
                     count: model.items.count,
@@ -186,7 +186,7 @@ private struct FilterBar: View {
                     }
                 }
             }
-            .padding(.horizontal, AppTheme.Spacing.large)
+            .padding(.horizontal, AppTheme.Spacing.large - AppTheme.Spacing.compact / 2)
             .padding(.vertical, 6)
         }
         .background(.bar)

@@ -197,6 +197,11 @@ struct FilterChip: View {
     let tint: Color
     let action: () -> Void
 
+    @State private var hovering = false
+
+    /// The pointer target is the whole slot, not just the drawn card: the side
+    /// gutters finish the gap between neighbours, so a click that lands between
+    /// two chips still belongs to one of them.
     var body: some View {
         Button(action: action) {
             HStack(spacing: 5) {
@@ -211,7 +216,11 @@ struct FilterChip: View {
             .frame(height: 28)
             .background {
                 RoundedRectangle(cornerRadius: AppTheme.Radius.control, style: .continuous)
-                    .fill(selected ? AppTheme.cardBackground : .clear)
+                    .fill(
+                        selected
+                            ? AppTheme.cardBackground
+                            : (hovering ? AppTheme.hoverFill : .clear)
+                    )
                     .shadow(color: selected ? .black.opacity(0.08) : .clear, radius: 1, y: 1)
             }
             .overlay(alignment: .bottom) {
@@ -223,8 +232,12 @@ struct FilterChip: View {
                 }
             }
             .foregroundStyle(selected ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
+            .padding(.horizontal, AppTheme.Spacing.compact / 2)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+        .animation(.easeOut(duration: 0.1), value: hovering)
     }
 }
 
