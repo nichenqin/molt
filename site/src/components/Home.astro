@@ -95,8 +95,10 @@ const railDots = ['blue', 'red', 'amber', 'pink', 'violet', 'indigo', 'gray'];
     {
       t.features.items.map((item) => (
         <article class="min-h-[194px] bg-surface p-6 pt-7">
-          <Icon name={item.icon} />
-          <h3 class="mt-4 mb-2 text-[0.95rem] font-semibold tracking-[-0.01em]">{item.title}</h3>
+          <span class="mb-[19px] block text-blue">
+            <Icon name={item.icon} />
+          </span>
+          <h3 class="mb-2 text-[0.95rem] font-semibold tracking-[-0.01em]">{item.title}</h3>
           <p class="text-[0.82rem] leading-[1.65] text-muted" set:html={item.body} />
         </article>
       ))
