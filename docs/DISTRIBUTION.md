@@ -18,11 +18,12 @@ has `remige update`; both read the same static feed.
 | Security | https://remige.app/security/ |
 | Press kit | https://remige.app/press/ |
 
-The website is an Astro project in `site/` (Tailwind CSS, Astro i18n), connected to the Vercel project
-`remige` for automatic deployment from `main`. Build it with `npm ci --prefix site && npm run build --prefix
-site`; the static output lands in `site/dist`. The release workflow writes `site/public/latest.json`,
-`Formula/remige.rb`, and `Casks/remige-app.rb` and commits them to `main`; Vercel redeploys the site from that
-push. There is no server and no database.
+The website is an Astro project in `site/` (Tailwind CSS, Astro i18n) deployed as a Cloudflare Worker with
+static assets. Build it with `npm ci --prefix site && npm run build --prefix site`; the static output lands in
+`site/dist`. `wrangler.jsonc` uploads that directory as the Worker's assets and `edge/site-worker.js` redirects
+`www` to the apex. The `Website` workflow deploys from `main`; the release workflow writes
+`site/public/latest.json`, `Formula/remige.rb`, and `Casks/remige-app.rb`, commits them to `main`, and deploys
+the updated feed. There is no server and no database.
 
 ## Accounts and money
 
@@ -42,10 +43,10 @@ first launch still depends on the user's settings.
 
 ### Optional
 
-- **Domain** — `remige.app` is registered at Cloudflare. DNS: apex `CNAME` to
-  `5efb74b16da2762b.vercel-dns-017.com` (Cloudflare flattening), `www` CNAME to the same target,
-  proxy off. Renewal is about $15/year; Cloudflare Registrar and Vercel are otherwise free.
-- **CDN or worker** — optional; the static Vercel deployment is enough for downloads and the update feed.
+- **Domain** — `remige.app` is registered at Cloudflare. Both `remige.app` and `www.remige.app` are custom
+  domains on the `remige-site` Worker; Cloudflare manages the DNS records and certificates, and the Worker
+  redirects `www` to the apex. Renewal is about $15/year; the Workers Free plan covers this site.
+- **CDN or worker** — Cloudflare Workers Static Assets serves the site; static asset requests are unmetered.
 - **Apple notarization** is included in the Developer Program; no separate fee.
 - **GitHub Actions** — public repositories get free minutes; no payment needed for this workload.
 
@@ -67,6 +68,8 @@ Set these in **Settings → Secrets and variables → Actions**:
 | `APPLE_API_ISSUER` | issuer UUID |
 | `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID` | alternative to the API key |
 | `NOTARY_PROFILE` | optional local keychain profile name |
+| `CLOUDFLARE_API_TOKEN` | API token with Workers Scripts:Edit and Workers Routes:Edit |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID that owns `remige.app` |
 
 If `MAC_CERTIFICATE_P12` is absent, the release workflow builds ad-hoc signed and prints a warning. If the
 certificate exists but notarization credentials are absent, the app is signed but not notarized; the package

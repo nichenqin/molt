@@ -6,7 +6,8 @@ on:
     paths:
       - "site/**"
       - "Scripts/install.sh"
-      - "vercel.json"
+      - "wrangler.jsonc"
+      - "edge/**"
       - ".github/workflows/website.yml"
   workflow_dispatch:
 
@@ -52,14 +53,11 @@ jobs:
           test -f site/dist/zh/press/index.html
           test -f site/dist/zh/changelog/index.html
           test -f site/dist/.well-known/security.txt
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
       - name: Deploy production
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm exec --prefix site -- wrangler deploy
       - name: Smoke production
         run: |
           curl --retry 5 --retry-delay 2 --fail --silent --show-error https://remige.app/ | grep -F "Every update."
