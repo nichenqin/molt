@@ -9,6 +9,8 @@ lives: Homebrew formulae and casks, global npm/pnpm/Bun packages, Sparkle-update
 apps, and standalone tools installed by `curl`, installers, or tarballs. Read release notes, then update
 with one click or one command.
 
+**Website:** [nichenqin.github.io/molt](https://nichenqin.github.io/molt/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
+
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 
 <p align="center">
@@ -32,22 +34,39 @@ upgrade button per row.
 | pnpm global packages | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub releases |
 | Bun global packages | `~/.bun/install/global` + npm registry | `bun add -g <pkg>@latest` | GitHub releases |
 | Sparkle apps | `SUFeedURL` appcasts, channel-aware | `brew upgrade --cask` when cask-managed; otherwise opens the full download | Appcast |
+| Cataloged GitHub apps | bundle-id allowlist (e.g. magpie) | brew cask, or opens the release | GitHub releases |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store page |
 | Standalone CLI tools | curated catalog + `--version` + GitHub latest tag | self-update when known, otherwise release page | GitHub releases |
 | Your own curl tools | JSON config | any command you specify | GitHub releases |
 
-Apps with no update feed and no Homebrew cask are not guessed. Add them as a custom tool if they have a
-version command and a GitHub repo or latest-version URL.
+Apps with no update feed, no Homebrew cask, and no explicit bundle-id catalog entry are not guessed. Add
+them as a custom tool if they have a version command and a GitHub repo or latest-version URL.
 
 ## Install
 
+**Download:** [Molt-macos.dmg](https://github.com/nichenqin/molt/releases/latest) — universal, macOS 14+.
+
+**One line:**
+
 ```sh
-curl -fsSL https://raw.githubusercontent.com/nichenqin/molt/main/Scripts/install.sh | sh
+curl -fsSL https://nichenqin.github.io/molt/install.sh | sh
 ```
 
-Installs `Molt.app` (Applications, or `~/Applications`) and the `molt` CLI (`/usr/local/bin`, or
-`~/.local/bin`). Builds are ad-hoc signed and not notarized; the installer clears the quarantine flag. To
-remove everything: `curl ... | sh -s -- --uninstall`.
+**Homebrew:**
+
+```sh
+brew tap nichenqin/molt https://github.com/nichenqin/molt
+brew install --cask molt-app
+brew install molt
+```
+
+The installer puts `Molt.app` in Applications (or `~/Applications`) and the `molt` CLI in
+`/usr/local/bin` (or `~/.local/bin`), verifies SHA-256, and clears the quarantine flag. Remove it with
+`curl ... | sh -s -- --uninstall`.
+
+Public builds are currently ad-hoc signed. Developer ID signing and Apple notarization are wired into the
+release workflow but require an Apple Developer Program membership; until then macOS may show a Gatekeeper
+prompt on first launch.
 
 ### Build from source
 
@@ -76,12 +95,16 @@ molt doctor --json         # paths, managers, cache, config validity
 molt cache path|size|clear
 molt config path|init|show|edit
 molt app                   # open the GUI
+molt update --check        # check Molt itself
+molt update                # replace the CLI atomically
 ```
 
+`molt update` checks the release feed and verifies the new binary's SHA-256. Homebrew installations should use
+`brew upgrade molt`.
 Example:
 
 ```text
-molt 0.1.0  just now
+molt 0.2.0  just now
 
 HOMEBREW
   cc-switch          4.0.14         →  4.0.15  auto
@@ -103,6 +126,19 @@ in scripts. Download-only apps open their release page; they are never installed
 `reports` (including partial failures and stale cached rows), `host`, and optional `warnings`. Items carry a
 stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrade` plan (`command`,
 `openURL`, or `manual`).
+
+## Updating Molt
+
+The app checks `https://nichenqin.github.io/molt/latest.json`; **Molt → Check for Updates…** shows the sheet.
+The update ZIP is verified against the feed's SHA-256, then a small helper waits for Molt to exit, swaps the
+app bundle with rollback, and relaunches it. The CLI uses the same feed:
+
+```sh
+molt update --check
+molt update
+```
+
+Homebrew installations should use `brew upgrade molt` and `brew upgrade --cask molt-app`.
 
 ## Custom tools
 
@@ -172,8 +208,8 @@ Measured on an Apple Silicon Mac (macOS 26.5, 22 updates across 4 sources):
 | Metric | Result |
 | --- | --- |
 | Full scan (in-process) | 0.8–1.3 s warm; up to ~5 s when feeds are cold |
-| App bundle / zip | 6.8 MB / 2.6 MB (universal) |
-| CLI binary | 3.9 MB (universal) |
+| App / zip / DMG | 7.4 MB / 2.8 MB / 3.2 MB (universal) |
+| CLI binary | 4.4 MB (universal) |
 | CLI cached list (process startup included) | ≈0.7 s |
 | App RSS with 22 rows + release notes | ≈100–140 MB |
 
@@ -186,10 +222,11 @@ when the main window becomes stale.
 swift test
 ```
 
-44 deterministic tests cover version ordering, Homebrew/npm/JSON fixtures, Sparkle appcasts (channels,
-minimum OS, delta vs full enclosures), Atom changelogs, config defaults, cache TTL/atomicity, dedupe,
-argument parsing, process timeouts, streaming upgrades, and data formatting. Network and process access are
-injected through `HTTPGetting` / `CommandRunning`, so the suite makes no live requests. See
+55 deterministic tests cover version ordering, Homebrew/npm/JSON fixtures, Sparkle appcasts (channels,
+minimum OS, delta vs full enclosures), cataloged GitHub apps, Atom changelogs, update-feed parsing,
+checksum verification, atomic CLI replacement, app-bundle swap, config defaults, cache TTL/atomicity,
+dedupe, argument parsing, process timeouts, streaming upgrades, and data formatting. Network and process
+access are injected through `HTTPGetting` / `CommandRunning`, so the suite makes no live requests. See
 [docs/TESTING.md](docs/TESTING.md).
 
 A live smoke test (not part of CI) exercised the complete one-click path against a fake custom tool,

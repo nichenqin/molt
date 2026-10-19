@@ -23,9 +23,18 @@ final class AppModel {
     var showUpgradeSheet = false
     var upgradeRunning = false
     var upgradeLog = ""
+    var toast: String?
+
+    var availableUpdate: AvailableUpdate?
+    var showUpdateSheet = false
+    var isCheckingForUpdates = false
+    var isInstallingUpdate = false
+    var updateError: String?
+    var autoCheckUpdates = UserDefaults.standard.object(forKey: "autoCheckMoltUpdates") as? Bool ?? true
+    var updateStatus = ""
+    var lastUpdateCheck: Date?
     var upgradeTitle = ""
     var upgradeResults: [UpgradeResult] = []
-    var toast: String?
 
     var changelogs: [String: ChangelogResult] = [:]
     var changelogLoading: Set<String> = []
@@ -45,6 +54,9 @@ final class AppModel {
                 hasLoadedCache = true
             }
             await refresh(force: false)
+        }
+        Task { [weak self] in
+            await self?.checkForUpdates(silent: true)
         }
     }
 
@@ -302,6 +314,86 @@ final class AppModel {
         } catch {
             showToast(error.localizedDescription)
         }
+    }
+
+    // MARK: Self-update
+
+    func setAutoCheckUpdates(_ enabled: Bool) {
+        autoCheckUpdates = enabled
+        UserDefaults.standard.set(enabled, forKey: "autoCheckMoltUpdates")
+        if enabled {
+            Task { await checkForUpdates(silent: true) }
+        }
+    }
+
+    func checkForUpdates(silent: Bool) async {
+        if isCheckingForUpdates { return }
+        if silent && !autoCheckUpdates { return }
+        let defaults = UserDefaults.standard
+        if silent, let last = defaults.object(forKey: "lastMoltUpdateCheck") as? Date,
+            Date().timeIntervalSince(last) < 24 * 3600
+        {
+            return
+        }
+        isCheckingForUpdates = true
+        defer { isCheckingForUpdates = false }
+        do {
+            let update = try await UpdateService().check()
+            defaults.set(Date(), forKey: "lastMoltUpdateCheck")
+            lastUpdateCheck = Date()
+            availableUpdate = update
+            if update != nil {
+                if !silent { showUpdateSheet = true }
+            } else if !silent {
+                showToast(L.t("update.current", MoltVersion.current))
+            }
+        } catch {
+            if !silent {
+                updateError = error.localizedDescription
+                showUpdateSheet = true
+            }
+        }
+    }
+
+    func installUpdate() {
+        guard let update = availableUpdate,
+            let asset = update.manifest.appZip,
+            !isInstallingUpdate
+        else { return }
+        isInstallingUpdate = true
+        updateError = nil
+        updateStatus = L.t("update.downloading")
+        let target = Bundle.main.bundleURL
+        Task { [weak self] in
+            guard let self else { return }
+            do {
+                let data = try await UpdateService().download(asset)
+                updateStatus = L.t("update.installing")
+                _ = try await Task.detached(priority: .userInitiated) {
+                    try AppUpdater.install(
+                        zipData: data,
+                        expectedVersion: update.latestVersion,
+                        targetApp: target
+                    )
+                }.value
+                NSApp.terminate(nil)
+            } catch {
+                isInstallingUpdate = false
+                updateError = error.localizedDescription
+            }
+        }
+    }
+
+    func openUpdatePage() {
+        if let url = availableUpdate?.manifest.pageURL {
+            NSWorkspace.shared.open(url)
+        } else {
+            NSWorkspace.shared.open(MoltLinks.releases)
+        }
+    }
+
+    func dismissUpdate() {
+        showUpdateSheet = false
     }
 }
 

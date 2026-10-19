@@ -15,6 +15,21 @@ struct SettingsView: View {
                     .onChange(of: launchAtLogin) { _, value in
                         model.setLaunchAtLogin(value)
                     }
+                Toggle(
+                    L.t("settings.autoUpdate"),
+                    isOn: Binding(
+                        get: { model.autoCheckUpdates },
+                        set: { model.setAutoCheckUpdates($0) }
+                    )
+                )
+                HStack {
+                    LabeledContent(L.t("settings.version"), value: MoltVersion.current)
+                    Spacer()
+                    Button(L.t("settings.checkNow")) {
+                        Task { await model.checkForUpdates(silent: false) }
+                    }
+                    .disabled(model.isCheckingForUpdates)
+                }
             }
 
             Section(L.t("settings.sources")) {

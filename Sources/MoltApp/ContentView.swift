@@ -9,6 +9,7 @@ struct ContentView: View {
         @Bindable var model = model
         VStack(spacing: 0) {
             HeaderView()
+            UpdateBanner()
             FilterBar()
             Divider().opacity(0.6)
             HSplitView {
@@ -24,6 +25,10 @@ struct ContentView: View {
         .frame(minWidth: 900, minHeight: 580)
         .sheet(isPresented: $model.showUpgradeSheet) {
             UpgradeSheet()
+                .environment(model)
+        }
+        .sheet(isPresented: $model.showUpdateSheet) {
+            UpdateSheet()
                 .environment(model)
         }
         .overlay(alignment: .bottom) {
@@ -640,6 +645,139 @@ private struct ReleaseCard: View {
 }
 
 // MARK: - Upgrade sheet
+
+private struct UpdateBanner: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        if let update = model.availableUpdate {
+            HStack(spacing: 9) {
+                Image(systemName: "arrow.down.circle.fill")
+                    .foregroundStyle(.white)
+                    .font(.system(size: 12, weight: .semibold))
+                Text(L.t("update.available", update.latestVersion))
+                    .font(.system(size: 11.5, weight: .semibold))
+                    .foregroundStyle(.white)
+                Text(L.t("update.have", update.currentVersion))
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.white.opacity(0.8))
+                Spacer()
+                Button(L.t("update.install")) {
+                    model.showUpdateSheet = true
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.white)
+                .foregroundStyle(Color.accentColor)
+                .controlSize(.small)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 7)
+            .background(
+                LinearGradient(
+                    colors: [Color.accentColor, Color.accentColor.opacity(0.82)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+        }
+    }
+}
+
+private struct UpdateSheet: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 10) {
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.system(size: 26))
+                    .foregroundStyle(Color.accentColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L.t("update.sheet.title"))
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    if let update = model.availableUpdate {
+                        Text(L.t("update.available", update.latestVersion))
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+            }
+            .padding(18)
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    if let update = model.availableUpdate {
+                        Text(L.t("update.have", update.currentVersion))
+                            .font(.system(size: 11.5))
+                            .foregroundStyle(.secondary)
+                        if !update.manifest.notes.isEmpty {
+                            Text(notes(update.manifest.notes))
+                                .font(.system(size: 12.5))
+                                .lineSpacing(3)
+                                .textSelection(.enabled)
+                        }
+                    } else if let error = model.updateError {
+                        Text(error)
+                            .font(.system(size: 12))
+                            .foregroundStyle(.red)
+                            .textSelection(.enabled)
+                    } else {
+                        Text(L.t("update.current", MoltVersion.current))
+                            .font(.system(size: 12.5))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(18)
+            }
+            .frame(minHeight: 220)
+            .background(Color(nsColor: .textBackgroundColor).opacity(0.35))
+
+            Divider()
+
+            HStack(spacing: 9) {
+                if model.isInstallingUpdate {
+                    ProgressView().controlSize(.small)
+                    Text(model.updateStatus)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.secondary)
+                    Text(L.t("update.doNotQuit"))
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.tertiary)
+                } else if let error = model.updateError, model.availableUpdate == nil {
+                    Text(error)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.red)
+                        .lineLimit(2)
+                }
+                Spacer()
+                Button(L.t("update.releasePage")) { model.openUpdatePage() }
+                    .buttonStyle(.link)
+                Button(L.t("update.later")) { model.dismissUpdate() }
+                if model.availableUpdate != nil {
+                    Button(L.t("update.installNow")) { model.installUpdate() }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(model.isInstallingUpdate)
+                        .keyboardShortcut(.defaultAction)
+                }
+            }
+            .padding(16)
+        }
+        .frame(width: 620, height: 480)
+        .interactiveDismissDisabled(model.isInstallingUpdate)
+    }
+
+    private func notes(_ raw: String) -> String {
+        var text = raw.replacingOccurrences(of: "\r\n", with: "\n")
+        text = text.replacingOccurrences(of: #"(?m)^#{1,6}\s*"#, with: "", options: .regularExpression)
+        text = text.replacingOccurrences(of: #"(?m)^\s*[-*]\s+"#, with: "• ", options: .regularExpression)
+        text = text.replacingOccurrences(of: "**", with: "")
+        text = text.replacingOccurrences(of: "`", with: "")
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
 
 private struct UpgradeSheet: View {
     @Environment(AppModel.self) private var model

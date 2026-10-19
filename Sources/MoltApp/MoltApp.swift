@@ -32,6 +32,11 @@ struct MoltApp: App {
                 .disabled(model.automaticCount == 0 || model.upgradeRunning)
             }
             CommandMenu(L.t("app.name")) {
+                Button(L.t("menu.update")) {
+                    Task { await model.checkForUpdates(silent: false) }
+                }
+                .keyboardShortcut("u", modifiers: [.command, .option])
+                Divider()
                 Button(L.t("action.settings")) {
                     NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
                 }

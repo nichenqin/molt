@@ -25,12 +25,16 @@ default.
 | pnpm / Bun | tolerant dependency shapes, registry comparison |
 | Mac App Store | `mas list/outdated` parsing |
 | Sparkle | namespaced appcast fields, channels, minimum OS, delta vs full enclosure, duplicate versions |
+| Cataloged apps | Magpie discovery without Sparkle/CLI, bundle identity vs display name, current/newer/unversioned installs, cask ownership, release failure alongside successful Sparkle checks |
+| Self-update | manifest parsing, newer/current versions, malformed feed, SHA-256 and size verification, atomic CLI replacement with mode restore, app ZIP extraction/version check, bundle swap/rollback helper |
 | Changelogs | Atom parsing, HTML extraction, six-hour cache, request count |
 | Config | missing file defaults, partial document, round-trip, invalid JSON |
 | Cache | TTL, `readIgnoringAge`, HTTP ETag entry, snapshot round-trip |
 | Merge | cask/Sparkle dedupe, custom-over-catalog precedence |
 | Processes | stdout/stderr separation, nonzero exit, timeout termination, streaming events, launch error |
 | CLI | long/short options, `--`, unknown option rejection, query resolution, grouping/table text |
+
+The suite currently has 55 tests in 10 suites (`swift test`).
 
 ## Fixtures and fakes
 

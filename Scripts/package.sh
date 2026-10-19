@@ -61,22 +61,74 @@ if [ ! -d "$APP/Contents/Resources/en.lproj" ]; then
   echo "error: localization resources were not copied into the app bundle" >&2
   exit 1
 fi
-# Local builds are ad-hoc signed. Set CODESIGN_ID for a Developer ID release.
+# Local builds are ad-hoc signed; a Developer ID identity enables hardened
+# runtime signing. Notarisation is opt-in through a keychain profile or Apple
+# API/Apple ID credentials.
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$APP/Contents/Info.plist"
 plutil -lint "$APP/Contents/Info.plist" >/dev/null
 
+SIGNED=0
 if [ -n "${CODESIGN_ID:-}" ]; then
-  codesign --force --deep --options runtime --sign "$CODESIGN_ID" "$APP"
+  codesign --force --options runtime --timestamp --sign "$CODESIGN_ID" "$APP"
+  SIGNED=1
 else
-  codesign --force --deep --sign - "$APP"
+  codesign --force --sign - "$APP"
+fi
+codesign --verify --deep --strict "$APP"
+
+DMG="$DIST/Molt-macos.dmg"
+rm -f "$DMG"
+DMG_ROOT="$DIST/.dmg-root"
+rm -rf "$DMG_ROOT"
+mkdir -p "$DMG_ROOT"
+ditto "$APP" "$DMG_ROOT/Molt.app"
+ln -s /Applications "$DMG_ROOT/Applications"
+hdiutil create -volname "Molt" -srcfolder "$DMG_ROOT" -ov -format UDZO "$DMG" >/dev/null
+rm -rf "$DMG_ROOT"
+if [ "$SIGNED" = "1" ]; then
+  codesign --force --timestamp --sign "$CODESIGN_ID" "$DMG"
 fi
 
-codesign --verify --deep --strict "$APP"
+notarize() {
+  if [ -n "${NOTARY_PROFILE:-}" ]; then
+    xcrun notarytool submit "$1" --keychain-profile "$NOTARY_PROFILE" --wait
+    return
+  fi
+  if [ -n "${APPLE_API_KEY_P8:-}" ] && [ -n "${APPLE_API_KEY_ID:-}" ] && [ -n "${APPLE_API_ISSUER:-}" ]; then
+    KEY="$DIST/.notary-key.p8"
+    printf '%s' "$APPLE_API_KEY_P8" > "$KEY"
+    xcrun notarytool submit "$1" --key "$KEY" --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER" --wait
+    rm -f "$KEY"
+    return
+  fi
+  if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_APP_SPECIFIC_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
+    xcrun notarytool submit "$1" --apple-id "$APPLE_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+    return
+  fi
+  return 1
+}
+
+if [ "$SIGNED" = "1" ] && notarize "$DMG"; then
+  xcrun stapler staple "$DMG"
+  xcrun stapler staple "$APP"
+  spctl --assess --type execute --verbose=2 "$APP"
+  spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
+  echo "Notarised and stapled."
+else
+  if [ "$SIGNED" = "1" ]; then
+    echo "warning: signed but no notarisation credentials; users may see a Gatekeeper prompt." >&2
+  else
+    echo "Ad-hoc signed build (set CODESIGN_ID + notarisation credentials for a public release)."
+  fi
+fi
+
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$DIST/Molt-macos.zip"
 cp "$DIST/molt" "$DIST/molt-cli"
-(cd "$DIST" && shasum -a 256 Molt-macos.zip molt-cli > Molt-macos.zip.sha256)
+(cd "$DIST" && shasum -a 256 Molt-macos.zip Molt-macos.dmg molt-cli > Molt-macos.zip.sha256)
 
 echo "App:  $APP"
 echo "CLI:  $DIST/molt"
+echo "DMG:  $DMG"
 echo "Zip:  $DIST/Molt-macos.zip"
-ls -lh "$DIST/Molt-macos.zip" "$DIST/molt"
+ls -lh "$DIST/Molt-macos.zip" "$DIST/Molt-macos.dmg" "$DIST/molt"

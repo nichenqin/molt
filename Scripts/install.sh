@@ -13,6 +13,7 @@ say() { printf '%s\n' "$*"; }
 fail() { printf 'error: %s\n' "$*" >&2; exit 1; }
 
 if [ "${1:-}" = "--uninstall" ]; then
+  osascript -e 'quit app "Molt"' >/dev/null 2>&1 || true
   rm -rf "/Applications/$APP_NAME" "$HOME/Applications/$APP_NAME" 2>/dev/null || true
   rm -f "/usr/local/bin/$CLI_NAME" "$HOME/.local/bin/$CLI_NAME" 2>/dev/null || true
   say "Removed Molt.app and the molt CLI."
@@ -27,11 +28,19 @@ curl -fsSL "$BASE/Molt-macos.zip.sha256" -o "$TMP/checksums" || fail "Could not 
 curl -fsSL "$BASE/molt-cli" -o "$TMP/molt" || fail "Could not download the CLI."
 chmod +x "$TMP/molt"
 
+EXPECTED_CLI="$(grep ' molt-cli$' "$TMP/checksums" | awk '{print $1}')"
+if [ -n "$EXPECTED_CLI" ]; then
+  ACTUAL_CLI="$(shasum -a 256 "$TMP/molt" | awk '{print $1}')"
+  [ "$EXPECTED_CLI" = "$ACTUAL_CLI" ] || fail "CLI checksum mismatch."
+fi
+
 EXPECTED="$(grep ' Molt-macos.zip$' "$TMP/checksums" | awk '{print $1}')"
 if [ -n "$EXPECTED" ]; then
   ACTUAL="$(shasum -a 256 "$TMP/Molt-macos.zip" | awk '{print $1}')"
   [ "$EXPECTED" = "$ACTUAL" ] || fail "Checksum mismatch."
 fi
+osascript -e 'quit app "Molt"' >/dev/null 2>&1 || true
+
 
 ditto -x -k "$TMP/Molt-macos.zip" "$TMP/extract"
 [ -d "$TMP/extract/$APP_NAME" ] || fail "Archive did not contain $APP_NAME."

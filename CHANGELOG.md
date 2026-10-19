@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- Detect Magpie updates through its bundle ID and official `yetone/magpie-releases` source, including
+  installations without Sparkle metadata or a CLI on PATH. Show versions and GitHub release notes under
+  Apps; unmanaged installations open the release page instead of replacing the running app.
+
+## 0.2.0 — 2026-10-19
+
+The distribution release.
+
+- Website at `nichenqin.github.io/molt` with English and Chinese landing pages, docs, download and release notes.
+- Universal DMG alongside the ZIP, with SHA-256 checksums.
+- In-app self-update: checks the static feed, verifies SHA-256, swaps the app bundle with rollback, and relaunches.
+- `molt update` / `molt update --check` for the CLI, including a Homebrew guard.
+- Static update feed and Homebrew Formula/Cask generated from the release assets.
+- Optional Developer ID signing, hardened runtime, notarisation and stapling in the release pipeline.
+- 55 deterministic tests, including update feed, checksum, atomic CLI replacement, app-swap helpers and cataloged app detection.
+
 ## 0.1.0 — 2026-10-18
 
 Initial release.

@@ -45,6 +45,8 @@ public enum MoltCLI {
                 return try config(parsed, palette: palette)
             case "app", "gui":
                 return try openApp()
+            case "update", "self-update":
+                return try await update(parsed, palette: palette)
             default:
                 throw CLIError("Unknown command “\(parsed.command ?? "")”. Run `molt --help`.")
             }
@@ -348,7 +350,7 @@ public enum MoltCLI {
             (.npm, environment.npm != nil, environment.npm ?? "not installed"),
             (.pnpm, environment.pnpm != nil, environment.pnpm ?? "not installed"),
             (.bun, environment.bun != nil, environment.bun ?? "not installed"),
-            (.app, true, "Sparkle appcasts"),
+            (.app, true, "Sparkle appcasts + cataloged app releases"),
             (.cli, true, "\(ToolCatalog.tools.count) catalog tools"),
             (.mas, environment.mas != nil, environment.mas ?? "not installed"),
             (.custom, !(config?.customTools.isEmpty ?? true), "\(config?.customTools.count ?? 0) configured"),
@@ -442,6 +444,94 @@ public enum MoltCLI {
         return configError == nil ? 0 : 1
     }
 
+    private static func update(_ parsed: ParsedArguments, palette: CLIFormat.Palette) async throws -> Int32 {
+        let service = UpdateService()
+        let available: AvailableUpdate?
+        do {
+            available = try await service.check()
+        } catch {
+            throw CLIError("Could not check for updates: \(error.localizedDescription)")
+        }
+
+        guard let available else {
+            if parsed.flag("json") {
+                struct Payload: Codable {
+                    var current: String
+                    var upToDate: Bool
+                }
+                printJSON(Payload(current: MoltVersion.current, upToDate: true))
+            } else {
+                print("Molt \(MoltVersion.current) is up to date.")
+            }
+            return 0
+        }
+
+        if parsed.flag("check") {
+            if parsed.flag("json") {
+                struct Payload: Codable {
+                    var current: String
+                    var latest: String
+                    var notes: String
+                    var pageURL: URL?
+                    var assets: [String: UpdateAsset]
+                }
+                printJSON(
+                    Payload(
+                        current: available.currentVersion,
+                        latest: available.latestVersion,
+                        notes: available.manifest.notes,
+                        pageURL: available.manifest.pageURL,
+                        assets: available.manifest.assets
+                    )
+                )
+            } else {
+                print("Molt \(available.latestVersion) is available (you have \(available.currentVersion)).")
+                print("Download: \(available.manifest.pageURL?.absoluteString ?? MoltLinks.releases.absoluteString)")
+            }
+            return 0
+        }
+
+        guard let asset = available.manifest.cli else {
+            throw CLIError("Release \(available.latestVersion) has no CLI binary.")
+        }
+        if !parsed.flag("json") {
+            print("Updating Molt \(available.currentVersion) → \(available.latestVersion)…")
+        }
+        let data = try await service.download(asset)
+        guard let executable = Bundle.main.executableURL else {
+            throw CLIError("Cannot locate the running molt binary.")
+        }
+        let real = executable.resolvingSymlinksInPath()
+        if real.path.contains("/Cellar/") || real.path.contains("/homebrew/") {
+            throw CLIError("This molt is managed by Homebrew. Use `brew upgrade molt`.")
+        }
+        try CLIUpdater.install(data: data, at: real)
+
+        if parsed.flag("json") {
+            struct Payload: Codable {
+                var current: String
+                var latest: String
+                var installed: Bool
+                var executable: String
+            }
+            printJSON(
+                Payload(
+                    current: available.currentVersion,
+                    latest: available.latestVersion,
+                    installed: true,
+                    executable: real.path
+                )
+            )
+        } else {
+            print(palette.green("Updated to Molt \(available.latestVersion)."))
+            print(palette.dim("The next invocation uses the new binary."))
+            if available.manifest.appZip != nil {
+                print(palette.dim("The desktop app has the same update; use “Check for Updates…” in Molt."))
+            }
+        }
+        return 0
+    }
+
     private static func cache(_ parsed: ParsedArguments, palette: CLIFormat.Palette) async throws -> Int32 {
         let cache = DiskCache()
         switch parsed.positionals.first ?? "size" {
@@ -529,6 +619,14 @@ public enum MoltCLI {
             return "usage: molt sources [--json]\n\nLists every source, whether it is enabled, and how it was found."
         case "cache":
             return "usage: molt cache path|size|clear"
+        case "update", "self-update":
+            return """
+                usage: molt update [--check] [--json]
+
+                Checks the release feed and replaces the running molt CLI atomically.
+                The desktop app updates itself from its "Check for Updates…" menu.
+                Homebrew installs should use `brew upgrade molt`.
+                """
         case "config":
             return "usage: molt config path|init|show|edit"
         default:
@@ -544,6 +642,7 @@ public enum MoltCLI {
                   molt doctor [--json]
                   molt cache path|size|clear
                   molt config path|init|show|edit
+                  molt update [--check] [--json]
                   molt app
                   molt version
 
@@ -552,7 +651,7 @@ public enum MoltCLI {
                   npm       global packages via `npm outdated -g --json`
                   pnpm      global packages via `pnpm list -g` + the npm registry
                   bun       global packages in ~/.bun/install/global
-                  app       Sparkle appcasts for .app bundles in Applications
+                  app       Sparkle appcasts + cataloged releases for installed apps
                   cli       curl/installer tools (uv, claude, rustup, rg, …)
                   mas       Mac App Store updates when `mas` is installed
                   custom    tools declared in ~/.config/molt/config.json

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-Hans" data-base="../../">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Molt 文档 — 安装、CLI、来源、更新</title>
+  <meta name="description" content="Molt 文档：安装、CLI 参考、更新来源、自定义工具、自更新、安全与构建。">
+  <link rel="canonical" href="https://nichenqin.github.io/molt/zh/docs/">
+  <link rel="icon" type="image/png" href="../../assets/favicon-64.png">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="../../"><img src="../../assets/icon-256.png" alt="" width="30" height="30"><span>Molt</span></a>
+  <nav class="nav" id="nav">
+    <a href="../../#features">能力</a><a href="../../#sources">来源</a><a href="../../#install">安装</a><a href="./">文档</a><a href="https://github.com/nichenqin/molt/releases">版本</a>
+  </nav>
+  <div class="top-actions">
+    <a class="lang" href="../../docs/">English</a>
+    <a class="github" href="https://github.com/nichenqin/molt" aria-label="GitHub"><svg viewBox="0 0 24 24"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg></a>
+    <a class="button small" href="../../#install">下载</a>
+    <button class="menu-toggle" id="menu-toggle" aria-label="菜单" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main class="wrap docs-page">
+  <a class="docs-back" href="../../">← Molt 首页</a>
+  <h1>文档</h1>
+  <p class="lede">安装 Molt、使用 CLI、添加自己的工具，以及更新 Molt 本体。</p>
+
+  <h2 id="install">安装</h2>
+  <h3>DMG</h3>
+  <p>下载 <a data-download="dmg" href="https://github.com/nichenqin/molt/releases/latest">Molt-macos.dmg</a>，拖入 Applications，打开即可。通用二进制支持 Apple Silicon 与 Intel，需要 macOS 14+。</p>
+  <h3>一行命令</h3>
+  <pre><code>curl -fsSL https://nichenqin.github.io/molt/install.sh | sh</code></pre>
+  <p>安装脚本会下载最新 App 和 CLI、校验 SHA-256、安装到 <code>/Applications</code>（或 <code>~/Applications</code>）与 <code>/usr/local/bin</code>（或 <code>~/.local/bin</code>），并移除 quarantine 属性。</p>
+  <h3>Homebrew</h3>
+  <pre><code>brew tap nichenqin/molt https://github.com/nichenqin/molt
+brew install --cask molt-app
+brew install molt</code></pre>
+  <p>Homebrew 安装的版本用 <code>brew upgrade</code> 更新；Molt 检测到 CLI 由 Homebrew 管理时会提示，而不会自行覆盖。</p>
+
+  <div class="notice"><strong>签名状态。</strong> Developer ID 签名和 Apple 公证已接入发布流水线，但需要 Apple Developer Program 账号，当前公开构建尚未启用。若 macOS 首次拦截，右键 → 打开，或执行 <code>xattr -dr com.apple.quarantine /Applications/Molt.app</code>。</div>
+
+  <h2 id="cli">CLI</h2>
+  <pre><code>molt                       # 扫描并列出
+molt list --json           # 稳定 JSON
+molt list --cached         # 上次快照，不联网
+molt list --source npm     # homebrew npm pnpm bun app cli mas custom
+molt upgrade --all --yes
+molt upgrade cc-switch --dry-run
+molt changelog iina --limit 3
+molt open sqlite
+molt update --check        # 检查 Molt 本体
+molt update                # 原子替换 CLI
+molt doctor --json
+molt cache path|size|clear
+molt config path|init|show|edit</code></pre>
+  <p><code>molt upgrade</code> 会先显示完整 argv。没有 <code>--yes</code> 时在 TTY 上询问一次，在脚本中拒绝执行。只提供下载页的应用不会被静默安装。</p>
+
+  <h2 id="sources">来源</h2>
+  <table>
+    <thead><tr><th>来源</th><th>检测</th><th>升级</th></tr></thead>
+    <tbody>
+      <tr><td>Homebrew</td><td><code>brew outdated --json=v2 --greedy</code></td><td><code>brew upgrade</code></td></tr>
+      <tr><td>npm 全局</td><td><code>npm outdated -g --json</code></td><td><code>npm install -g pkg@latest</code></td></tr>
+      <tr><td>pnpm 全局</td><td><code>pnpm list -g</code> + registry</td><td><code>pnpm add -g pkg@latest</code></td></tr>
+      <tr><td>Bun 全局</td><td><code>~/.bun/install/global</code> + registry</td><td><code>bun add -g pkg@latest</code></td></tr>
+      <tr><td>Sparkle 应用</td><td><code>SUFeedURL</code> appcast</td><td>brew cask，或打开完整下载</td></tr>
+      <tr><td>Mac App Store</td><td><code>mas outdated</code></td><td><code>mas upgrade</code></td></tr>
+      <tr><td>独立工具</td><td>目录 + 版本命令 + latest tag</td><td>自更新，或发布页</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="custom">自定义工具</h2>
+  <p>编辑 <code>~/.config/molt/config.json</code>，支持只写需要的字段：</p>
+  <pre><code>{
+  "disabledSources": ["mas"],
+  "customTools": [
+    {
+      "name": "mytool",
+      "path": "/usr/local/bin/mytool",
+      "versionArgs": ["--version"],
+      "versionRegex": "mytool (\\d+\\.\\d+\\.\\d+)",
+      "github": "acme/mytool",
+      "upgradeArgs": ["mytool", "self-update"]
+    }
+  ]
+}</code></pre>
+  <p><code>upgradeArgs</code> 的第一个元素会被检测到的可执行文件路径替换，其余原样传入。不写则打开发布页。</p>
+
+  <h2 id="updates">更新 Molt 本体</h2>
+  <p>Molt 检查静态 feed：<code>https://nichenqin.github.io/molt/latest.json</code>。有新版本时应用顶部会出现更新条；<em>Molt → 检查更新…</em> 打开更新面板。下载的 ZIP 会按 feed 中的 SHA-256 校验，然后由一个很小的 helper 等待 Molt 退出、带回滚地替换 App 包并重启。</p>
+  <p>CLI 使用同一个 feed：</p>
+  <pre><code>molt update --check
+molt update</code></pre>
+  <p>Homebrew 用户应使用 <code>brew upgrade molt</code> 和 <code>brew upgrade --cask molt-app</code>。如果 App 运行在不可写目录（例如 quarantine translocation 路径），Molt 会拒绝替换。</p>
+
+  <h2 id="security">安全与限制</h2>
+  <ul>
+    <li>无账号、无统计、无常驻进程、不注入 sudo。</li>
+    <li>升级计划是 argv 数组，包名不会被拼进 shell 字符串。</li>
+    <li>更新下载必须 HTTPS，并用 feed 中的 SHA-256 校验。</li>
+    <li>忽略 Sparkle delta 包，使用完整下载。</li>
+    <li>扫描时设置 <code>HOMEBREW_NO_AUTO_UPDATE=1</code>；想立刻拿最新 formula 元数据需自行 <code>brew update</code>。</li>
+    <li>没有 Sparkle feed 或 Homebrew cask 的应用不会被猜测，请按自定义工具声明。</li>
+  </ul>
+
+  <h2 id="build">从源码构建</h2>
+  <pre><code>git clone https://github.com/nichenqin/molt.git
+cd molt
+swift test
+make app
+make install</code></pre>
+  <p>需要 Swift 6 与 macOS 14+。App 和 CLI 共用 <code>MoltCore</code>，无常驻进程，无第三方运行时依赖。</p>
+
+  <p class="fine">MIT © 2026 nichenqin · <a href="https://github.com/nichenqin/molt">GitHub</a></p>
+</main>
+<script src="../../app.js"></script>
+</body>
+</html>

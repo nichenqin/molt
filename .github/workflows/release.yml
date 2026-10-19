@@ -3,6 +3,12 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the v prefix (e.g. 0.2.0)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,17 +16,94 @@ permissions:
 jobs:
   release:
     runs-on: macos-15
+    env:
+      VERSION: ${{ github.event.inputs.version || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Test
         run: swift test
-      - name: Build universal app
-        run: ARCHS=universal VERSION="${GITHUB_REF_NAME#v}" Scripts/package.sh
-      - name: Release
+
+      - name: Import Developer ID certificate
+        env:
+          P12: ${{ secrets.MAC_CERTIFICATE_P12 }}
+          PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+        run: |
+          set -eu
+          if [ -z "${P12:-}" ]; then
+            echo "No MAC_CERTIFICATE_P12 secret: building ad-hoc signed."
+            exit 0
+          fi
+          KEYCHAIN="$RUNNER_TEMP/molt-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 32)"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -P "$PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN" | awk -F'"' '/Developer ID Application/ {print $2; exit}')"
+          [ -n "$IDENTITY" ] || { echo "No Developer ID Application identity found"; exit 1; }
+          echo "CODESIGN_ID=$IDENTITY" >> "$GITHUB_ENV"
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Build, sign, notarise and package
+        env:
+          VERSION: ${{ env.VERSION }}
+          NOTARY_PROFILE: ${{ secrets.NOTARY_PROFILE }}
+          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          VERSION="${VERSION#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          ARCHS=universal VERSION="$VERSION" Scripts/package.sh
+
+      - name: Release notes
+        run: |
+          VERSION="${VERSION#v}"
+          awk -v v="$VERSION" '
+            $0 ~ "^## " v { collecting=1; next }
+            collecting && /^## / { exit }
+            collecting { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          [ -s "$RUNNER_TEMP/notes.md" ] || echo "Release $VERSION" > "$RUNNER_TEMP/notes.md"
+
+      - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          tag_name: v${{ env.VERSION }}
+          name: Molt ${{ env.VERSION }}
+          body_path: ${{ runner.temp }}/notes.md
           files: |
             dist/Molt-macos.zip
+            dist/Molt-macos.dmg
             dist/molt-cli
             dist/Molt-macos.zip.sha256
+
+      - name: Remove signing keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/molt-signing.keychain-db" 2>/dev/null || true
+
+      - name: Update website feed and Homebrew
+        run: |
+          set -eu
+          VERSION="${VERSION#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout -B main origin/main
+          swift Scripts/make-feed.swift "$VERSION" dist site
+          Scripts/update-homebrew.sh "$VERSION" dist
+          cp Scripts/install.sh site/install.sh
+          git add site/latest.json site/install.sh Formula/molt.rb Casks/molt-app.rb
+          if git diff --cached --quiet; then
+            echo "Feed and tap already current."
+          else
+            git commit -m "release: Molt $VERSION feed and Homebrew"
+            git push origin main
+          fi

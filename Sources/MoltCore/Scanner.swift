@@ -178,7 +178,7 @@ public struct Scanner: Sendable {
             NpmGlobalDetector(),
             PnpmGlobalDetector(),
             BunGlobalDetector(),
-            SparkleDetector(),
+            AppUpdateDetector(),
             CLIToolDetector(),
             MacAppStoreDetector(),
             CustomToolDetector(),

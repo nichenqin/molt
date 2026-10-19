@@ -19,6 +19,13 @@ jobs:
         run: swift build -c release
       - name: Test
         run: swift test
+      - name: Lint
+        run: xcrun swift-format lint --recursive Sources Tests
+      - name: Website files
+        run: |
+          test -f site/index.html
+          test -f site/zh/index.html
+          test -f site/latest.json
       - name: Package app
         run: ARCHS=arm64 Scripts/package.sh
       - name: Smoke test
@@ -31,4 +38,5 @@ jobs:
           name: molt-arm64
           path: |
             dist/Molt-macos.zip
+            dist/Molt-macos.dmg
             dist/molt-cli

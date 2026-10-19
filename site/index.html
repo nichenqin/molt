@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en" data-base="./">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Molt — Every update on your Mac, in one place</title>
+  <meta name="description" content="Molt is a native macOS menu-bar app and CLI that finds updates from Homebrew, npm, pnpm, Bun, Sparkle DMG apps, the Mac App Store, and curl-installed tools. Read changelogs and update in one click.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="canonical" href="https://nichenqin.github.io/molt/">
+  <link rel="icon" type="image/png" href="assets/favicon-64.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Molt — Every update. One place.">
+  <meta property="og:description" content="All your macOS updates in one native window and one CLI. Homebrew, npm, Bun, DMG apps, App Store, and curl tools.">
+  <meta property="og:image" content="https://nichenqin.github.io/molt/assets/og.png">
+  <meta property="og:url" content="https://nichenqin.github.io/molt/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="./">
+    <img src="assets/icon-256.png" alt="" width="30" height="30">
+    <span>Molt</span>
+  </a>
+  <nav class="nav" id="nav">
+    <a href="#features">Features</a>
+    <a href="#sources">Sources</a>
+    <a href="#install">Install</a>
+    <a href="docs/">Docs</a>
+    <a href="https://github.com/nichenqin/molt/releases" target="_blank" rel="noreferrer">Releases</a>
+  </nav>
+  <div class="top-actions">
+    <a class="lang" href="zh/" hreflang="zh-Hans">中文</a>
+    <a class="github" href="https://github.com/nichenqin/molt" target="_blank" rel="noreferrer" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.83c.56.1.77-.24.77-.54v-1.9c-3.12.68-3.78-1.33-3.78-1.33-.51-1.3-1.25-1.64-1.25-1.64-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1 1.72 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.49-.28-5.11-1.25-5.11-5.55 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.43.11-2.98 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.63 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.55.23 2.7.11 2.98.72.79 1.16 1.79 1.16 3.02 0 4.31-2.62 5.26-5.12 5.54.4.35.76 1.03.76 2.08v3.08c0 .3.2.65.78.54A11.2 11.2 0 0 0 12 .8Z"/></svg>
+    </a>
+    <a class="button small" href="#install">Download</a>
+    <button class="menu-toggle" id="menu-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="dot"></span> Native macOS 14+ · Universal binary · Open source</div>
+      <h1>Every update.<br><span class="accent">One place.</span></h1>
+      <p class="lede">Molt finds outdated software across Homebrew, global npm, pnpm, Bun, Sparkle-updated DMG apps, the Mac App Store, and the command-line tools you installed with curl. Read the release notes. Update in one click.</p>
+      <div class="hero-actions">
+        <a class="button" data-download="dmg" href="https://github.com/nichenqin/molt/releases/latest">Download for macOS</a>
+        <a class="button ghost" href="docs/">Read the docs</a>
+      </div>
+      <div class="install-line">
+        <code id="install-command">curl -fsSL https://nichenqin.github.io/molt/install.sh | sh</code>
+        <button class="copy" data-copy="#install-command" aria-label="Copy install command">Copy</button>
+      </div>
+      <div class="meta-line">
+        <span>v<span data-latest-version>0.2.0</span></span>
+        <span>MIT licensed</span>
+        <span>No daemon</span>
+        <span>No telemetry</span>
+      </div>
+    </div>
+    <div class="hero-shot">
+      <div class="shot-glow"></div>
+      <img src="assets/screenshot.png" alt="Molt showing Homebrew, npm, Bun and app updates in one window" width="1020" height="700">
+    </div>
+  </section>
+
+  <section class="strip">
+    <div class="wrap strip-inner">
+      <div><strong>8</strong><span>update sources</span></div>
+      <div><strong>1 s</strong><span>typical scan</span></div>
+      <div><strong>7.4 MB</strong><span>universal app</span></div>
+      <div><strong>0</strong><span>background daemons</span></div>
+    </div>
+  </section>
+
+  <section id="features" class="section wrap">
+    <div class="section-head">
+      <div class="eyebrow">Why Molt</div>
+      <h2>Stop checking eight tools before breakfast.</h2>
+      <p>Updaters are fragmented. Molt runs the native sources in parallel, deduplicates what it finds, and gives you one list with a safe update plan per row.</p>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <div class="icon mint">↻</div>
+        <h3>Native, not another Electron app</h3>
+        <p>A SwiftUI window and menu-bar item, with the same core as the CLI. Small binary, fast launch, no web runtime.</p>
+      </article>
+      <article class="card">
+        <div class="icon amber">⚡</div>
+        <h3>One-click where it is safe</h3>
+        <p>Homebrew, npm, pnpm, Bun and <code>mas</code> run their own upgrade commands. Download-only apps open the exact full release file — never a silent bundle replacement.</p>
+      </article>
+      <article class="card">
+        <div class="icon blue">◫</div>
+        <h3>Release notes, not guesswork</h3>
+        <p>GitHub release notes and Sparkle appcast notes are fetched and cached, so you can see what changed before you click update.</p>
+      </article>
+      <article class="card">
+        <div class="icon pink">⌘</div>
+        <h3>A real CLI</h3>
+        <p><code>molt list --json</code>, <code>molt upgrade --all --dry-run</code>, <code>molt changelog iina</code>. Stable IDs and machine-readable output for scripts.</p>
+      </article>
+      <article class="card">
+        <div class="icon violet">◎</div>
+        <h3>Local-first by design</h3>
+        <p>No account, no analytics, no gateway. The last scan is cached for an instant first paint; a failure in one source never blanks the list.</p>
+      </article>
+      <article class="card">
+        <div class="icon green">✓</div>
+        <h3>Extensible without a plugin runtime</h3>
+        <p>Declare a curl-installed tool with a version command, a GitHub repo and an optional self-update command. Molt does the rest.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="sources" class="section alt">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="eyebrow">Coverage</div>
+        <h2>Everything you actually install.</h2>
+        <p>If a manager is not installed, its source is skipped automatically.</p>
+      </div>
+      <div class="source-grid">
+        <div class="source"><span class="source-icon homebrew">H</span><div><h3>Homebrew</h3><p>Formulae and casks, including <code>--greedy</code> auto-updating casks and pinned packages.</p></div><span class="tag">1-click</span></div>
+        <div class="source"><span class="source-icon npm">n</span><div><h3>npm · pnpm · Bun</h3><p>Global packages only, with the registry as the source of truth.</p></div><span class="tag">1-click</span></div>
+        <div class="source"><span class="source-icon sparkle">S</span><div><h3>DMG / Sparkle apps</h3><p>Reads real <code>SUFeedURL</code> appcasts. Honours channels and minimum macOS, ignores delta-only payloads.</p></div><span class="tag">download</span></div>
+        <div class="source"><span class="source-icon mas">A</span><div><h3>Mac App Store</h3><p>When <code>mas</code> is installed, App Store updates join the same list.</p></div><span class="tag">1-click</span></div>
+        <div class="source"><span class="source-icon cli">›_</span><div><h3>curl &amp; installer tools</h3><p>A curated catalog for uv, Claude Code, rustup, ripgrep, gh and more — plus your own declarations.</p></div><span class="tag">self-update</span></div>
+        <div class="source"><span class="source-icon custom">＋</span><div><h3>Your tools</h3><p>One JSON file. Version command, latest-version source, optional upgrade argv.</p></div><span class="tag">custom</span></div>
+      </div>
+      <p class="fine">Apps without a Sparkle feed, Homebrew cask, or explicit bundle-ID catalog entry are not guessed. Cataloged apps such as Magpie use official releases; unmanaged apps open the release page.</p>
+    </div>
+  </section>
+
+  <section class="section wrap split">
+    <div>
+      <div class="eyebrow">One CLI, same core</div>
+      <h2>Scriptable when you want it.</h2>
+      <p>The app and the CLI share every detector, cache and upgrade plan. JSON output is stable; upgrade commands are shown before they run.</p>
+      <pre class="terminal"><span class="prompt">$</span> molt list
+<span class="dim">molt 0.2.0 · just now</span>
+
+<span class="heading">HOMEBREW</span>
+  cc-switch      4.0.14  →  4.0.15  <span class="green">auto</span>
+  sqlite         3.54.0  →  3.54.1  <span class="green">auto</span>
+
+<span class="heading">NPM</span>
+  npm            11.20.0 →  12.2.0  <span class="green">auto</span>
+
+<span class="heading">APPS</span>
+  IINA           1.4.4   →  1.5.0   <span class="cyan">open</span>
+
+<span class="dim">22 updates · 19 one-click · scanned in 0.8s</span></pre>
+      <div class="code-links">
+        <a class="button ghost small" href="docs/#cli">CLI reference</a>
+        <a class="button ghost small" href="https://github.com/nichenqin/molt/blob/main/README.md" target="_blank" rel="noreferrer">README</a>
+      </div>
+    </div>
+    <div class="settings-shot">
+      <img src="assets/settings.png" alt="Molt settings with sources and update options">
+    </div>
+  </section>
+
+  <section id="install" class="section install-section">
+    <div class="wrap install-grid">
+      <div>
+        <div class="eyebrow">Install</div>
+        <h2>Three ways. Pick one.</h2>
+        <p class="muted">macOS 14 Sonoma or newer. Apple Silicon and Intel are both in the universal build.</p>
+      </div>
+      <div class="install-options">
+        <article class="install-card primary">
+          <div class="install-card-head"><h3>Download the app</h3><span class="pill">DMG</span></div>
+          <p>The normal route. Drag Molt into Applications.</p>
+          <a class="button" data-download="dmg" href="https://github.com/nichenqin/molt/releases/latest">Download DMG</a>
+          <div class="small-link">v<span data-latest-version>0.2.0</span> · universal</div>
+        </article>
+        <article class="install-card">
+          <div class="install-card-head"><h3>One-line install</h3><span class="pill">curl</span></div>
+          <p>Installs the app and CLI, verifies SHA-256.</p>
+          <div class="install-line compact"><code>curl -fsSL https://nichenqin.github.io/molt/install.sh | sh</code><button class="copy" data-copy="code" aria-label="Copy">Copy</button></div>
+        </article>
+        <article class="install-card">
+          <div class="install-card-head"><h3>Homebrew</h3><span class="pill">tap</span></div>
+          <p>Homebrew keeps the CLI and cask up to date.</p>
+          <div class="install-line compact vertical"><code>brew tap nichenqin/molt https://github.com/nichenqin/molt
+brew install --cask molt-app
+brew install molt</code><button class="copy" data-copy="code" aria-label="Copy">Copy</button></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap faq-section">
+    <div class="section-head">
+      <div class="eyebrow">Questions</div>
+      <h2>The honest details.</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Is Molt signed and notarized?</summary>
+        <p>Releases are built and checksummed on GitHub Actions. Developer ID signing and Apple notarization are wired into the release pipeline but require an Apple Developer Program membership; until those credentials are provided, macOS may show a Gatekeeper prompt. The installer clears the quarantine flag for you.</p>
+      </details>
+      <details>
+        <summary>Does Molt install updates silently?</summary>
+        <p>No. It runs the package manager's own upgrade command and shows the exact argv first in the CLI. Sparkle apps that are not cask-managed open the full download; Molt never replaces an app bundle behind your back.</p>
+      </details>
+      <details>
+        <summary>Does it need sudo or an account?</summary>
+        <p>No account. Molt never injects sudo. If a Homebrew cask or <code>mas</code> needs elevation, the tool reports its own error. Everything runs as your user.</p>
+      </details>
+      <details>
+        <summary>What about apps installed from a DMG without Sparkle?</summary>
+        <p>Cataloged apps such as Magpie are matched by bundle ID and checked against their official GitHub releases. Other apps can use a custom tool entry if they expose a version command and a GitHub repo or latest-version URL. Homebrew-managed apps are covered by the cask source.</p>
+      </details>
+      <details>
+        <summary>Is there telemetry?</summary>
+        <p>No analytics, no accounts, no background daemon. Network requests go only to the package managers, registries, appcast feeds and GitHub release pages needed for the scan.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <div class="brand"><img src="assets/icon-256.png" alt="" width="26" height="26"><span>Molt</span></div>
+    <div class="footer-links">
+      <a href="docs/">Docs</a>
+      <a href="https://github.com/nichenqin/molt/releases">Releases</a>
+      <a href="https://github.com/nichenqin/molt">GitHub</a>
+      <a href="https://github.com/nichenqin/molt/blob/main/LICENSE">MIT</a>
+      <a href="zh/">中文</a>
+    </div>
+    <div class="fine">© 2026 nichenqin. Built for macOS.</div>
+  </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

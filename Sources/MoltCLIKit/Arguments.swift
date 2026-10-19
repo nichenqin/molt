@@ -27,7 +27,7 @@ public enum ArgumentParser {
 
     private static let flagOptions: Set<String> = [
         "help", "json", "cached", "refresh", "all", "dry-run", "yes",
-        "no-color", "quiet", "version",
+        "no-color", "quiet", "version", "check", "force",
     ]
 
     public static func parse(_ arguments: [String]) -> ParsedArguments {

@@ -8,6 +8,8 @@ Molt 是一个原生菜单栏 / Dock 应用，同时提供 CLI。它会在各个
 Homebrew 的 formula 与 cask、npm / pnpm / Bun 全局包、通过 Sparkle 自更新的 DMG 应用、Mac App Store
 应用，以及用 `curl`、安装脚本或压缩包装出来的命令行工具。可以看更新日志，然后一键或一条命令升级。
 
+**官网：** [nichenqin.github.io/molt](https://nichenqin.github.io/molt/) · **最新版本：** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
+
 ![Molt 截图](docs/screenshot.png)
 
 ## 为什么
@@ -25,20 +27,36 @@ Sparkle 应用只知道自己。Molt 把这些原生数据源并行跑一遍，�
 | pnpm 全局包 | `pnpm list -g` + npm registry | `pnpm add -g <pkg>@latest` | GitHub Releases |
 | Bun 全局包 | `~/.bun/install/global` + registry | `bun add -g <pkg>@latest` | GitHub Releases |
 | Sparkle 应用 | `Info.plist` 的 `SUFeedURL` | cask 管理的走 brew；否则打开完整下载页 | Appcast |
+| 目录内 GitHub 应用 | bundle id 白名单（如 magpie） | brew cask，或打开 release | GitHub Releases |
 | Mac App Store | `mas outdated` | `mas upgrade` | App Store |
 | 独立 CLI 工具 | 内置目录 + `--version` + GitHub latest | 已知自更新命令，否则发布页 | GitHub Releases |
 | 自定义 curl 工具 | JSON 配置 | 你指定的命令 | GitHub Releases |
 
-没有更新源、也没有 Homebrew cask 的应用不会被瞎猜；可以在配置里按“自定义工具”声明。
+没有更新源、没有 Homebrew cask、也没有显式 bundle id 目录项的应用不会被瞎猜；可以在配置里按“自定义工具”声明。
 
 ## 安装
 
+**下载：** [Molt-macos.dmg](https://github.com/nichenqin/molt/releases/latest) — 通用二进制，macOS 14+。
+
+**一行命令：**
+
 ```sh
-curl -fsSL https://raw.githubusercontent.com/nichenqin/molt/main/Scripts/install.sh | sh
+curl -fsSL https://nichenqin.github.io/molt/install.sh | sh
 ```
 
-会安装 `Molt.app` 和 `molt` 命令。应用是 ad-hoc 签名（未 notarize），安装脚本会移除 quarantine。
-卸载：`curl ... | sh -s -- --uninstall`。
+**Homebrew：**
+
+```sh
+brew tap nichenqin/molt https://github.com/nichenqin/molt
+brew install --cask molt-app
+brew install molt
+```
+
+安装脚本会校验 SHA-256，把 App 放入 Applications（或 `~/Applications`），CLI 放入 `/usr/local/bin`
+（或 `~/.local/bin`），并移除 quarantine。卸载：`curl ... | sh -s -- --uninstall`。
+
+当前公开构建是 ad-hoc 签名。Developer ID 签名和 Apple 公证已接入发布流水线，但需要 Apple Developer
+Program 账号；在此之前首次打开可能遇到 Gatekeeper 提示。
 
 从源码构建：
 
@@ -66,10 +84,25 @@ molt doctor --json
 molt cache path|size|clear
 molt config path|init|show|edit
 molt app
+molt update --check
+molt update
 ```
 
 `molt upgrade` 会显示将执行的完整 argv。没有 `--yes` 时会在 TTY 上问一次，在脚本里直接拒绝。只提供
 下载页的应用不会被静默安装。
+
+## 更新 Molt 本体
+
+应用会检查 `https://nichenqin.github.io/molt/latest.json`；**Molt → 检查更新…** 打开更新面板。下载的 ZIP
+会按 feed 中的 SHA-256 校验，然后由一个小 helper 等待 Molt 退出、带回滚地替换 App 包并重启。CLI 使用
+同一个 feed：
+
+```sh
+molt update --check
+molt update
+```
+
+Homebrew 安装请用 `brew upgrade molt` 与 `brew upgrade --cask molt-app`。
 
 ## 自定义工具
 
@@ -131,8 +164,8 @@ flowchart LR
 | 指标 | 结果 |
 | --- | --- |
 | 完整扫描（进程内） | 热缓存 0.8–1.3 秒；冷启动含网络最长约 5 秒 |
-| App / zip | 6.8 MB / 2.6 MB（通用二进制） |
-| CLI | 3.9 MB（通用二进制） |
+| App / zip / DMG | 7.4 MB / 2.8 MB / 3.2 MB（通用二进制） |
+| CLI | 4.4 MB（通用二进制） |
 | CLI `--cached`（含进程启动） | ≈0.7 秒 |
 | App 内存（22 行 + 更新日志） | ≈100–140 MB |
 
@@ -140,6 +173,7 @@ flowchart LR
 
 ## 限制与安全
 
+- 当前公开构建是 ad-hoc 签名。Developer ID 签名 / 公证已接入 release workflow，但需要 Apple Developer Program 账号。
 - 不会注入 sudo。brew / mas 需要提权时，会原样返回其错误。
 - 非 cask 管理的 Sparkle 应用只打开完整下载（忽略 delta 包），Molt 不替换应用包。
 - 更新日志在展示前转成纯文本，脚本和远程图片被丢弃。
@@ -153,9 +187,10 @@ flowchart LR
 swift test
 ```
 
-44 个确定性测试，覆盖版本比较、Homebrew/npm 夹具、Sparkle 频道与 delta/full、Atom 日志、配置默认值、
-缓存 TTL/原子写、去重、参数解析、进程超时、流式升级和输出格式。网络和进程均通过协议注入，测试不访问
-外网。详见 [docs/TESTING.md](docs/TESTING.md)。
+55 个确定性测试，覆盖版本比较、Homebrew/npm 夹具、Sparkle 频道与 delta/full、目录内 GitHub 应用、
+Atom 日志、更新 feed、SHA-256 校验、CLI 原子替换、App bundle 替换、配置默认值、缓存 TTL/原子写、去重、
+参数解析、进程超时、流式升级和输出格式。网络和进程均通过协议注入，测试不访问外网。详见
+[docs/TESTING.md](docs/TESTING.md)。
 
 ## 许可
 
