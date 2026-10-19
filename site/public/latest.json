@@ -2,26 +2,26 @@
   "assets" : {
     "Remige-macos.dmg" : {
       "name" : "Remige-macos.dmg",
-      "sha256" : "b7e7a7c58a119154a602604985ad41cf0d1c1b8fbbbe5c1b104875e4a71f8fa8",
-      "size" : 3300917,
-      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/Remige-macos.dmg"
+      "sha256" : "babbb73b88c31da541a381ee421a9e977a7484376f2a9dfd9c81c5e11e6ead61",
+      "size" : 3363259,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.4.0/Remige-macos.dmg"
     },
     "Remige-macos.zip" : {
       "name" : "Remige-macos.zip",
-      "sha256" : "88e516c624399c19e84bf8d8ff723aafbd810b71b131ef8267fbff547b42fdf6",
-      "size" : 2879644,
-      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/Remige-macos.zip"
+      "sha256" : "b0e6b4774c5c182586937437f56c6dcf4f362c92fdbd564168219aa3c9bde5fe",
+      "size" : 2938925,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.4.0/Remige-macos.zip"
     },
     "remige-cli" : {
       "name" : "remige-cli",
-      "sha256" : "efdfcef078b50526f18dc1d68446b22503a293c8c9486217fa5e297216754e6b",
-      "size" : 4688728,
-      "url" : "https://github.com/nichenqin/remige/releases/download/v0.3.1/remige-cli"
+      "sha256" : "c5a59f253804b9746772ec73ac14bc61105b6d7a8eb2dfdcf657c95dabe59e61",
+      "size" : 4691592,
+      "url" : "https://github.com/nichenqin/remige/releases/download/v0.4.0/remige-cli"
     }
   },
-  "notes" : "- Moved the official website, installer and update feed to `remige.app` (with `www` redirecting to\n  the apex), and pointed the app, CLI, Homebrew files and documentation at the new domain.\n\n- Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled\n  actions stay flat.\n- Rework the main window into a compact native update ledger with consistent typography, spacing,\n  aligned list rows, restrained controls, and a clearer detail inspector (`BUG-4`).\n- Source filter chips now accept clicks across the full chip slot, including the padding and the\n  gaps between chips, and highlight on hover.",
-  "pageURL" : "https://github.com/nichenqin/remige/releases/tag/v0.3.1",
-  "published" : "2026-10-19T02:10:48Z",
+  "notes" : "- The upgrade progress log follows new output while you stay at the bottom, stops following when you\n  scroll up to read earlier lines, and shows a real scrollbar whose thumb reflects the log length\n  (`FEAT-7`).\n\n- Rename the bundle identifier to `app.remige` (reverse DNS of `remige.app`) instead of the\n  personal `com.nichenqin.remige`; the cache directory and preferences domain follow the new\n  identifier, and the Homebrew cask also cleans up the old paths (`FEAT-6`).\n\n- Menu bar rows show the installed-to-available version transition and open that item's detail with\n  its release notes when clicked (`FEAT-3`).\n- Starting an update, either for one item or for everything, now requires an explicit confirmation.\n- Rebuild the website with Astro, Tailwind CSS and framework i18n routing, with English and Chinese\n  pages and locale-matched screenshots (`FEAT-2`).\n- Host the website on Cloudflare Workers static assets instead of Vercel, keeping the build in\n  GitHub Actions and preserving the security headers (`FEAT-5`).\n- Bring the main window to the front when \"Open Remige\" is chosen from the menu bar panel, even\n  when another app is active (`BUG-9`).\n- Download and other non-one-click actions in the detail inspector use the standard bordered button\n  style instead of a low-contrast dark fill, restoring readable text (`BUG-5`).\n- The detail inspector uses a white reading surface with light-gray cards instead of a gray canvas,\n  so opened items no longer render on the legacy window background (`BUG-6`).\n- Website feature icons render at 24×24 in the accent color instead of filling their cards\n  (`BUG-7`).\n- Install cards share one baseline for their action rows, lining up the DMG button, the curl\n  command and both Copy buttons (`BUG-8`).\n- Add an 18-second product teaser to the press page, press kit, and README.\n- Nested `/docs` pages are included in the static site build again; the root-only ignore rule no\n  longer hides `site/docs`.\n- Homebrew formula and cask release URLs interpolate `#{version}`, keeping `brew audit` clean and\n  the download path in sync with the version field.\n- Add public changelog, privacy, security, support, and press pages to the Astro site in English and\n  Chinese, with sitemap entries and header/footer navigation.\n- Add `SECURITY.md`, private vulnerability reporting, issue and PR templates, and enable GitHub Discussions.\n- Add Help menu entries for the website, changelog, issue tracker, and privacy page.\n- Add security headers to the website deployment and a `/.well-known/security.txt` contact file.\n- Add Homebrew `livecheck` blocks and a cask `zap` cleanup list; audit the cask and formula.\n- Point the GitHub repository homepage at `https://remige.app` instead of the old Vercel URL.",
+  "pageURL" : "https://github.com/nichenqin/remige/releases/tag/v0.4.0",
+  "published" : "2026-10-19T05:14:02Z",
   "schema" : 1,
-  "version" : "0.3.1"
+  "version" : "0.4.0"
 }

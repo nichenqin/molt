@@ -1,6 +1,6 @@
 cask "remige-app" do
-  version "0.3.1"
-  sha256 "b7e7a7c58a119154a602604985ad41cf0d1c1b8fbbbe5c1b104875e4a71f8fa8"
+  version "0.4.0"
+  sha256 "babbb73b88c31da541a381ee421a9e977a7484376f2a9dfd9c81c5e11e6ead61"
 
   url "https://github.com/nichenqin/remige/releases/download/v#{version}/Remige-macos.dmg"
   name "Remige"

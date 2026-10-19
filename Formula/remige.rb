@@ -2,8 +2,8 @@ class Remige < Formula
   desc "Every macOS update in one place: brew, npm, apps, and CLI tools"
   homepage "https://remige.app/"
   url "https://github.com/nichenqin/remige/releases/download/v#{version}/remige-cli"
-  version "0.3.1"
-  sha256 "efdfcef078b50526f18dc1d68446b22503a293c8c9486217fa5e297216754e6b"
+  version "0.4.0"
+  sha256 "c5a59f253804b9746772ec73ac14bc61105b6d7a8eb2dfdcf657c95dabe59e61"
   license "MIT"
 
   livecheck do
