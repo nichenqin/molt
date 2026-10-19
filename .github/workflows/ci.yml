@@ -69,3 +69,5 @@ jobs:
           test -f site/dist/zh/changelog/index.html
           test -f site/dist/.well-known/security.txt
           test -f site/dist/install.sh
+      - name: Validate Worker bundle
+        run: npm exec --prefix site -- wrangler deploy --dry-run --outdir "$RUNNER_TEMP/worker"
