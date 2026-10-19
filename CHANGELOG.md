@@ -19,6 +19,8 @@
   page, and a matching version sequence.
 - Close the menu bar panel when "Open Remige" or "Update All" opens the main window, instead of
   leaving the panel covering the window it just opened.
+- Menu bar popup rows, the refresh button and footer actions now show hover feedback; disabled
+  actions stay flat.
 
 ## 0.2.0 — 2026-10-19
 
