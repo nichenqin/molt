@@ -5,7 +5,7 @@ cask "molt-app" do
   url "https://github.com/nichenqin/molt/releases/download/v0.2.0/Molt-macos.dmg"
   name "Molt"
   desc "Every update in one place"
-  homepage "https://nichenqin.github.io/molt/"
+  homepage "https://molt-site-five.vercel.app/"
 
   auto_updates true
   depends_on macos: :sonoma

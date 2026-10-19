@@ -149,7 +149,7 @@ After a successful batch, the app rescans; the CLI does not, so scripts can deci
 
 ## Distribution and self-update
 
-The website is a static GitHub Pages deployment of `site/`; there is no server component. A release writes
+The website is a static Vercel deployment of `site/`; there is no server component. A release writes
 `site/latest.json` with the version, release notes, and SHA-256/size for the ZIP, DMG and CLI. Both the app
 and CLI read that one manifest.
 

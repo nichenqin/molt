@@ -7,15 +7,16 @@ has `molt update`; both read the same static feed.
 
 | Thing | URL |
 | --- | --- |
-| Website | https://nichenqin.github.io/molt/ |
-| Update feed | https://nichenqin.github.io/molt/latest.json |
-| Installer | https://nichenqin.github.io/molt/install.sh |
+| Website | https://molt-site-five.vercel.app/ |
+| Update feed | https://molt-site-five.vercel.app/latest.json |
+| Installer | https://molt-site-five.vercel.app/install.sh |
 | Releases | https://github.com/nichenqin/molt/releases |
 | Homebrew tap | `brew tap nichenqin/molt https://github.com/nichenqin/molt` |
 
-The website is a static site in `site/`, deployed by `.github/workflows/pages.yml`. The release workflow
-writes `site/latest.json`, `Formula/molt.rb`, and `Casks/molt-app.rb`, commits them to `main`, and the Pages
-workflow redeploys. There is no server and no database.
+The website is the static `site/` directory, connected to the Vercel project `molt-site` for automatic
+deployment from `main`. The release workflow writes `site/latest.json`, `Formula/molt.rb`, and
+`Casks/molt-app.rb` and commits them to `main`; Vercel redeploys the site from that push. There is no server
+and no database.
 
 ## Accounts and money
 
@@ -35,11 +36,10 @@ first launch still depends on the user's settings.
 
 ### Optional
 
-- **Custom domain** — about $10–20/year. The site is fully usable on `nichenqin.github.io/molt`. A domain
-  such as `molt.app` only requires changing `MoltLinks.website` / `configuredFeed`, the site canonical/OG
-  URLs, and adding `site/CNAME`; GitHub Pages and Cloudflare are free.
-- **Cloudflare account** — free; only needed if you replace GitHub Pages with a Worker for dynamic
-  download/update endpoints or a CDN mirror.
+- **Custom domain** — about $10–20/year. The site is fully usable on `molt-site-five.vercel.app`. A domain
+  such as `molt.nichenqin.com` only requires changing `MoltLinks.website` / `configuredFeed`, the site
+  canonical/OG URLs, and adding the domain in Vercel; Vercel is free.
+- **CDN or worker** — optional; the static Vercel deployment is enough for downloads and the update feed.
 - **Apple notarization** is included in the Developer Program; no separate fee.
 - **GitHub Actions** — public repositories get free minutes; no payment needed for this workload.
 
@@ -125,7 +125,7 @@ the feed and Homebrew files on `main`, and the Pages workflow redeploys the site
 codesign -dv --verbose=4 /Applications/Molt.app
 spctl -a -vv /Applications/Molt.app
 shasum -a 256 Molt-macos.zip Molt-macos.dmg molt-cli
-curl -fsSL https://nichenqin.github.io/molt/latest.json
+curl -fsSL https://molt-site-five.vercel.app/latest.json
 molt update --check
 ```
 

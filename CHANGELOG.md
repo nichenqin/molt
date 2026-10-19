@@ -10,7 +10,7 @@
 
 The distribution release.
 
-- Website at `nichenqin.github.io/molt` with English and Chinese landing pages, docs, download and release notes.
+- Website at `molt-site-five.vercel.app` with English and Chinese landing pages, docs, download and release notes.
 - Universal DMG alongside the ZIP, with SHA-256 checksums.
 - In-app self-update: checks the static feed, verifies SHA-256, swaps the app bundle with rollback, and relaunches.
 - `molt update` / `molt update --check` for the CLI, including a Homebrew guard.

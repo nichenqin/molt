@@ -9,7 +9,7 @@ lives: Homebrew formulae and casks, global npm/pnpm/Bun packages, Sparkle-update
 apps, and standalone tools installed by `curl`, installers, or tarballs. Read release notes, then update
 with one click or one command.
 
-**Website:** [nichenqin.github.io/molt](https://nichenqin.github.io/molt/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
+**Website:** [molt-site-five.vercel.app](https://molt-site-five.vercel.app/) · **Latest release:** [GitHub Releases](https://github.com/nichenqin/molt/releases/latest)
 
 **中文说明:** [README.zh-CN.md](README.zh-CN.md)
 
@@ -49,7 +49,7 @@ them as a custom tool if they have a version command and a GitHub repo or latest
 **One line:**
 
 ```sh
-curl -fsSL https://nichenqin.github.io/molt/install.sh | sh
+curl -fsSL https://molt-site-five.vercel.app/install.sh | sh
 ```
 
 **Homebrew:**
@@ -129,7 +129,7 @@ stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrad
 
 ## Updating Molt
 
-The app checks `https://nichenqin.github.io/molt/latest.json`; **Molt → Check for Updates…** shows the sheet.
+The app checks `https://molt-site-five.vercel.app/latest.json`; **Molt → Check for Updates…** shows the sheet.
 The update ZIP is verified against the feed's SHA-256, then a small helper waits for Molt to exit, swaps the
 app bundle with rollback, and relaunches it. The CLI uses the same feed:
 

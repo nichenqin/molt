@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nichenqin.github.io/molt/sitemap.xml
+Sitemap: https://molt-site-five.vercel.app/sitemap.xml

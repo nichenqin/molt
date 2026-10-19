@@ -20,7 +20,7 @@ mkdir -p Formula Casks
 cat > Formula/molt.rb <<EOF
 class Molt < Formula
   desc "Every macOS update in one place: brew, npm, apps, and CLI tools"
-  homepage "https://nichenqin.github.io/molt/"
+  homepage "https://molt-site-five.vercel.app/"
   url "$BASE/molt-cli"
   version "$VERSION"
   sha256 "$CLI_SHA"
@@ -44,7 +44,7 @@ cask "molt-app" do
   url "$BASE/Molt-macos.dmg"
   name "Molt"
   desc "Every update in one place"
-  homepage "https://nichenqin.github.io/molt/"
+  homepage "https://molt-site-five.vercel.app/"
 
   auto_updates true
   depends_on macos: :sonoma

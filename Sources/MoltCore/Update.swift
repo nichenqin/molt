@@ -71,9 +71,9 @@ public struct AvailableUpdate: Sendable {
 public enum MoltLinks {
     public static let repository = URL(string: "https://github.com/nichenqin/molt")!
     public static let releases = URL(string: "https://github.com/nichenqin/molt/releases")!
-    public static let website = URL(string: "https://nichenqin.github.io/molt/")!
-    public static let feed = URL(string: "https://nichenqin.github.io/molt/latest.json")!
-    public static let installScript = URL(string: "https://nichenqin.github.io/molt/install.sh")!
+    public static let website = URL(string: "https://molt-site-five.vercel.app/")!
+    public static let feed = URL(string: "https://molt-site-five.vercel.app/latest.json")!
+    public static let installScript = URL(string: "https://molt-site-five.vercel.app/install.sh")!
 
     public static var configuredFeed: URL {
         if let raw = ProcessInfo.processInfo.environment["MOLT_UPDATE_FEED"],

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Molt Docs — Install, CLI, sources, updates</title>
   <meta name="description" content="Molt documentation: install, CLI reference, update sources, custom tools, self-update, security and build instructions.">
-  <link rel="canonical" href="https://nichenqin.github.io/molt/docs/">
+  <link rel="canonical" href="https://molt-site-five.vercel.app/docs/">
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="../styles.css">
 </head>
@@ -32,7 +32,7 @@
   <h3>DMG</h3>
   <p>Download <a data-download="dmg" href="https://github.com/nichenqin/molt/releases/latest">Molt-macos.dmg</a>, drag Molt into Applications, then open it. The DMG is universal (Apple Silicon and Intel) and requires macOS 14+.</p>
   <h3>One-line installer</h3>
-  <pre><code>curl -fsSL https://nichenqin.github.io/molt/install.sh | sh</code></pre>
+  <pre><code>curl -fsSL https://molt-site-five.vercel.app/install.sh | sh</code></pre>
   <p>The installer downloads the latest app and CLI, verifies SHA-256, installs the app to <code>/Applications</code> (or <code>~/Applications</code>) and the CLI to <code>/usr/local/bin</code> (or <code>~/.local/bin</code>), and removes the quarantine flag.</p>
   <h3>Homebrew</h3>
   <pre><code>brew tap nichenqin/molt https://github.com/nichenqin/molt
@@ -91,7 +91,7 @@ molt config path|init|show|edit</code></pre>
   <p>In <code>upgradeArgs</code>, the first element is replaced by the detected executable path and the rest is passed through. Omit it to make the row open the release page.</p>
 
   <h2 id="updates">Updating Molt</h2>
-  <p>Molt checks the static feed at <code>https://nichenqin.github.io/molt/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Molt → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Molt to quit, swaps the app bundle with rollback, and relaunches it.</p>
+  <p>Molt checks the static feed at <code>https://molt-site-five.vercel.app/latest.json</code>. When a newer version exists, the app shows an update banner; <em>Molt → Check for Updates…</em> opens the update sheet. The downloaded ZIP is verified against the feed's SHA-256, then a tiny helper waits for Molt to quit, swaps the app bundle with rollback, and relaunches it.</p>
   <p>The CLI uses the same feed:</p>
   <pre><code>molt update --check
 molt update</code></pre>
