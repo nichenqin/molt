@@ -24,6 +24,8 @@ final class AppModel {
     var upgradeRunning = false
     var upgradeLog = ""
     var toast: String?
+    var updateHistory: [UpdateHistoryEntry] = []
+    var showHistorySheet = false
 
     var availableUpdate: AvailableUpdate?
     var showUpdateSheet = false
@@ -43,9 +45,12 @@ final class AppModel {
     private let scanner = RemigeCore.Scanner()
     private let configStore = ConfigStore()
     private let cache = DiskCache()
+    private let historyStore = UpdateHistoryStore()
     private let upgradeService = UpgradeService()
     private var scanTask: Task<Void, Never>?
     private var upgradeTask: Task<Void, Never>?
+    private var upgradeTargets: [OutdatedItem] = []
+    private var recordedHistoryIDs: Set<String> = []
 
     struct PendingUpgrade: Identifiable {
         let id = UUID()
@@ -57,6 +62,10 @@ final class AppModel {
 
     init() {
         loadConfig()
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            updateHistory = await historyStore.load()
+        }
         scanTask = Task { [weak self] in
             guard let self else { return }
             if let cached = await scanner.cachedSnapshot() {
@@ -251,6 +260,8 @@ final class AppModel {
         upgradeTitle = title
         upgradeLog = ""
         upgradeResults = []
+        upgradeTargets = targets
+        recordedHistoryIDs = []
         showUpgradeSheet = true
         upgradeRunning = true
         upgradeTask = Task { [weak self] in
@@ -267,6 +278,11 @@ final class AppModel {
                         appendLog(text)
                     case .finished(let result):
                         upgradeResults.append(result)
+                        recordHistory(
+                            for: item,
+                            status: result.success ? .success : .failed,
+                            message: result.message
+                        )
                         appendLog(
                             result.success
                                 ? "\n✓ \(result.name)\n" : "\n✗ \(result.name): \(result.message ?? "failed")\n")
@@ -274,6 +290,7 @@ final class AppModel {
                 }
             }
             upgradeRunning = false
+            upgradeTargets = []
             if upgradeResults.contains(where: \.success) {
                 await refresh(force: false)
             }
@@ -281,9 +298,39 @@ final class AppModel {
     }
 
     func cancelUpgrade() {
+        guard upgradeRunning else { return }
         upgradeTask?.cancel()
+        for item in upgradeTargets where !recordedHistoryIDs.contains(item.id) {
+            recordHistory(for: item, status: .cancelled, message: L.t("history.cancelled.message"))
+        }
         upgradeRunning = false
         appendLog("\n" + L.t("upgrade.cancelled") + "\n")
+    }
+
+    private func recordHistory(
+        for item: OutdatedItem,
+        status: UpdateHistoryStatus,
+        message: String?
+    ) {
+        guard recordedHistoryIDs.insert(item.id).inserted else { return }
+        let entry = UpdateHistoryEntry(
+            itemID: item.id,
+            name: item.displayName,
+            source: item.source,
+            fromVersion: historyVersion(item.currentVersion),
+            toVersion: historyVersion(item.latestVersion),
+            status: status,
+            message: message
+        )
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            updateHistory = await historyStore.append(entry)
+        }
+    }
+
+    private func historyVersion(_ value: String) -> String? {
+        let version = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return version.isEmpty || version == "?" ? nil : version
     }
 
     func closeUpgradeSheet() {
@@ -451,10 +498,31 @@ final class AppModel {
                         targetApp: target
                     )
                 }.value
+                updateHistory = await historyStore.append(
+                    UpdateHistoryEntry(
+                        itemID: "remige-self",
+                        name: "Remige",
+                        source: .app,
+                        fromVersion: historyVersion(update.currentVersion),
+                        toVersion: historyVersion(update.latestVersion),
+                        status: .success
+                    )
+                )
                 NSApp.terminate(nil)
             } catch {
                 isInstallingUpdate = false
                 updateError = error.localizedDescription
+                updateHistory = await historyStore.append(
+                    UpdateHistoryEntry(
+                        itemID: "remige-self",
+                        name: "Remige",
+                        source: .app,
+                        fromVersion: historyVersion(update.currentVersion),
+                        toVersion: historyVersion(update.latestVersion),
+                        status: .failed,
+                        message: error.localizedDescription
+                    )
+                )
             }
         }
     }

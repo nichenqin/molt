@@ -151,6 +151,10 @@ in scripts. Download-only apps open their release page; they are never installed
 stable `id`, `source`, `kind`, versions, repo/changelog metadata, and an `upgrade` plan (`command`,
 `openURL`, or `manual`).
 
+The macOS app also records completed, failed, and cancelled updates in a separate atomic JSON history file under
+`~/.config/remige/update-history.json`. **Recent Updates** shows the app name, update time, result, and the
+captured installed → target versions; an empty history is not inferred from the current scan.
+
 ## Updating Remige
 
 The app checks `https://remige.app/latest.json`; **Remige → Check for Updates…** shows the sheet.

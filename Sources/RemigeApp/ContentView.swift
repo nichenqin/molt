@@ -27,6 +27,10 @@ struct ContentView: View {
             UpgradeSheet()
                 .environment(model)
         }
+        .sheet(isPresented: $model.showHistorySheet) {
+            UpdateHistorySheet()
+                .environment(model)
+        }
         .sheet(isPresented: $model.showUpdateSheet) {
             UpdateSheet()
                 .environment(model)
@@ -99,6 +103,15 @@ private struct HeaderView: View {
             .help(L.t("action.refresh"))
             .disabled(model.isRefreshing)
 
+            Button {
+                model.showHistorySheet = true
+            } label: {
+                Label(L.t("action.history"), systemImage: "clock.arrow.circlepath")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(.bordered)
+            .controlSize(.small)
+            .help(L.t("history.title"))
             SettingsLink {
                 Image(systemName: "gearshape")
                     .frame(width: 20, height: 20)
@@ -835,6 +848,114 @@ private struct UpdateSheet: View {
         text = text.replacingOccurrences(of: "**", with: "")
         text = text.replacingOccurrences(of: "`", with: "")
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+}
+
+private struct UpdateHistorySheet: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Label(L.t("history.title"), systemImage: "clock.arrow.circlepath")
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+                Spacer()
+                Button(L.t("action.close")) { model.showHistorySheet = false }
+                    .keyboardShortcut(.cancelAction)
+            }
+            .padding(18)
+
+            Divider()
+
+            if model.updateHistory.isEmpty {
+                ContentUnavailableView {
+                    Label(L.t("history.empty.title"), systemImage: "clock.arrow.circlepath")
+                } description: {
+                    Text(L.t("history.empty.body"))
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(model.updateHistory) { entry in
+                            UpdateHistoryRow(entry: entry)
+                            Divider().padding(.leading, 18)
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: 620, height: 500)
+    }
+}
+
+private struct UpdateHistoryRow: View {
+    let entry: UpdateHistoryEntry
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: statusSymbol)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(statusColor)
+                .frame(width: 24)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(entry.name)
+                    .font(.system(size: 13, weight: .semibold))
+                    .lineLimit(1)
+                HStack(spacing: 6) {
+                    Text(L.source(entry.source))
+                    Text("·")
+                    Text(entry.versionLine)
+                        .font(.system(.caption, design: .monospaced))
+                }
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                if let message = entry.message, !message.isEmpty, entry.status != .success {
+                    Text(message)
+                        .font(.system(size: 10.5))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+
+            Spacer(minLength: 12)
+
+            VStack(alignment: .trailing, spacing: 3) {
+                Text(statusTitle)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(statusColor)
+                Text(L.relative(entry.date))
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
+    }
+
+    private var statusSymbol: String {
+        switch entry.status {
+        case .success: "checkmark.circle.fill"
+        case .failed: "exclamationmark.triangle.fill"
+        case .cancelled: "xmark.circle.fill"
+        }
+    }
+
+    private var statusColor: Color {
+        switch entry.status {
+        case .success: .green
+        case .failed: .orange
+        case .cancelled: .secondary
+        }
+    }
+
+    private var statusTitle: String {
+        switch entry.status {
+        case .success: L.t("history.status.success")
+        case .failed: L.t("history.status.failed")
+        case .cancelled: L.t("history.status.cancelled")
+        }
     }
 }
 

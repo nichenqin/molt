@@ -20,6 +20,15 @@
 "action.homepage" = "Homepage";
 "action.copied" = "Copied";
 "action.cancel" = "Cancel";
+"action.close" = "Close";
+"action.history" = "Recent Updates";
+"history.title" = "Recent Updates";
+"history.empty.title" = "No recent updates";
+"history.empty.body" = "Updates run by Remige will appear here with their version changes.";
+"history.status.success" = "Updated";
+"history.status.failed" = "Failed";
+"history.status.cancelled" = "Cancelled";
+"history.cancelled.message" = "Update cancelled before it finished.";
 "filter.all" = "All";
 "source.homebrew" = "Homebrew";
 "source.npm" = "npm";

@@ -47,6 +47,10 @@ CommandRunning / HTTPGetting (protocols)
    ChangelogService      JSON / table
           │
    GitHub Atom / appcast
+
+   Upgrade runner ──► UpdateHistoryStore (atomic JSON)
+                              │
+                       Recent Updates sheet
 ```
 
 ## Invariants
@@ -68,6 +72,9 @@ CommandRunning / HTTPGetting (protocols)
    the same executable path.
 7. **The cache is disposable.** Every file is JSON with a timestamp and is written atomically. Deleting the
    cache only costs one fresh scan.
+8. **Update history is durable and truthful.** The app records one result per attempted item, including failures and
+   cancellations, before showing it in **Recent Updates**. It keeps the captured versions separate from scan state
+   and sorts newest entries first.
 
 ## Detector contract
 

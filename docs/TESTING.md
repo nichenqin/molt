@@ -30,6 +30,7 @@ default.
 | Changelogs | Atom parsing, HTML extraction, six-hour cache, request count |
 | Config | missing file defaults, partial document, round-trip, invalid JSON |
 | Cache | TTL, `readIgnoringAge`, HTTP ETag entry, snapshot round-trip |
+| Update history | durable JSON round-trip, newest-first ordering, version transitions, failure and cancellation details |
 | Merge | cask/Sparkle dedupe, custom-over-catalog precedence |
 | Processes | stdout/stderr separation, nonzero exit, timeout termination, streaming events, launch error |
 | CLI | long/short options, `--`, unknown option rejection, query resolution, grouping/table text |

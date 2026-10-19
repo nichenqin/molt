@@ -104,6 +104,21 @@ struct MenuBarView: View {
 
                 Button {
                     MenuBarPanel.dismiss()
+                    model.showHistorySheet = true
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "main")
+                } label: {
+                    Label(L.t("action.history"), systemImage: "clock.arrow.circlepath")
+                        .font(.system(size: 12))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 7)
+                }
+                .buttonStyle(.plain)
+                .hoverHighlight(cornerRadius: 6, horizontalInset: 6, verticalInset: 1)
+
+                Button {
+                    MenuBarPanel.dismiss()
                     NSApp.activate(ignoringOtherApps: true)
                     openWindow(id: "main")
                 } label: {

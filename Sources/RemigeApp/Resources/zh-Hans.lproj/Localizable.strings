@@ -20,6 +20,15 @@
 "action.homepage" = "主页";
 "action.copied" = "已复制";
 "action.cancel" = "取消";
+"action.close" = "关闭";
+"action.history" = "最近更新";
+"history.title" = "最近更新";
+"history.empty.title" = "暂无最近更新";
+"history.empty.body" = "Remige 执行过的更新会显示在这里，并保留版本变化。";
+"history.status.success" = "已更新";
+"history.status.failed" = "失败";
+"history.status.cancelled" = "已取消";
+"history.cancelled.message" = "更新在完成前被取消。";
 "filter.all" = "全部";
 "source.homebrew" = "Homebrew";
 "source.npm" = "npm";

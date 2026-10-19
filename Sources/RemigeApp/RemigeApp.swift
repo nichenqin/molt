@@ -26,6 +26,12 @@ struct RemigeApp: App {
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(model.isRefreshing)
 
+                Button(L.t("action.history")) {
+                    model.showHistorySheet = true
+                    openWindow(id: "main")
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                .keyboardShortcut("h", modifiers: [.command, .shift])
                 Button(L.t("action.upgradeAll")) {
                     model.upgradeAll()
                     openWindow(id: "main")
