@@ -344,7 +344,7 @@ public enum RemigeCLI {
         let scanner = RemigeCore.Scanner()
         let snapshot = await scanner.scan(options: ScanOptions())
         let item = try CLIQuery.resolve(query, in: snapshot.items)
-        guard let url = item.homepage ?? item.repo?.webURL ?? item.changelogURL else {
+        guard let url = item.homepageURL ?? item.changelogURL else {
             throw CLIError("No homepage recorded for \(item.displayName).")
         }
         let result = await ProcessRunner().run(
