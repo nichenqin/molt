@@ -626,14 +626,22 @@ private struct DetailContent: View {
                 .help(L.t("action.reveal"))
             }
 
+            if let url = item.homepageURL {
+                Button {
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label(L.t("action.homepage"), systemImage: "globe")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .help(url.absoluteString)
+            }
+
             Menu {
                 if item.upgrade.displayCommand != nil {
                     Button(L.t("action.copyCommand")) { model.copyCommand(item) }
                 }
                 Button(L.t("action.copyID")) { model.copyID(item) }
-                if item.homepage != nil || item.repo != nil {
-                    Button(L.t("action.homepage")) { model.openHomepage(item) }
-                }
             } label: {
                 Image(systemName: "ellipsis.circle")
             }

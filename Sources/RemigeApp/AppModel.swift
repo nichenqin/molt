@@ -337,7 +337,7 @@ final class AppModel {
     }
 
     func openHomepage(_ item: OutdatedItem) {
-        if let url = item.homepage ?? item.repo?.webURL {
+        if let url = item.homepageURL {
             NSWorkspace.shared.open(url)
         }
     }

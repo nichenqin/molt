@@ -255,6 +255,12 @@ public struct OutdatedItem: Identifiable, Codable, Hashable, Sendable {
             try container.decodeIfPresent(VersionedInstall.self, forKey: .versionedInstall)
     }
 
+    /// The software's own official page: the homepage the source declares,
+    /// falling back to its repository when no homepage was published.
+    public var homepageURL: URL? {
+        homepage ?? repo?.webURL
+    }
+
     public var versionLine: String { "\(currentVersion) → \(targetVersion)" }
 
     private static func defaultMagnitude(current: String, latest: String) -> UpdateMagnitude {

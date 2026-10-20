@@ -9,6 +9,9 @@
   prompted major updates from Update All and `remige upgrade --all`. `--include-major` overrides the batch
   policy, and `--to <version>` targets one package for that run. `hold` picks the newest same-major version
   where the manager accepts an exact version.
+- The detail inspector has a visible **Homepage** button that opens the item's own official page
+  (its declared homepage, or its repository when none is published). `remige open` resolves the same
+  URL (`FEAT-34`).
 
 - Menu bar "Open Remige" now dismisses the panel before activating and skips status-item toggles when
   the panel is already closed, so the click reliably brings the main window to the front (`BUG-9`).
